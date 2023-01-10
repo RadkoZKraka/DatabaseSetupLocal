@@ -1,6 +1,8 @@
-﻿namespace DatabaseSetupLocal.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class RaceControler
+namespace DatabaseSetupLocal.Controllers;
+
+public class RaceController
 {
     
 }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseSetupLocal.Data;
 
-public class UserContext : DbContext
+public class ShotsContext : DbContext
 {
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
