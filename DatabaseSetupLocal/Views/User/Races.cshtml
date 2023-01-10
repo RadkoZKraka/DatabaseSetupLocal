@@ -1,8 +1,51 @@
-﻿@model TModel
+﻿@model List<Race>
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<h2>@ViewBag.User.UserName</h2>
+<h2>@Model.First().RaceYear</h2>
+
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(Model => Model.First().RaceNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(Model => Model.First().RaceLocation)
+        </th>
+        <th>
+            @Html.DisplayNameFor(Model => Model.First().Rand)
+        </th>
+        <th>
+            @Html.DisplayNameFor(Model => Model.First().PolePosition)
+        </th>
+
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RaceNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RaceLocation)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rand)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PolePosition)
+            </td>
+
+            <td>
+                @Html.ActionLink("Shots", "Shots", new {userId = ViewBag.User.Id, raceId = item.Id, raceLocation = item.RaceLocation}) |
+            </td>
+
+        </tr>
+    }
+</table>
