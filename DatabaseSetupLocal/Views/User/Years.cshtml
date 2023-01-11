@@ -1,0 +1,24 @@
+﻿@model List<int>
+
+@{
+    ViewBag.Title = ViewBag.User.UserName + " Years";
+    Layout = "_Layout";
+}
+<h2>@ViewBag.User.UserName</h2>
+<h2>Select a year.</h2>
+
+<table>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item)
+            </td>
+            
+            <td>
+                @Html.ActionLink("Races", "Races", new {userId = ViewBag.User.Id, year = item}) |
+            </td>
+
+        </tr>
+    }
+</table>

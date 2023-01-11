@@ -1,12 +1,13 @@
 ﻿@model List<Race>
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Races";
     Layout = "_Layout";
 }
 
 <h2>@ViewBag.User.UserName</h2>
-<h2>@Model.First().RaceYear</h2>
+<h2>@ViewBag.Year</h2>
+<h2>Select a race.</h2>
 
 <table>
     <tr>
@@ -21,6 +22,9 @@
         </th>
         <th>
             @Html.DisplayNameFor(Model => Model.First().PolePosition)
+        </th>
+        <th>
+            @Html.DisplayNameFor(Model => Model.First().Points)
         </th>
 
         <th></th>
@@ -40,6 +44,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PolePosition)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Points)
             </td>
 
             <td>

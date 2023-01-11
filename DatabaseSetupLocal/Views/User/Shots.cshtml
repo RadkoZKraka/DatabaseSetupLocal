@@ -1,12 +1,13 @@
 ﻿@model List<Shot>
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = ViewBag.User.UserName + " Shots";
     Layout = "_Layout";
 }
 
 
 <h2>@ViewBag.User.UserName</h2>
+<h2>@ViewBag.Year</h2>
 <h2>@ViewBag.Location</h2>
 
 <table>
@@ -15,7 +16,7 @@
             <a>Position</a>
         </th>
         <th>
-            @Html.DisplayNameFor(Model => Model[0].Driver)
+            @Html.DisplayNameFor(Model => Model[0].UserDriver)
         </th>
         <th></th>
     </tr>
@@ -27,7 +28,10 @@
                 @i
             </td>
             <td>
-                @Html.DisplayFor(modelItem => Model[i - 1].Driver)
+                @Html.DisplayFor(modelItem => Model[i - 1].UserDriver)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => Model[i - 1].ResultDriver)
             </td>
 
         </tr>

@@ -23,6 +23,7 @@ public class Race
     public string? RaceLocation { get; set; }    
     public int RaceYear { get; set; }
     public int RaceNo { get; set; }
+    public int Points { get; set; }
     public string? Rand { get; set; }
     public string? PolePosition { get; set; }
 }
@@ -33,6 +34,8 @@ public class Shot
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    public string? Driver { get; set; }
+    public string? UserDriver { get; set; }
+    public string? ResultDriver { get; set; }
+    public bool? Result { get; set; }
 
 }

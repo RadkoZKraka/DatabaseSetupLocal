@@ -1,6 +1,11 @@
 ﻿@using DatabaseSetupLocal.Data
 @model List<User>
 
+@{
+    ViewBag.Title = "User List";
+    Layout = "_Layout";
+}
+
 <div>
 
     <table>
@@ -19,7 +24,7 @@
                 </td>
 
                 <td>
-                    @Html.ActionLink("Races", "Races", new {userId = item.Id}) |
+                    @Html.ActionLink("Years", "Years", new {userId = item.Id}) |
                 </td>
             </tr>
         }
