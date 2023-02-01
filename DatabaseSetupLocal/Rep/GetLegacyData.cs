@@ -1,16 +1,23 @@
-﻿using DatabaseSetupLocal.Models;
+﻿using System.Runtime.InteropServices;
+using DatabaseSetupLocal.Models;
 using OfficeOpenXml;
 
 namespace DatabaseSetupLocal.Rep;
 
 public static class GetLegacyData
 {
+    
     public static Dictionary<string, List<Dictionary<string, List<string>>>> GetData()
     {
+        var excelPath = @"/Users/radoslawkrowcki/Documents/F1ShotsTest/Formula1-strzały.xlsx";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            excelPath = @"C:\F1ShotsTest\Formula1-strzały.xlsx";
+        }
         var shots = new Dictionary<string, List<Dictionary<string, List<string>>>>();
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-        using (var package = new ExcelPackage(new FileInfo(@"C:\F1ShotsTest\Formula1-strzały.xlsx")))
+        using (var package = new ExcelPackage(new FileInfo(excelPath)))
         {
             var worksheetLoc = 2;
             for (int i = 0; i < 5; i++)
