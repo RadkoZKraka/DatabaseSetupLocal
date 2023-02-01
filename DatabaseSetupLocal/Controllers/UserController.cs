@@ -33,10 +33,11 @@ public class UserController : Controller
 
         return View(users.ToList());
     }
-    public ActionResult Races(string userId)
+    public ActionResult Races(string userId, int year)
     {
         ViewBag.User = userRepository.GetUserByID(userId);
-        var races = userRepository.GetUserRacesByID(userId);
+        ViewBag.Year = year;
+        var races = userRepository.GetUserRacesByID(userId).Where(x => x.RaceYear == year).ToList();
         if (races == null)
         {
             return HttpNotFound();
@@ -53,6 +54,17 @@ public class UserController : Controller
             return HttpNotFound();
         }
         return View(shots);
+    }
+
+    public ActionResult Years(string userId)
+    {
+        ViewBag.User = userRepository.GetUserByID(userId);
+        var years = userRepository.GetUserRacesByID(userId).Select(x => x.RaceYear).Distinct().ToList();
+        if (years == null)
+        {
+            return HttpNotFound();
+        }
+        return View(years);
     }
 
     private ActionResult HttpNotFound()

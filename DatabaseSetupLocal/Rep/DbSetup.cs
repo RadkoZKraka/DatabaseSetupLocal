@@ -42,7 +42,7 @@ public static class DbSetup
                         var currentShot = new Shot();
                         string result = Regex.Replace(string.IsNullOrEmpty(driver) ? "Empty" : driver.ToUpper(),
                             @"[^a-zA-Z]", "");
-                        currentShot.Driver = result;
+                        currentShot.UserDriver = result;
                         currentRace.Shot.Add(currentShot);
                     }
                 }
