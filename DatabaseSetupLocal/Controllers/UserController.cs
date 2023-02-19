@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Rep;
 using DatabaseSetupLocal.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseSetupLocal.Controllers;
 
@@ -16,15 +17,16 @@ public class UserController : Controller
     public UserController(ILogger<HomeController> logger)
     {
         _logger = logger;
-        this.userRepository = new UserRepository(new ShotsContext());
 
         using (var db = new ShotsContext())
         {
+            db.Database.Migrate();
             if (!db.UserModel.Any())
             {
                 DbSetup.Seed();
             }
         }
+        this.userRepository = new UserRepository(new ShotsContext());
     }
 
     public IActionResult Index()
