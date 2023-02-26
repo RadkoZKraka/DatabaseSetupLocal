@@ -18,7 +18,7 @@ public class UserController : Controller
     {
         _logger = logger;
 
-        using (var db = new ShotsContext())
+        using (var db = new ShotsContextFinal())
         {
             db.Database.Migrate();
             if (!db.UserModel.Any())
@@ -26,7 +26,7 @@ public class UserController : Controller
                 DbSetup.Seed();
             }
         }
-        this.userRepository = new UserRepository(new ShotsContext());
+        this.userRepository = new UserRepository(new ShotsContextFinal());
     }
 
     public IActionResult Index()

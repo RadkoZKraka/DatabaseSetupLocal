@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DatabaseSetupLocal.Migrations
 {
-    [DbContext(typeof(ShotsContext))]
+    [DbContext(typeof(ShotsContextFinal))]
     [Migration("20230103195935_InitialMigration")]
     partial class InitialMigration
     {

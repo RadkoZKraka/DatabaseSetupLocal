@@ -9,10 +9,10 @@ public static class GetLegacyData
     
     public static Dictionary<string, List<Dictionary<string, List<string>>>> GetData()
     {
-        var excelPath = @"/Users/radoslawkrowcki/Documents/F1ShotsTest/Formula1-strzały.xlsx";
+        var excelPath = @"Formula1-strzały.xlsx";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            excelPath = @"C:\F1ShotsTest\Formula1-strzały.xlsx";
+            excelPath = @"Formula1-strzały.xlsx";
         }
         var shots = new Dictionary<string, List<Dictionary<string, List<string>>>>();
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

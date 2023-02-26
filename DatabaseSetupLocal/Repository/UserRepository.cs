@@ -15,9 +15,9 @@ public interface IUserRepository : IDisposable
 }
 public class UserRepository : IUserRepository
 {
-    private ShotsContext context;
+    private ShotsContextFinal context;
 
-    public UserRepository(ShotsContext context)
+    public UserRepository(ShotsContextFinal context)
     {
         this.context = context;
         var races = this.context.RaceModel.ToList();

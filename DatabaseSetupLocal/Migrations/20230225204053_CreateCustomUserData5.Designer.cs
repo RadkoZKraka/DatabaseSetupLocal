@@ -10,43 +10,42 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DatabaseSetupLocal.Migrations
 {
-    [DbContext(typeof(ShotsContext))]
-    [Migration("20230109201700_ShotTableChange7")]
-    partial class ShotTableChange7
+    [DbContext(typeof(ShotsContextFinal))]
+    [Migration("20230225204053_CreateCustomUserData5")]
+    partial class CreateCustomUserData5
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.3");
 
             modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PolePosition")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RaceLocation")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("RaceNo")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RaceYear")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Rand")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -59,14 +58,19 @@ namespace DatabaseSetupLocal.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Driver")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("RaceId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool?>("Result")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ResultDriver")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserDriver")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -79,11 +83,11 @@ namespace DatabaseSetupLocal.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
