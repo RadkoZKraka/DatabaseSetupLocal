@@ -54,7 +54,7 @@ public static class DbSetup
             userList.Add(currentUser);
         }
 
-        using (var context = new ShotsContext())
+        using (var context = new ShotsContextFinal())
         {
             foreach (var user in userList)
             {

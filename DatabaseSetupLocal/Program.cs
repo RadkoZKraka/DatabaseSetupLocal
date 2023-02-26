@@ -7,11 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<F1ShotsUserContext>(options =>
-    options.UseMySql(
-        connectionString: @"server=localhost;database=dbsetupusertest;uid=rkkrowicki;password=Lapis5Redstone9;",
-        ServerVersion.AutoDetect(
-            @"server=localhost;database=dbsetupusertest;uid=rkkrowicki;password=Lapis5Redstone9;")));
+builder.Services.AddDbContext<F1ShotsUserContext>();
+builder.Services.AddDbContext<ShotsContextFinal>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<F1ShotsUser>(options =>
