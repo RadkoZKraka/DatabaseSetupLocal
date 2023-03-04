@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DatabaseSetupLocal.Models;
 
-public class User
+public class UserShots
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -15,12 +15,11 @@ public class User
 
 public class Race
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key] 
     public int Id { get; set; }
 
     public List<Shot> Shot { get; set; }
-    public string? RaceLocation { get; set; }    
+    public string? RaceLocation { get; set; }
     public int RaceYear { get; set; }
     public int RaceNo { get; set; }
     public int Points { get; set; }
@@ -30,12 +29,11 @@ public class Race
 
 public class Shot
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key] 
     public int Id { get; set; }
-
-    public string? UserDriver { get; set; }
+    public string? OwnerId { get; set; }
+    public string? UsersShotDriver { get; set; }
     public string? ResultDriver { get; set; }
     public bool? Result { get; set; }
-
+    
 }

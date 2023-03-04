@@ -1,0 +1,56 @@
+﻿@model List<Shot>
+@using Microsoft.AspNetCore.Identity
+
+
+@{
+    ViewBag.Title = ViewBag.User.UserName + " Shots";
+    Layout = "_Layout";
+}
+
+
+<h2>@ViewBag.User.UserName</h2>
+<h2>@ViewBag.Year</h2>
+<h2>@ViewBag.Location</h2>
+
+<table>
+    <tr>
+        <th>
+            <a>Position</a>
+        </th>
+        <th>
+            @Html.DisplayNameFor(Model => Model[0].UsersShotDriver)
+        </th>
+        <th>
+            @Html.DisplayNameFor(Model => Model[0].ResultDriver)
+        </th>
+        <th>
+            @Html.DisplayNameFor(Model => Model[0].Result)
+        </th>
+        <th></th>
+    </tr>
+
+    @for (var i = 1; i - 1 < Model.Count; i++)
+    {
+        <tr>
+            <td>
+                @i
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => Model[i - 1].UsersShotDriver)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => Model[i - 1].ResultDriver)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => Model[i - 1].Result)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditOneShot", new {shotId = Model[i - 1].Id})|
+            </td>
+        </tr>
+    }
+    
+</table>
+<div>
+    @Html.ActionLink("EditShots", "EditMultipleShots", new { raceId = ViewBag.RaceId}) |
+</div>

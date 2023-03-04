@@ -18,13 +18,13 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
 {
     public class EmailModel : PageModel
     {
-        private readonly UserManager<F1ShotsUser> _userManager;
-        private readonly SignInManager<F1ShotsUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailSender _emailSender;
 
         public EmailModel(
-            UserManager<F1ShotsUser> userManager,
-            SignInManager<F1ShotsUser> signInManager,
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
             IEmailSender emailSender)
         {
             _userManager = userManager;
@@ -74,7 +74,7 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
             public string NewEmail { get; set; }
         }
 
-        private async Task LoadAsync(F1ShotsUser user)
+        private async Task LoadAsync(AppUser user)
         {
             var email = await _userManager.GetEmailAsync(user);
             Email = email;

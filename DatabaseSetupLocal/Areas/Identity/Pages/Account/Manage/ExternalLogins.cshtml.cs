@@ -17,14 +17,14 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
 {
     public class ExternalLoginsModel : PageModel
     {
-        private readonly UserManager<F1ShotsUser> _userManager;
-        private readonly SignInManager<F1ShotsUser> _signInManager;
-        private readonly IUserStore<F1ShotsUser> _userStore;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly IUserStore<AppUser> _userStore;
 
         public ExternalLoginsModel(
-            UserManager<F1ShotsUser> userManager,
-            SignInManager<F1ShotsUser> signInManager,
-            IUserStore<F1ShotsUser> userStore)
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            IUserStore<AppUser> userStore)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -70,7 +70,7 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
                 .ToList();
 
             string passwordHash = null;
-            if (_userStore is IUserPasswordStore<F1ShotsUser> userPasswordStore)
+            if (_userStore is IUserPasswordStore<AppUser> userPasswordStore)
             {
                 passwordHash = await userPasswordStore.GetPasswordHashAsync(user, HttpContext.RequestAborted);
             }

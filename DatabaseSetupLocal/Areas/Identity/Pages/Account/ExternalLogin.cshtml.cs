@@ -24,17 +24,17 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
     {
-        private readonly SignInManager<F1ShotsUser> _signInManager;
-        private readonly UserManager<F1ShotsUser> _userManager;
-        private readonly IUserStore<F1ShotsUser> _userStore;
-        private readonly IUserEmailStore<F1ShotsUser> _emailStore;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IUserStore<AppUser> _userStore;
+        private readonly IUserEmailStore<AppUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
-            SignInManager<F1ShotsUser> signInManager,
-            UserManager<F1ShotsUser> userManager,
-            IUserStore<F1ShotsUser> userStore,
+            SignInManager<AppUser> signInManager,
+            UserManager<AppUser> userManager,
+            IUserStore<AppUser> userStore,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender)
         {
@@ -198,27 +198,27 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private F1ShotsUser CreateUser()
+        private AppUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<F1ShotsUser>();
+                return Activator.CreateInstance<AppUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(F1ShotsUser)}'. " +
-                    $"Ensure that '{nameof(F1ShotsUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(AppUser)}'. " +
+                    $"Ensure that '{nameof(AppUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
             }
         }
 
-        private IUserEmailStore<F1ShotsUser> GetEmailStore()
+        private IUserEmailStore<AppUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<F1ShotsUser>)_userStore;
+            return (IUserEmailStore<AppUser>)_userStore;
         }
     }
 }

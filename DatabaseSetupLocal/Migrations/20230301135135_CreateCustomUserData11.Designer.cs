@@ -3,6 +3,7 @@ using System;
 using DatabaseSetupLocal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations
 {
     [DbContext(typeof(ShotsContext))]
-    partial class ShotsContextFinalModelSnapshot : ModelSnapshot
+    [Migration("20230301135135_CreateCustomUserData11")]
+    partial class CreateCustomUserData11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.3");
@@ -41,12 +44,12 @@ namespace DatabaseSetupLocal.Migrations
                     b.Property<string>("Rand")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserShotsId")
+                    b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserShotsId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("RaceModel");
                 });
@@ -79,7 +82,7 @@ namespace DatabaseSetupLocal.Migrations
                     b.ToTable("ShotModel");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.UserShots", b =>
+            modelBuilder.Entity("DatabaseSetupLocal.Models.User", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -96,9 +99,9 @@ namespace DatabaseSetupLocal.Migrations
 
             modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
                 {
-                    b.HasOne("DatabaseSetupLocal.Models.UserShots", null)
+                    b.HasOne("DatabaseSetupLocal.Models.User", null)
                         .WithMany("Race")
-                        .HasForeignKey("UserShotsId");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("DatabaseSetupLocal.Models.Shot", b =>
@@ -113,7 +116,7 @@ namespace DatabaseSetupLocal.Migrations
                     b.Navigation("Shot");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.UserShots", b =>
+            modelBuilder.Entity("DatabaseSetupLocal.Models.User", b =>
                 {
                     b.Navigation("Race");
                 });

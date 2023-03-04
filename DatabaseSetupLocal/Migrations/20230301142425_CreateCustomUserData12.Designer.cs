@@ -3,6 +3,7 @@ using System;
 using DatabaseSetupLocal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations
 {
     [DbContext(typeof(ShotsContext))]
-    partial class ShotsContextFinalModelSnapshot : ModelSnapshot
+    [Migration("20230301142425_CreateCustomUserData12")]
+    partial class CreateCustomUserData12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.3");

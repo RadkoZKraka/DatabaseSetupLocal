@@ -15,13 +15,13 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account
 {
     public class LoginWithRecoveryCodeModel : PageModel
     {
-        private readonly SignInManager<F1ShotsUser> _signInManager;
-        private readonly UserManager<F1ShotsUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<LoginWithRecoveryCodeModel> _logger;
 
         public LoginWithRecoveryCodeModel(
-            SignInManager<F1ShotsUser> signInManager,
-            UserManager<F1ShotsUser> userManager,
+            SignInManager<AppUser> signInManager,
+            UserManager<AppUser> userManager,
             ILogger<LoginWithRecoveryCodeModel> logger)
         {
             _signInManager = signInManager;

@@ -12,10 +12,10 @@ public static class DbSetup
     public static void Seed()
     {
         var legacyData = GetLegacyData.GetData();
-        var userList = new List<User>();
+        var userList = new List<UserShots>();
         foreach (var user in legacyData)
         {
-            var currentUser = new User();
+            var currentUser = new UserShots();
             currentUser.UserName = user.Key.ToUpper();
             currentUser.Race = new List<Race>();
             var raceNo = 1;
@@ -42,7 +42,7 @@ public static class DbSetup
                         var currentShot = new Shot();
                         string result = Regex.Replace(string.IsNullOrEmpty(driver) ? "Empty" : driver.ToUpper(),
                             @"[^a-zA-Z]", "");
-                        currentShot.UserDriver = result;
+                        currentShot.UsersShotDriver = result;
                         currentRace.Shot.Add(currentShot);
                     }
                 }
@@ -54,7 +54,7 @@ public static class DbSetup
             userList.Add(currentUser);
         }
 
-        using (var context = new ShotsContextFinal())
+        using (var context = new ShotsContext())
         {
             foreach (var user in userList)
             {

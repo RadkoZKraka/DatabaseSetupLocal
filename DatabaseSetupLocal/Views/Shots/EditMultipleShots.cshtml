@@ -1,0 +1,53 @@
+@model Race
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Edit</h2>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <h4>Shots</h4>
+        <hr/>
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.Id)
+        <tr>
+            <th>
+                <a>Position</a>
+            </th>
+            <th>
+                @Html.DisplayNameFor(Model => Model.Shot[0].UsersShotDriver)
+            </th>
+
+        </tr>
+        <br/>
+        @for (var i = 1; i - 1 < Model.Shot.Count; i++)
+        {
+            <tr>
+                <td>
+                    @i
+                </td>
+                <td>
+                    @* @Html.DisplayFor(modelItem => Model.Shot[i - 1].UsersShotDriver) *@
+                    @Html.EditorFor(model => model.Shot[i - 1].UsersShotDriver)
+                    @Html.ValidationMessageFor(model => model.Shot[i - 1].UsersShotDriver)
+                </td>
+            </tr>
+            <br/>
+        }
+
+
+        @*Genre and Price removed for brevity.*@
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default"/>
+            </div>
+        </div>
+    </div>
+}
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>

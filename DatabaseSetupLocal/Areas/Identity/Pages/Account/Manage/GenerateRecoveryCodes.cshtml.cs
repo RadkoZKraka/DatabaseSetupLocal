@@ -15,11 +15,11 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
 {
     public class GenerateRecoveryCodesModel : PageModel
     {
-        private readonly UserManager<F1ShotsUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<GenerateRecoveryCodesModel> _logger;
 
         public GenerateRecoveryCodesModel(
-            UserManager<F1ShotsUser> userManager,
+            UserManager<AppUser> userManager,
             ILogger<GenerateRecoveryCodesModel> logger)
         {
             _userManager = userManager;

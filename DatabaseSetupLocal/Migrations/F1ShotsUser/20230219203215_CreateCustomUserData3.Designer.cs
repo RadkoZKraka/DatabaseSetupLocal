@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DatabaseSetupLocal.Migrations.F1ShotsUser
 {
-    [DbContext(typeof(F1ShotsUserContext))]
+    [DbContext(typeof(UsersContext))]
     [Migration("20230219203215_CreateCustomUserData3")]
     partial class CreateCustomUserData3
     {

@@ -17,9 +17,9 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account
 {
     public class ResetPasswordModel : PageModel
     {
-        private readonly UserManager<F1ShotsUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public ResetPasswordModel(UserManager<F1ShotsUser> userManager)
+        public ResetPasswordModel(UserManager<AppUser> userManager)
         {
             _userManager = userManager;
         }

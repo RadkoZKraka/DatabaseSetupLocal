@@ -15,13 +15,13 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
 {
     public class ChangePasswordModel : PageModel
     {
-        private readonly UserManager<F1ShotsUser> _userManager;
-        private readonly SignInManager<F1ShotsUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly ILogger<ChangePasswordModel> _logger;
 
         public ChangePasswordModel(
-            UserManager<F1ShotsUser> userManager,
-            SignInManager<F1ShotsUser> signInManager,
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
             ILogger<ChangePasswordModel> logger)
         {
             _userManager = userManager;

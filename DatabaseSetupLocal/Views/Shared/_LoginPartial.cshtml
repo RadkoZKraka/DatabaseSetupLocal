@@ -1,10 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using DatabaseSetupLocal.Areas.Identity.Data
-@inject SignInManager<F1ShotsUser> SignInManager
-@inject UserManager<F1ShotsUser> UserManager
+@using DatabaseSetupLocal.Repository
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
 
 <ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User))
+    @if (SignInManager.IsSignedIn(User) )
     {
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>

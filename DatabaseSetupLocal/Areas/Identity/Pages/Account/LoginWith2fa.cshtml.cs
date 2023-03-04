@@ -17,13 +17,13 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account
 {
     public class LoginWith2faModel : PageModel
     {
-        private readonly SignInManager<F1ShotsUser> _signInManager;
-        private readonly UserManager<F1ShotsUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<LoginWith2faModel> _logger;
 
         public LoginWith2faModel(
-            SignInManager<F1ShotsUser> signInManager,
-            UserManager<F1ShotsUser> userManager,
+            SignInManager<AppUser> signInManager,
+            UserManager<AppUser> userManager,
             ILogger<LoginWith2faModel> logger)
         {
             _signInManager = signInManager;

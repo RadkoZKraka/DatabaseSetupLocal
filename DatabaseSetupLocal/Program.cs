@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Areas.Identity.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<F1ShotsUserContext>();
-builder.Services.AddDbContext<ShotsContextFinal>();
+builder.Services.AddDbContext<UsersContext>();
+builder.Services.AddDbContext<ShotsContext>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<F1ShotsUser>(options =>
+
+builder.Services.AddDefaultIdentity<AppUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.Password.RequiredLength = 7;
@@ -19,8 +22,14 @@ builder.Services.AddDefaultIdentity<F1ShotsUser>(options =>
         options.Password.RequireDigit = false;
         options.Password.RequireUppercase = false;
     })
-    .AddEntityFrameworkStores<F1ShotsUserContext>();
-
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<UsersContext>();
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 builder.Services.Configure<IdentityOptions>(options =>
 {
     // Password settings.
@@ -39,6 +48,17 @@ builder.Services.Configure<IdentityOptions>(options =>
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
     options.User.RequireUniqueEmail = false;
 });
+builder.Services.AddControllers(config =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    config.Filters.Add(new AuthorizeFilter(policy));
+});
+
+
+
+
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -55,6 +75,16 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var f1ShotsUserContext = services.GetRequiredService<UsersContext>();
+    f1ShotsUserContext.Database.Migrate();
+    var shotsContext = services.GetRequiredService<ShotsContext>();
+    shotsContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

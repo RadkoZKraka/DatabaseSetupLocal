@@ -3,9 +3,11 @@ using DatabaseSetupLocal.Data;
 using Microsoft.AspNetCore.Mvc;
 using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Rep;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DatabaseSetupLocal.Controllers;
 
+[AllowAnonymous]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

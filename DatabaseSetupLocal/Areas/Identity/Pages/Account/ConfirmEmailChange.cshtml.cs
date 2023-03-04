@@ -16,10 +16,10 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailChangeModel : PageModel
     {
-        private readonly UserManager<F1ShotsUser> _userManager;
-        private readonly SignInManager<F1ShotsUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
 
-        public ConfirmEmailChangeModel(UserManager<F1ShotsUser> userManager, SignInManager<F1ShotsUser> signInManager)
+        public ConfirmEmailChangeModel(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

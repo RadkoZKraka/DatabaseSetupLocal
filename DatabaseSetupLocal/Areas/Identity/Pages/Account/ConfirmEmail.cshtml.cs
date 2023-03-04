@@ -17,9 +17,9 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailModel : PageModel
     {
-        private readonly UserManager<F1ShotsUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public ConfirmEmailModel(UserManager<F1ShotsUser> userManager)
+        public ConfirmEmailModel(UserManager<AppUser> userManager)
         {
             _userManager = userManager;
         }

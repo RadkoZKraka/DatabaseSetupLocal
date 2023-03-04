@@ -23,7 +23,7 @@
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="app" uuid="480ce2f9-2704-4e70-8c51-b43b7f430f4c">
-      <driver-ref>sqlite.xerial</driver-ref>
+      <driver-ref>8ac2dd51-1ce1-4aee-974f-6d1cf6a2f9c7</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/DatabaseSetupLocal/app.db</jdbc-url>
@@ -39,6 +39,13 @@
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/DatabaseSetupLocal/app.db</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="Shots.db" uuid="ccabcfa1-bc35-484f-92e9-eaaaaaa28112">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$USER_HOME$/.local/share/shots.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

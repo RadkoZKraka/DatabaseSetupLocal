@@ -1,5 +1,5 @@
 @using DatabaseSetupLocal.Areas.Identity.Data
-@inject SignInManager<F1ShotsUser> SignInManager
+@inject SignInManager<AppUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
