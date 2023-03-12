@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseSetupLocal.Controllers;
+
 [AllowAnonymous]
 public class ShotsController : Controller
 {
@@ -21,16 +22,11 @@ public class ShotsController : Controller
     public ShotsController(ILogger<HomeController> logger)
     {
         _logger = logger;
-        
-        using (var db = new ShotsContext())
-        {
-            var test = db.RaceModel.ToList();
-            db.Database.Migrate();
-            if (!db.UserModel.Any())
-            {
-                DbSetup.Seed();
-            }
-        }
+
+
+        AppSetup.SeedDb();
+
+        AppSetup.GetDrivers();
 
         this.ShotsRepository = new ShotsRepository(new ShotsContext());
         this.UserRepository = new UserRepository(new UsersContext());
@@ -82,20 +78,24 @@ public class ShotsController : Controller
 
         return View(years);
     }
+
     public ActionResult EditOneShot(int? shotId)
     {
         if (shotId == null)
         {
             return NotFound();
         }
+
         var shot = ShotsContext.ShotModel.FirstOrDefault(s => s.Id == shotId);
 
         if (shot == null)
         {
             return HttpNotFound();
         }
+
         return View(shot);
     }
+
     [HttpPost, ActionName("EditOneShot")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditOneShotPost(int? shotId)
@@ -104,6 +104,7 @@ public class ShotsController : Controller
         {
             return NotFound();
         }
+
         var shotToUpdate = await ShotsContext.ShotModel.FirstOrDefaultAsync(s => s.Id == shotId);
         if (await TryUpdateModelAsync<Shot>(
                 shotToUpdate,
@@ -123,22 +124,27 @@ public class ShotsController : Controller
                                              "see your system administrator.");
             }
         }
+
         return View(shotToUpdate);
     }
+
     public ActionResult EditMultipleShots(int? raceId)
     {
         if (raceId == null)
         {
             return NotFound();
         }
+
         var race = ShotsContext.RaceModel.FirstOrDefault(s => s.Id == raceId);
 
         if (race == null)
         {
             return HttpNotFound();
         }
+
         return View(race);
     }
+
     [HttpPost, ActionName("EditMultipleShots")]
     [AllowAnonymous]
     // [ValidateAntiForgeryToken]
@@ -148,6 +154,7 @@ public class ShotsController : Controller
         {
             return NotFound();
         }
+
         var shotsToUpdate = await ShotsContext.RaceModel.FirstOrDefaultAsync(s => s.Id == raceId);
         if (await TryUpdateModelAsync<Race>(
                 shotsToUpdate,
@@ -167,9 +174,10 @@ public class ShotsController : Controller
                                              "see your system administrator.");
             }
         }
+
         return View(shotsToUpdate);
     }
-    
+
 
     private ActionResult HttpNotFound()
     {

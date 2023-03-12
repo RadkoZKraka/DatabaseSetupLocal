@@ -1,0 +1,15 @@
+@* @model TModel *@
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Admin page</h2>
+
+<br/>
+@Html.ActionLink("Update races for this year", "DownloadCountryListOfRaces", null,null, new { @class = "btn btn-primary" }) <br/>
+@Html.ActionLink("Update latest results", "DownloadResultOfRaces",null,null, new { @class = "btn btn-primary" }) <br/>
+@Html.ActionLink("Download dates of races", "DownloadDatesListOfRaces",null,null, new { @class = "btn btn-primary" }) <br/>
+@Html.ActionLink("Check drivers data", "GetDriversData",null,null, new { @class = "btn btn-primary" }) <br/>
+@Html.ActionLink("Check schedule data", "GetScheduleData",null,null, new { @class = "btn btn-primary" }) <br/>

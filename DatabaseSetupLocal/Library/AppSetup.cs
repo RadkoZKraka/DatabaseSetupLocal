@@ -2,15 +2,27 @@
 using System.Text.RegularExpressions;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Models;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace DatabaseSetupLocal.Rep;
 
-public static class DbSetup
+public static class AppSetup
 {
-    public static void Seed()
+    public static void SeedDb()
     {
+        using (var db = new ShotsContext())
+        {
+            var test = db.RaceModel.ToList();
+            db.Database.Migrate();
+            if (db.UserModel.Any())
+            {
+                return;
+            }
+        }
+        
         var legacyData = GetLegacyData.GetData();
         var userList = new List<UserShots>();
         foreach (var user in legacyData)
@@ -63,7 +75,35 @@ public static class DbSetup
 
             context.SaveChanges();
         }
+    }
 
-        Console.WriteLine("eldo");
+    public static void GetDrivers()
+    {
+        var file = "drivers.json";
+        if (!File.Exists(file))
+        {
+            var grid = F1WebScraper.GetDriversData();
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamWriter sw = new StreamWriter(file))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, grid);
+            }
+        }
+    }
+    
+    public static void GetDates()
+    {
+        var file = "drivers.json";
+        if (!File.Exists(file))
+        {
+            var grid = F1WebScraper.GetDriversData();
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamWriter sw = new StreamWriter(file))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, grid);
+            }
+        }
     }
 }
