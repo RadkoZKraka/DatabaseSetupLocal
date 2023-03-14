@@ -94,15 +94,15 @@ public static class AppSetup
     
     public static void GetDates()
     {
-        var file = "drivers.json";
+        var file = "dates.json";
         if (!File.Exists(file))
         {
-            var grid = F1WebScraper.GetDriversData();
+            var scheduleData = F1WebScraper.GetScheduleData();
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(file))
             using (JsonWriter writer = new JsonTextWriter(sw))
             {
-                serializer.Serialize(writer, grid);
+                serializer.Serialize(writer, scheduleData);
             }
         }
     }

@@ -100,22 +100,28 @@ public static class F1WebScraper
         HtmlWeb web = new HtmlWeb();
         HtmlDocument doc = web.Load(url);
         var xPath = "//*[contains(@class, 'w-full')]";
+        
         var resultRaces = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
                 x.ChildNodes.Skip(1)
                     .Select(x => x.ChildNodes.Take(1).Select(x => x.ChildNodes.Skip(1).First().InnerText).First())
                     .ToList())
             .First();
+        
         var resultEvents = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
             x.ChildNodes.Skip(1).Select(x =>
-                x.ChildNodes.Skip(1).Select(x => x.ChildNodes.Skip(1).First().InnerHtml).ToList())).First().ToList();
+                x.ChildNodes.Skip(1).Select(x => x.ChildNodes.Skip(1).First().ChildNodes.Skip(3).First().InnerText)
+                    .ToList())).First().ToList();
+        
         var resultDates = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
                 x.ChildNodes.Skip(1).Select(x => x.ChildNodes.Skip(1).Select(x =>
-                    x.ChildNodes.Skip(2).First().InnerHtml + " 2023 " + x.ChildNodes.Skip(3).First().InnerText)
-                .ToList()))
+                        x.ChildNodes.Skip(2).First().InnerHtml + " 2023 " + x.ChildNodes.Skip(3).First().InnerText)
+                    .ToList()))
             .First().ToList();
+        
         var resultTimes = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
             x.ChildNodes.Skip(1).Select(x =>
                 x.ChildNodes.Skip(1).Select(x => x.ChildNodes.Skip(3).First().InnerText).ToList())).First().ToList();
+        
         var f1Schedule = new F1Schedule();
         f1Schedule.Year = 2023;
         var raceScheduleList = new List<RaceSchedule>();
@@ -123,22 +129,23 @@ public static class F1WebScraper
         for (int i = 0; i < 23; i++)
         {
             var raceSchedule = new RaceSchedule();
+            var eventList = new List<F1Event>();
             raceSchedule.RaceName = resultRaces[i];
-            var f1Event = new F1Event();
 
-            foreach (var raceEvent in resultEvents[i])
+            for (int j = 0; j < 5; j++)
             {
-                f1Event.EventName = raceEvent;
+                var f1Event = new F1Event();
+                f1Event.EventName = resultEvents[i][j];
+                f1Event.EventDateAndTime = Convert.ToDateTime(resultDates[i][j]);
+                eventList.Add(f1Event);
             }
 
-            foreach (var raceDate in resultDates[i])
-            {
-                f1Event.EventDateAndTime = Convert.ToDateTime(raceDate);
-            }
-            
+            raceSchedule.F1Events = eventList;
+            raceScheduleList.Add(raceSchedule);
         }
 
-        var result = new List<string>();
-        return null;
+        f1Schedule.Races = raceScheduleList;
+        
+        return f1Schedule;
     }
 }

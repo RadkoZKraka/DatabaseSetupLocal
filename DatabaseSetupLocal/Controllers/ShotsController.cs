@@ -25,8 +25,8 @@ public class ShotsController : Controller
 
 
         AppSetup.SeedDb();
-
         AppSetup.GetDrivers();
+        AppSetup.GetDates();
 
         this.ShotsRepository = new ShotsRepository(new ShotsContext());
         this.UserRepository = new UserRepository(new UsersContext());
