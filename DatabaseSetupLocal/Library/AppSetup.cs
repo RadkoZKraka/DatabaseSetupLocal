@@ -2,8 +2,10 @@
 using System.Text.RegularExpressions;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Models;
+using DatabaseSetupLocal.Repository;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using NuGet.Packaging;
 using OfficeOpenXml;
 using LicenseContext = OfficeOpenXml.LicenseContext;
 
@@ -22,8 +24,8 @@ public static class AppSetup
                 return;
             }
         }
-        
-        var legacyData = GetLegacyData.GetData();
+
+        var legacyData = LegacyData.GetData();
         var userList = new List<UserShots>();
         foreach (var user in legacyData)
         {
@@ -77,10 +79,65 @@ public static class AppSetup
         }
     }
 
+    public static void SeedForNewSeason()
+    {
+        var f1Schedule = F1WebScraper.GetScheduleData();
+        var raceListToSeed = new List<Race>();
+
+        foreach (var raceSchedule in f1Schedule.Races)
+        {
+            var raceToSeed = new Race();
+            raceToSeed.RaceYear = 2023;
+            raceToSeed.RaceLocation = raceSchedule.RaceName;
+            raceListToSeed.Add(raceToSeed);
+        }
+
+        var repository = new ShotsRepository(new ShotsContext());
+        var users = repository.GetUsers();
+
+        using (var context = new ShotsContext())
+        {
+            var l1 = context.RaceModel.ToList();
+            var l2 = context.ShotModel.ToList();
+            foreach (var user in users)
+            {
+                var entity = context.UserModel.FirstOrDefault(x => x.Id == user.Id);
+                var oldRaces = entity.Race;
+                entity.Race = oldRaces.Concat(raceListToSeed).ToList();
+                context.UpdateRange(entity);
+            }
+
+            context.SaveChanges();
+        }
+    }
+
+    public static void Test()
+    {
+        var repo = new ShotsRepository(new ShotsContext());
+        var f1Schedule = F1WebScraper.GetScheduleData();
+        var raceListToSeed = new List<Race>();
+        var users = repo.GetUsers(); 
+        foreach (var raceSchedule in f1Schedule.Races)
+        {
+            var raceToSeed = new Race();
+            raceToSeed.RaceYear = 2023;
+            raceToSeed.RaceLocation = raceSchedule.RaceName;
+            raceListToSeed.Add(raceToSeed);
+        }
+
+        foreach (var user in users)
+        {
+            user.Race.AddRange(raceListToSeed);
+            repo.UpdateUser(user);
+
+        }
+    }
+
     public static void GetDrivers()
     {
         var file = "drivers.json";
         if (!File.Exists(file))
+
         {
             var grid = F1WebScraper.GetDriversData();
             JsonSerializer serializer = new JsonSerializer();
@@ -91,11 +148,12 @@ public static class AppSetup
             }
         }
     }
-    
+
     public static void GetDates()
     {
         var file = "dates.json";
         if (!File.Exists(file))
+
         {
             var scheduleData = F1WebScraper.GetScheduleData();
             JsonSerializer serializer = new JsonSerializer();

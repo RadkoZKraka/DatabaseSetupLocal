@@ -4,7 +4,7 @@ using OfficeOpenXml;
 
 namespace DatabaseSetupLocal.Rep;
 
-public static class GetLegacyData
+public static class LegacyData
 {
     
     public static Dictionary<string, List<Dictionary<string, List<string>>>> GetData()

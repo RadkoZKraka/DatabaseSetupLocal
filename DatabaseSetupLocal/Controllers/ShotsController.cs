@@ -24,9 +24,7 @@ public class ShotsController : Controller
         _logger = logger;
 
 
-        AppSetup.SeedDb();
-        AppSetup.GetDrivers();
-        AppSetup.GetDates();
+
 
         this.ShotsRepository = new ShotsRepository(new ShotsContext());
         this.UserRepository = new UserRepository(new UsersContext());
@@ -70,7 +68,7 @@ public class ShotsController : Controller
     public ActionResult Years(string userId)
     {
         ViewBag.User = ShotsRepository.GetUserById(userId);
-        var years = ShotsRepository.GetUserRacesById(userId).Select(x => x.RaceYear).Distinct().ToList();
+        var years = ShotsRepository.GetYears();
         if (years == null)
         {
             return HttpNotFound();

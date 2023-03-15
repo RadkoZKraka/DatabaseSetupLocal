@@ -145,7 +145,6 @@ public static class F1WebScraper
         }
 
         f1Schedule.Races = raceScheduleList;
-        
         return f1Schedule;
     }
 }

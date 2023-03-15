@@ -45,6 +45,11 @@ public class ShotsRepository : IShotRepository
         var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();
         return result;
     }
+    public List<int> GetYears()
+    {
+        var result = _shotsContext.RaceModel.Select(x => x.RaceYear).Distinct().ToList();
+        return result;
+    }
 
     public List<Shot>? GetUserShotsById(string userId, int raceId)
     {
