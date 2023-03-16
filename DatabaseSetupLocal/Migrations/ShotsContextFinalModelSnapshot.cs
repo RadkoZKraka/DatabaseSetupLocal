@@ -23,6 +23,9 @@ namespace DatabaseSetupLocal.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Locked")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Points")
                         .HasColumnType("INTEGER");
 

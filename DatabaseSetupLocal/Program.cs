@@ -15,8 +15,8 @@ builder.Services.AddDbContext<ShotsContext>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 AppSetup.SeedDb();
-AppSetup.GetDrivers();
-AppSetup.GetDates();
+AppSetup.SerializeDrivers();
+AppSetup.SerializeDates();
 // AppSetup.SeedForNewSeason();
 AppSetup.Test();
 

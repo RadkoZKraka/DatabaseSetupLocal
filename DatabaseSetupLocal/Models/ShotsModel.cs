@@ -25,6 +25,7 @@ public class Race
     public int Points { get; set; }
     public string? Rand { get; set; }
     public string? PolePosition { get; set; }
+    public bool Locked { get; set; }
 }
 
 public class Shot

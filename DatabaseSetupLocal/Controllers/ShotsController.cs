@@ -6,6 +6,7 @@ using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Rep;
 using DatabaseSetupLocal.Repository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseSetupLocal.Controllers;
@@ -22,10 +23,7 @@ public class ShotsController : Controller
     public ShotsController(ILogger<HomeController> logger)
     {
         _logger = logger;
-
-
-
-
+        
         this.ShotsRepository = new ShotsRepository(new ShotsContext());
         this.UserRepository = new UserRepository(new UsersContext());
         this.ShotsContext = ShotsRepository.GetShotsContext();
@@ -128,6 +126,9 @@ public class ShotsController : Controller
 
     public ActionResult EditMultipleShots(int? raceId)
     {
+        var selectListItems = new List<string>();
+        selectListItems.AddRange(AppSetup.DeserializeDrivers().Drivers.Select(x => x.FullName).ToList());
+        ViewBag.F1Grid = selectListItems;
         if (raceId == null)
         {
             return NotFound();
@@ -176,6 +177,10 @@ public class ShotsController : Controller
         return View(shotsToUpdate);
     }
 
+    private ActionResult AddUser()
+    {
+        throw new NotImplementedException();
+    }
 
     private ActionResult HttpNotFound()
     {

@@ -70,6 +70,11 @@ public static class AppSetup
 
         using (var context = new ShotsContext())
         {
+            foreach (var u in userList)
+            {
+                u.Race.AddRange(SeedForNewSeason());
+            }
+
             foreach (var user in userList)
             {
                 context.UserModel.Add(user);
@@ -79,36 +84,30 @@ public static class AppSetup
         }
     }
 
-    public static void SeedForNewSeason()
+    public static List<Race> SeedForNewSeason()
     {
         var f1Schedule = F1WebScraper.GetScheduleData();
         var raceListToSeed = new List<Race>();
-
+        var i = 1;
         foreach (var raceSchedule in f1Schedule.Races)
         {
             var raceToSeed = new Race();
             raceToSeed.RaceYear = 2023;
-            raceToSeed.RaceLocation = raceSchedule.RaceName;
-            raceListToSeed.Add(raceToSeed);
-        }
-
-        var repository = new ShotsRepository(new ShotsContext());
-        var users = repository.GetUsers();
-
-        using (var context = new ShotsContext())
-        {
-            var l1 = context.RaceModel.ToList();
-            var l2 = context.ShotModel.ToList();
-            foreach (var user in users)
+            raceToSeed.Shot = new List<Shot>();
+            for (int j = 0; j < 20; j++)
             {
-                var entity = context.UserModel.FirstOrDefault(x => x.Id == user.Id);
-                var oldRaces = entity.Race;
-                entity.Race = oldRaces.Concat(raceListToSeed).ToList();
-                context.UpdateRange(entity);
+                raceToSeed.Shot.Add(new Shot());
             }
 
-            context.SaveChanges();
+            raceToSeed.RaceNo = i;
+            raceToSeed.RaceLocation = raceSchedule.RaceName.Contains("NEXT")
+                ? raceSchedule.RaceName.Replace("NEXT", "")
+                : raceSchedule.RaceName;
+            raceListToSeed.Add(raceToSeed);
+            i++;
         }
+
+        return raceListToSeed;
     }
 
     public static void Test()
@@ -116,7 +115,7 @@ public static class AppSetup
         var repo = new ShotsRepository(new ShotsContext());
         var f1Schedule = F1WebScraper.GetScheduleData();
         var raceListToSeed = new List<Race>();
-        var users = repo.GetUsers(); 
+        var users = repo.GetUsers();
         foreach (var raceSchedule in f1Schedule.Races)
         {
             var raceToSeed = new Race();
@@ -129,11 +128,10 @@ public static class AppSetup
         {
             user.Race.AddRange(raceListToSeed);
             repo.UpdateUser(user);
-
         }
     }
 
-    public static void GetDrivers()
+    public static void SerializeDrivers()
     {
         var file = "drivers.json";
         if (!File.Exists(file))
@@ -149,7 +147,15 @@ public static class AppSetup
         }
     }
 
-    public static void GetDates()
+    public static F1Grid? DeserializeDrivers()
+    {
+        var file = "drivers.json";
+        var f1Grid = JsonConvert.DeserializeObject<F1Grid>(File.ReadAllText(file));
+
+        return f1Grid;
+    }
+
+    public static void SerializeDates()
     {
         var file = "dates.json";
         if (!File.Exists(file))
