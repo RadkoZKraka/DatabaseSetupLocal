@@ -19,7 +19,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 AppSetup.SeedDb();
 AppSetup.SerializeDrivers();
 AppSetup.SerializeDates();
-AppSetup.GetCurrentRace();
+// AppSetup.GetCurrentRace();
 
 
 builder.Services.AddDefaultIdentity<AppUser>(options =>
@@ -91,7 +91,7 @@ using (var scope = app.Services.CreateScope())
     var f1ShotsUserContext = services.GetRequiredService<UsersContext>();
     f1ShotsUserContext.Database.Migrate();
     var shotsContext = services.GetRequiredService<ShotsContext>();
-    shotsContext.Database.Migrate();
+    // shotsContext.Database.Migrate();
 }
 
 // Configure the HTTP request pipeline.

@@ -18,8 +18,8 @@ public static class AppSetup
         using (var db = new ShotsContext())
         {
             db.Database.EnsureDeleted();
-            var test = db.RaceModel.ToList();
-            db.Database.Migrate();
+            db.Database.EnsureCreated();
+            // db.Database.Migrate();
             if (db.UserModel.Any())
             {
                 return;

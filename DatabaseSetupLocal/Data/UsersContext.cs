@@ -14,7 +14,7 @@ public class UsersContext : IdentityDbContext
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
         DbPath = System.IO.Path.Join(path, "shots.db");
-        this.Database.Migrate();
+        // this.Database.Migrate();
     }
 
     public UsersContext()
