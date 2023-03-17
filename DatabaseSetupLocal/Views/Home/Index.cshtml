@@ -7,12 +7,10 @@
     @if (ViewBag.AppUserId == null)
     {
         <a>Login to get to current race.</a>
-        @ViewBag.Path
     }
     else
     {
         <p>Go to current race!</p>
-        @Html.ActionLink("Current race", "CurrentRace", "Shots", new{userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
-
+        @Html.ActionLink("Current race", "CurrentRace", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
     }
-    </div>
+</div>
