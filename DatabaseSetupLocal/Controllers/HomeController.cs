@@ -21,6 +21,9 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         ViewBag.AppUserId = User.Identity.GetUserId();
+        var folder = Environment.SpecialFolder.LocalApplicationData;
+        var path = Environment.GetFolderPath(folder);
+        ViewBag.Path = path;
         return View();
     }
 
