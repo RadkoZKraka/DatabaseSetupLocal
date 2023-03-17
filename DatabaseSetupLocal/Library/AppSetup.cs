@@ -13,7 +13,7 @@ namespace DatabaseSetupLocal.Rep;
 
 public static class AppSetup
 {
-    public static void SeedDb()
+    public static void  SeedDb()
     {
         using (var db = new ShotsContext())
         {
