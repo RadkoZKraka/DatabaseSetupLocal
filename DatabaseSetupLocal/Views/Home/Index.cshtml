@@ -4,5 +4,14 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+    @if (ViewBag.AppUserId == null)
+    {
+        <a>Login to get to current race.</a>
+    }
+    else
+    {
+        <p>Go to current race!</p>
+        @Html.ActionLink("Current race", "CurrentRace", "Shots", new{userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+
+    }
+    </div>

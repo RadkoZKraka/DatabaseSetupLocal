@@ -3,6 +3,7 @@ using DatabaseSetupLocal.Data;
 using Microsoft.AspNetCore.Mvc;
 using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Rep;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DatabaseSetupLocal.Controllers;
@@ -19,6 +20,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        ViewBag.AppUserId = User.Identity.GetUserId();
         return View();
     }
 

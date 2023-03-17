@@ -1,5 +1,7 @@
-﻿using DatabaseSetupLocal.Models;
+﻿using System.Text.RegularExpressions;
+using DatabaseSetupLocal.Models;
 using HtmlAgilityPack;
+using Newtonsoft.Json.Linq;
 
 namespace DatabaseSetupLocal.Rep;
 
@@ -100,28 +102,28 @@ public static class F1WebScraper
         HtmlWeb web = new HtmlWeb();
         HtmlDocument doc = web.Load(url);
         var xPath = "//*[contains(@class, 'w-full')]";
-        
+
         var resultRaces = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
                 x.ChildNodes.Skip(1)
                     .Select(x => x.ChildNodes.Take(1).Select(x => x.ChildNodes.Skip(1).First().InnerText).First())
                     .ToList())
             .First();
-        
+
         var resultEvents = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
             x.ChildNodes.Skip(1).Select(x =>
                 x.ChildNodes.Skip(1).Select(x => x.ChildNodes.Skip(1).First().ChildNodes.Skip(3).First().InnerText)
                     .ToList())).First().ToList();
-        
+
         var resultDates = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
                 x.ChildNodes.Skip(1).Select(x => x.ChildNodes.Skip(1).Select(x =>
                         x.ChildNodes.Skip(2).First().InnerHtml + " 2023 " + x.ChildNodes.Skip(3).First().InnerText)
                     .ToList()))
             .First().ToList();
-        
+
         var resultTimes = doc.DocumentNode.SelectNodes(xPath).Skip(2).Select(x =>
             x.ChildNodes.Skip(1).Select(x =>
                 x.ChildNodes.Skip(1).Select(x => x.ChildNodes.Skip(3).First().InnerText).ToList())).First().ToList();
-        
+
         var f1Schedule = new F1Schedule();
         f1Schedule.Year = 2023;
         var raceScheduleList = new List<RaceSchedule>();
@@ -146,5 +148,24 @@ public static class F1WebScraper
 
         f1Schedule.Races = raceScheduleList;
         return f1Schedule;
+    }
+
+    public static List<string> GetLiveData()
+    {
+        var url = $"https://live.planetf1.com/liverace";
+        HtmlWeb web = new HtmlWeb();
+        HtmlDocument doc = web.Load(url);
+        var pattern = @"[^\W\d](\w|[-']{1,2}(?=\w))*";
+        var rg = new Regex(pattern);
+        var xPath = "/html/body/div[3]/div/main/section/div/div/div[1]/div[1]/div[4]/table/tbody/tr[1]/td[3]/h2/a";
+        var resultStart = doc.DocumentNode.SelectNodes("//*[contains(@class, 'signalr_live_race_html')]").First()
+            .ChildNodes.Where((value, index) => index % 2 != 0)
+            .Select(x => x.ChildNodes[5].ChildNodes[1].ChildNodes[1].InnerText).ToList();
+
+        var res = resultStart.Select(x => rg.Matches(x));
+        var result = res.Select(x => x.Select(x => x.Value).ToList().Aggregate((i, j) => i + " " + j)).ToList();
+
+
+        return result;
     }
 }

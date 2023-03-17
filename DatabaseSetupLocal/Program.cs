@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Areas.Identity.Data;
+using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Rep;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -14,11 +15,12 @@ builder.Services.AddDbContext<UsersContext>();
 builder.Services.AddDbContext<ShotsContext>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+
 AppSetup.SeedDb();
 AppSetup.SerializeDrivers();
 AppSetup.SerializeDates();
-// AppSetup.SeedForNewSeason();
-AppSetup.Test();
+AppSetup.GetCurrentRace();
+
 
 builder.Services.AddDefaultIdentity<AppUser>(options =>
     {

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices.JavaScript;
 using DatabaseSetupLocal.Data;
 using Microsoft.AspNetCore.Mvc;
 using DatabaseSetupLocal.Models;
@@ -8,6 +9,8 @@ using DatabaseSetupLocal.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNet.Identity;
+
 
 namespace DatabaseSetupLocal.Controllers;
 
@@ -32,6 +35,7 @@ public class ShotsController : Controller
     public IActionResult Index()
     {
         var users = ShotsRepository.GetUsers();
+        ViewBag.AppUserId = User.Identity.GetUserId();
 
         return View(users.ToList());
     }
@@ -52,9 +56,12 @@ public class ShotsController : Controller
     public ActionResult Shots(string userId, int raceId, string raceLocation)
     {
         ViewBag.User = ShotsRepository.GetUserById(userId);
+        ViewBag.UserId = userId;
         ViewBag.Location = raceLocation;
         ViewBag.RaceId = raceId;
-        var shots = ShotsRepository.GetUserShotsById(userId, raceId);
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
+        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceId(userId, raceId);
         if (shots == null)
         {
             return HttpNotFound();
@@ -124,11 +131,12 @@ public class ShotsController : Controller
         return View(shotToUpdate);
     }
 
-    public ActionResult EditMultipleShots(int? raceId)
+    public ActionResult EditMultipleShots(int? raceId, string userId)
     {
         var selectListItems = new List<string>();
         selectListItems.AddRange(AppSetup.DeserializeDrivers().Drivers.Select(x => x.FullName).ToList());
         ViewBag.F1Grid = selectListItems;
+
         if (raceId == null)
         {
             return NotFound();
@@ -177,9 +185,36 @@ public class ShotsController : Controller
         return View(shotsToUpdate);
     }
 
-    private ActionResult AddUser()
+    public void AddUser(string userId)
     {
-        throw new NotImplementedException();
+        if (String.IsNullOrEmpty(userId))
+        {
+            
+        }
+        var user = UserRepository.GetUserById(userId);
+        var shots = AppSetup.SetupShotsForNewUser(userId, user.FirstName + " " + user.LastName);
+        ShotsRepository.InsertUser(shots);
+    }
+
+    public ActionResult CurrentRace()
+    {
+        var userIdentityId = User.Identity.GetUserId();
+        var userShot = ShotsRepository.GetUserByOwnerId(userIdentityId);
+        
+        ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
+        ViewBag.UserId = userShot.Id;
+        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRace());
+        ViewBag.Location = AppSetup.GetCurrentRace();
+        
+        var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
+        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRace());
+        if (shots == null)
+        {
+            return HttpNotFound();
+        }
+
+        return View(shots);
     }
 
     private ActionResult HttpNotFound()

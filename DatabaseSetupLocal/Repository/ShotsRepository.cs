@@ -39,7 +39,20 @@ public class ShotsRepository : IShotRepository
     {
         return _shotsContext.UserModel.Find(userId);
     }
-    
+    public string GetUserIdByOwnerId(string ownerId)
+    {
+        return _shotsContext.UserModel.Where(x => x.OwnerId == ownerId).First().Id;
+    }
+    public UserShots GetUserByOwnerId(string userId)
+    {
+        return _shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault();
+    }
+
+    public int? GetRaceIdByRaceLoc(string userId,string raceLoc)
+    {
+        return _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc).Id;
+
+    }
     public List<Race> GetUserRacesById(string userId)
     {
         var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();
@@ -51,15 +64,21 @@ public class ShotsRepository : IShotRepository
         return result;
     }
 
-    public List<Shot>? GetUserShotsById(string userId, int raceId)
+    public List<Shot>? GetUserShotsByUserIdAndRaceId(string userId, int raceId)
     {
         var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.Id == raceId)?.Shot;
+        return result;
+    }
+    public List<Shot>? GetUserShotsByUserIdAndRaceLoc(string userId, string raceLoc)
+    {
+        var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc)?.Shot;
         return result;
     }
 
     public void InsertUser(UserShots userShots)
     {
         _shotsContext.UserModel.Add(userShots);
+        _shotsContext.SaveChanges();
     }
 
     public void DeleteUser(string userId)
