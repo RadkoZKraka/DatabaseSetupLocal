@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.Identity;
+using Newtonsoft.Json;
 
 
 namespace DatabaseSetupLocal.Controllers;
@@ -216,7 +217,45 @@ public class ShotsController : Controller
 
         return View(shots);
     }
+    public ActionResult LiveTiming()
+    {
+        var userIdentityId = User.Identity.GetUserId();
+        var userShot = ShotsRepository.GetUserByOwnerId(userIdentityId);
+        
+        ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
+        ViewBag.UserId = userShot.Id;
+        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRace());
+        ViewBag.Location = AppSetup.GetCurrentRace();
+        
+        var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
+        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRace());
+        if (shots == null)
+        {
+            return HttpNotFound();
+        }
 
+        return View(shots);
+    }
+    
+    [HttpGet]
+    public JsonResult GetLiveTiming()
+    {
+        var res = F1WebScraper.GetLiveData();
+        var model = new JsonResponseViewModel();
+        if (res != null)
+        {
+            model.ResponseCode = 0;
+            model.ResponseMessage = JsonConvert.SerializeObject(res);
+        }
+        else
+        {
+            model.ResponseCode = 1;
+            model.ResponseMessage = "Error";
+        }
+
+        return Json(model);
+    }
     private ActionResult HttpNotFound()
     {
         throw new NotImplementedException();

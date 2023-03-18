@@ -34,6 +34,12 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin Page</a>
                         </li>
                     }
+                    @if (@User.Identity?.Name != null)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Admin Page</a>
+                        </li>
+                    }
                 </ul>
                 <partial name="_LoginPartial"/>
             </div>
