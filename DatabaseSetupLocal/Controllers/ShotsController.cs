@@ -60,9 +60,12 @@ public class ShotsController : Controller
         ViewBag.UserId = userId;
         ViewBag.Location = raceLocation;
         ViewBag.RaceId = raceId;
+        ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
+        
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
         var shots = ShotsRepository.GetUserShotsByUserIdAndRaceId(userId, raceId);
+        
         if (shots == null)
         {
             return HttpNotFound();
@@ -132,8 +135,14 @@ public class ShotsController : Controller
         return View(shotToUpdate);
     }
 
-    public ActionResult EditMultipleShots(int? raceId, string userId)
+    public ActionResult EditMultipleShots(int raceId, string userId)
     {
+        ViewBag.User = ShotsRepository.GetUserById(userId);
+        ViewBag.UserId = userId;
+        ViewBag.Location = ShotsRepository.GetRaceById(raceId).RaceLocation;
+        ViewBag.RaceId = raceId;
+        ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
+        
         var selectListItems = new List<string>();
         selectListItems.AddRange(AppSetup.DeserializeDrivers().Drivers.Select(x => x.FullName).ToList());
         ViewBag.F1Grid = selectListItems;

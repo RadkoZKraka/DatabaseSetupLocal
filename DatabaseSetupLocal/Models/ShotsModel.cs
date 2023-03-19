@@ -36,6 +36,6 @@ public class Shot
     public string? OwnerId { get; set; }
     public string? UsersShotDriver { get; set; }
     public string? ResultDriver { get; set; }
-    public bool? Result { get; set; }
+    public int Points { get; set; }
     
 }

@@ -66,10 +66,7 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
             public string LastName { get; set; }
 
 
-            [Required]
-            [Display(Name = "Birth Date")]
-            [DataType(DataType.Date)]
-            public DateTime DOB { get; set; }
+
             
             [Phone]
             [Display(Name = "Phone number")]
@@ -87,7 +84,7 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                DOB = user.DOB,
+
                 PhoneNumber = phoneNumber
             };
         }
@@ -135,11 +132,6 @@ namespace DatabaseSetupLocal.Areas.Identity.Pages.Account.Manage
             if (Input.LastName != user.LastName)
             {
                 user.LastName = Input.LastName;
-            }
-
-            if (Input.DOB != user.DOB)
-            {
-                user.DOB = Input.DOB;
             }
 
             await _userManager.UpdateAsync(user);

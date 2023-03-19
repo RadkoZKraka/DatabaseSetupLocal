@@ -132,7 +132,7 @@
             @Html.DisplayNameFor(Model => Model[0].ResultDriver)
         </th>
         <th>
-            @Html.DisplayNameFor(Model => Model[0].Result)
+            @Html.DisplayNameFor(Model => Model[0].Points)
         </th>
         <th></th>
     </tr>
@@ -150,7 +150,7 @@
                 @Html.DisplayFor(modelItem => Model[i - 1].ResultDriver, new{@id = ""})
             </td>
             <td>
-                @Html.DisplayFor(modelItem => Model[i - 1].Result)
+                @Html.DisplayFor(modelItem => Model[i - 1].Points)
             </td>
         </tr>
     }
@@ -161,7 +161,7 @@
     {
         @Html.ActionLink("Edit", "EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
         @* @Html.ActionLink("Get Live Timing", "EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"}) *@
-        <a href="javascript:void(0)" class="btn btn-info" id="btn-get-live-timing">Get Live Timing</a>
+        <a href="javascript:void(0)" class="btn btn-info" id="btn-get-live-timing" style="margin-top: 20px">Get Live Timing</a>
                            
     }
     else

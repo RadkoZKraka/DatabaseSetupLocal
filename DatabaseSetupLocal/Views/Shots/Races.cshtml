@@ -5,55 +5,70 @@
     ViewBag.Title = "Races";
     Layout = "_Layout";
 }
-
-<h2>@ViewBag.User.UserName</h2>
-<h2>@ViewBag.Year</h2>
-<h2>Select a race.</h2>
-
-<table>
-    <tr>
-        <th>
-            @Html.DisplayNameFor(Model => Model.First().RaceNo)
-        </th>
-        <th>
-            @Html.DisplayNameFor(Model => Model.First().RaceLocation)
-        </th>
-        <th>
-            @Html.DisplayNameFor(Model => Model.First().Rand)
-        </th>
-        <th>
-            @Html.DisplayNameFor(Model => Model.First().PolePosition)
-        </th>
-        <th>
-            @Html.DisplayNameFor(Model => Model.First().Points)
-        </th>
-
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RaceNo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RaceLocation)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Rand)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PolePosition)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Points)
-            </td>
-
-            <td>
-                @Html.ActionLink("Shots", "Shots", new {userId = ViewBag.User.Id, raceId = item.Id, raceLocation = item.RaceLocation}) |
-            </td>
-
-        </tr>
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 80%;
     }
-</table>
+    </style>
+<div style="margin-left: 20%">
+    <h2>@ViewBag.User.UserName</h2>
+    <h2>@ViewBag.Year</h2>
+    <h2>Select a race:</h2>
+
+    <table >
+        <tr>
+            <th>
+                <h5>#</h5>
+            </th>
+            <th>
+                <h5>Location:</h5>
+            </th>
+            @if (Model[0].RaceYear == 2022)
+            {
+                <th>
+                    <h5>Random:</h5>
+                </th>
+            }
+            <th>
+                <h5>Pole position:</h5>
+            </th>
+            <th>
+                 <h5>Points:</h5>
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RaceNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RaceLocation)
+                </td>
+                @if (Model[0].RaceYear == 2022)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Rand)
+                    </td>
+                }
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.PolePosition)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Points)
+                </td>
+
+                <td>
+                    @Html.ActionLink("Select", "Shots", new {userId = ViewBag.User.Id, raceId = item.Id, raceLocation = item.RaceLocation}, new {@class = "btn btn-primary"})
+                </td>
+
+            </tr>
+        }
+    </table>
+</div>

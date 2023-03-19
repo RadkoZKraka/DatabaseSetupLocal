@@ -63,10 +63,10 @@ namespace DatabaseSetupLocal.Migrations
                     b.Property<string>("OwnerId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("RaceId")
+                    b.Property<int>("Points")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool?>("Result")
+                    b.Property<int?>("RaceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ResultDriver")

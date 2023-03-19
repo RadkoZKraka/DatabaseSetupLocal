@@ -53,6 +53,11 @@ public class ShotsRepository : IShotRepository
         return _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc).Id;
 
     }
+    public Race? GetRaceById(int raceId)
+    {
+        return _shotsContext.RaceModel.Find(raceId);
+
+    }
     public List<Race> GetUserRacesById(string userId)
     {
         var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();

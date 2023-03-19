@@ -6,12 +6,12 @@
     Layout = "_Layout";
 }
 
-<div>
+<div class="align-middle" style="margin-left: 40%">
 
     <table>
         <tr>
             <th>
-                @Html.DisplayNameFor(Model => Model.First().UserName)
+                <h4>User name:</h4>
             </th>
             <th></th>
         </tr>
@@ -24,7 +24,7 @@
                 </td>
 
                 <td>
-                    @Html.ActionLink("Years", "Years", new {userId = item.Id}) |
+                    @Html.ActionLink("Years", "Years", new {userId = item.Id}, new {@class = "btn btn-primary"})
                 </td>
             </tr>
         }

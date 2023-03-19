@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/DatabaseSetupLocal.styles.css" asp-append-version="true"/>
+    <link rel="shortcut icon" href="/favicon.ico">
 </head>
 <body>
 <header>
@@ -28,7 +29,7 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Index">Users List</a>
                     </li>
-                    @if (@User.Identity?.Name?.Contains("radkotest") ?? false)
+                    @if (@User.Identity?.Name?.ToLower() == "radkotest")
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin Page</a>
@@ -37,7 +38,7 @@
                     @if (@User.Identity?.Name != null)
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Admin Page</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Live Timing</a>
                         </li>
                     }
                 </ul>
@@ -54,7 +55,7 @@
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2023 - F1Shots - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; 2023 - F1Shots - Radosław Krowicki - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
