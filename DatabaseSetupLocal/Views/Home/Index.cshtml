@@ -3,16 +3,26 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome to F1 Shots</h1>
+    <h1 class="display-4">Welcome to F1Shots™</h1>
     @if (ViewBag.AppUserId == null)
     {
         <h3>Login to get to current race.</h3>
     }
     else
     {
-        <p>Go to current race!</p>
-        @Html.ActionLink("Current race", "CurrentRace", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+        
+        @if (ViewBag.UserHasShots)
+        {
+            <h3>Go to current race!</h3>
+            @Html.ActionLink("Current race", "CurrentRace", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+        }
+        else
+        {
+            <h3>You dont have F1Shots™ set up, click button below to do so:</h3>
+            @Html.ActionLink("Add new user", "AddUser", "Shots", new{userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+
+        }
     }
+    <br/>
         @Html.ActionLink("Users List", "Index", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
-    
 </div>

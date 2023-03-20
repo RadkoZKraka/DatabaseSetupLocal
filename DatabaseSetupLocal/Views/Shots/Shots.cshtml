@@ -1,4 +1,4 @@
-﻿@model List<Shot>
+﻿@model Race
 
 
 @{
@@ -14,54 +14,79 @@
 
 </style>
 <div style="margin-left: 20%">
-<h2>@ViewBag.User.UserName</h2>
-<h2>@ViewBag.Year</h2>
-<h2>@ViewBag.Location</h2>
+    <h2>@ViewBag.User.UserName</h2>
+    <h2>@ViewBag.Year</h2>
+    <h2>@ViewBag.Location</h2>
 
-<table >
-    <tr>
-        <th>
-            <h5>Position:</h5>
-        </th>
-        <th>
-            <h5>Users driver:</h5>
-        </th>
-        <th>
-            <h5>Result driver:</h5>
-        </th>
-        <th>
-            <h5>Points:</h5>
-        </th>
-        <th></th>
-    </tr>
-
-    @for (var i = 1; i - 1 < Model.Count; i++)
-    {
-        <tr style="height: 40px">
-            <td >
-                @i
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => Model[i - 1].UsersShotDriver)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => Model[i - 1].ResultDriver)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => Model[i - 1].Points)
-            </td>
+    <table >
+        <tr>
+            <th>
+                <h5>Position:</h5>
+            </th>
+            <th>
+                <h5>Users driver:</h5>
+            </th>
+            <th>
+                <h5>Result driver:</h5>
+            </th>
+            <th>
+                <h5>Points:</h5>
+            </th>
+            <th></th>
         </tr>
-    }
 
-</table>
-<div>
-    @if (ViewBag.HasAccessToEdit)
-    {
-        @Html.ActionLink("Edit", "EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style="margin-top: 20px; width: 50%; margin-left: 15%"})
-    }
-    else
-    {
-        <p>You dont have access to edit.</p>
-    }
-</div>
+        @for (var i = 1; i - 1 < Model.Shot.Count; i++)
+        {
+            <tr style="height: 40px">
+                <td >
+                    @i
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Shot[i - 1].UsersShotDriver)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Shot[i - 1].ResultDriver)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Shot[i - 1].Points)
+                </td>
+            </tr>
+        }
+        <tr>
+            <td></td>
+            @if (Model.RaceYear == 2022)
+            {
+                <td>
+
+                    <h5>Random:</h5>
+
+                    @Html.DisplayFor(modelItem => Model.Rand)
+                </td>
+            }
+
+            <td>
+                <h5>Pole position:</h5>
+                @Html.DisplayFor(modelItem => Model.PolePosition)
+            </td>
+            @if (Model.RaceYear == 2023)
+            {
+                <td>
+
+                    <h5>Fastest lap:</h5>
+
+                    @Html.DisplayFor(modelItem => Model.FastestLap)
+                </td>
+            }
+        </tr>
+    </table>
+    <div>
+        @if (ViewBag.HasAccessToEdit)
+        {
+            @Html.ActionLink("Edit", "EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
+        }
+        else
+        {
+            <p>You dont have access to edit.</p>
+        }
+    </div>
 </div>

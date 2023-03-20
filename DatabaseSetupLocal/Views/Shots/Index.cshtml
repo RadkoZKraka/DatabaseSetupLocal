@@ -31,11 +31,11 @@
     </table>
     @if (ViewBag.AppUserId == null)
     {
-        <a>Register to add a user.</a>
+        <a>Login to add a user.</a>
     }
     else
     {
-        @Html.ActionLink("Add new user", "AddUser", null, new{userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+        @Html.ActionLink("Add new user", "AddUser", null, new{userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
     }
     
 

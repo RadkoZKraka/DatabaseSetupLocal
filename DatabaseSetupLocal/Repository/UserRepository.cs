@@ -15,6 +15,10 @@ public class UserRepository
     {
         return _usersContext.UserModel.Find(userId);
     }
+    public List<AppUser> GetUsers()
+    {
+        return _usersContext.UserModel.ToList();
+    }
     public bool GetIfUserIsAdminById(string userId)
     {
         var user = _usersContext.UserModel.Find(userId);

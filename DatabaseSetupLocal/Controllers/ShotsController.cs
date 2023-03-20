@@ -27,7 +27,7 @@ public class ShotsController : Controller
     public ShotsController(ILogger<HomeController> logger)
     {
         _logger = logger;
-        
+
         this.ShotsRepository = new ShotsRepository(new ShotsContext());
         this.UserRepository = new UserRepository(new UsersContext());
         this.ShotsContext = ShotsRepository.GetShotsContext();
@@ -61,17 +61,16 @@ public class ShotsController : Controller
         ViewBag.Location = raceLocation;
         ViewBag.RaceId = raceId;
         ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
-        
+
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
-        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceId(userId, raceId);
-        
-        if (shots == null)
+        var race = ShotsRepository.GetRaceById(raceId);
+        if (race == null)
         {
             return HttpNotFound();
         }
 
-        return View(shots);
+        return View(race);
     }
 
     public ActionResult Years(string userId)
@@ -142,7 +141,7 @@ public class ShotsController : Controller
         ViewBag.Location = ShotsRepository.GetRaceById(raceId).RaceLocation;
         ViewBag.RaceId = raceId;
         ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
-        
+
         var selectListItems = new List<string>();
         selectListItems.AddRange(AppSetup.DeserializeDrivers().Drivers.Select(x => x.FullName).ToList());
         ViewBag.F1Grid = selectListItems;
@@ -199,8 +198,8 @@ public class ShotsController : Controller
     {
         if (String.IsNullOrEmpty(userId))
         {
-            
         }
+
         var user = UserRepository.GetUserById(userId);
         var shots = AppSetup.SetupShotsForNewUser(userId, user.FirstName + " " + user.LastName);
         ShotsRepository.InsertUser(shots);
@@ -210,12 +209,12 @@ public class ShotsController : Controller
     {
         var userIdentityId = User.Identity.GetUserId();
         var userShot = ShotsRepository.GetUserByOwnerId(userIdentityId);
-        
+
         ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
         ViewBag.UserId = userShot.Id;
         ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRace());
         ViewBag.Location = AppSetup.GetCurrentRace();
-        
+
         var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
         var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRace());
@@ -226,16 +225,17 @@ public class ShotsController : Controller
 
         return View(shots);
     }
+
     public ActionResult LiveTiming()
     {
         var userIdentityId = User.Identity.GetUserId();
         var userShot = ShotsRepository.GetUserByOwnerId(userIdentityId);
-        
+
         ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
         ViewBag.UserId = userShot.Id;
         ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRace());
         ViewBag.Location = AppSetup.GetCurrentRace();
-        
+
         var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
         var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRace());
@@ -246,7 +246,7 @@ public class ShotsController : Controller
 
         return View(shots);
     }
-    
+
     [HttpGet]
     public JsonResult GetLiveTiming()
     {
@@ -265,6 +265,7 @@ public class ShotsController : Controller
 
         return Json(model);
     }
+
     private ActionResult HttpNotFound()
     {
         throw new NotImplementedException();

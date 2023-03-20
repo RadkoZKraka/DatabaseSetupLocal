@@ -47,6 +47,14 @@ public class ShotsRepository : IShotRepository
     {
         return _shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault();
     }
+    public bool GetIfAppUserHasShots(string userId)
+    {
+        if (_shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault() == null)
+        {
+            return false;
+        }
+        return true;
+    }
 
     public int? GetRaceIdByRaceLoc(string userId,string raceLoc)
     {

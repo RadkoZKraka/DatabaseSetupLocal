@@ -3,6 +3,7 @@ using DatabaseSetupLocal.Data;
 using Microsoft.AspNetCore.Mvc;
 using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Rep;
+using DatabaseSetupLocal.Repository;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 
@@ -20,10 +21,10 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        ViewBag.AppUserId = User.Identity.GetUserId();
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        ViewBag.Path = path;
+        var appUserId = User.Identity.GetUserId();
+        ViewBag.AppUserId = appUserId;
+        var shotsRepo = new ShotsRepository(new ShotsContext());
+        ViewBag.UserHasShots = shotsRepo.GetIfAppUserHasShots(appUserId);
         return View();
     }
 

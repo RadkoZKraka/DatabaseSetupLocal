@@ -17,7 +17,7 @@ public static class AppSetup
     {
         using (var db = new ShotsContext())
         {
-            db.Database.EnsureDeleted();
+            // db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
             // db.Database.Migrate();
             if (db.UserModel.Any())

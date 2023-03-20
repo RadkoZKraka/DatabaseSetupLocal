@@ -10,9 +10,9 @@ public class ShotsContext : DbContext
 
     public ShotsContext()
     {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        DbPath = System.IO.Path.Join(path, "shots.db");
+        // var folder = Environment.SpecialFolder.LocalApplicationData;
+        // var path = Environment.GetFolderPath(folder);
+        DbPath =  "shots.db";
         // this.Database.Migrate();
 
     }
