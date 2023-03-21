@@ -76,7 +76,8 @@ public class ShotsController : Controller
     public ActionResult Years(string userId)
     {
         ViewBag.User = ShotsRepository.GetUserById(userId);
-        var years = ShotsRepository.GetYears();
+        ViewBag.UsersList = UserRepository.GetUsers();
+        var years = ShotsRepository.GetUsersYears(userId);
         if (years == null)
         {
             return HttpNotFound();
@@ -198,6 +199,7 @@ public class ShotsController : Controller
     {
         if (String.IsNullOrEmpty(userId))
         {
+            return;
         }
 
         var user = UserRepository.GetUserById(userId);

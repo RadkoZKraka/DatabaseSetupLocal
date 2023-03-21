@@ -2,6 +2,7 @@ using System.Runtime.InteropServices.JavaScript;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Rep;
 using DatabaseSetupLocal.Repository;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatabaseSetupLocal.Controllers;
@@ -10,6 +11,7 @@ public class AdminController : Controller
 {
     private readonly ILogger<AdminController> _logger;
     private UserRepository _userRepository;
+    private ShotsRepository _shotsRepository;
 
     public AdminController(ILogger<AdminController> logger)
     {
@@ -48,5 +50,10 @@ public class AdminController : Controller
     {
         
         F1WebScraper.GetScheduleData();
+    }
+    public void DeleteUser()
+    {
+        var userId = User.Identity.GetUserId();
+        _shotsRepository.DeleteUser(userId);
     }
 }

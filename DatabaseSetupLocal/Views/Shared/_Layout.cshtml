@@ -29,7 +29,7 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Index">Users List</a>
                     </li>
-                    @if (@User.Identity?.Name?.ToLower() == "radkotest")
+                    @if (@User.Identity?.Name?.ToLower() == "radkotest@test.com")
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin Page</a>

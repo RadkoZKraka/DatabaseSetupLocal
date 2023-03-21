@@ -11,14 +11,24 @@ public class UserRepository
     {
         this._usersContext = usersContext;
     }
+
     public AppUser GetUserById(string userId)
     {
         return _usersContext.UserModel.Find(userId);
     }
+
     public List<AppUser> GetUsers()
     {
         return _usersContext.UserModel.ToList();
     }
+
+    public void DeleteUser(string userId)
+    {
+        var user = _usersContext.UserModel.Find(userId);
+        _usersContext.UserModel.Remove(user);
+        _usersContext.SaveChanges();
+    }
+
     public bool GetIfUserIsAdminById(string userId)
     {
         var user = _usersContext.UserModel.Find(userId);
@@ -26,6 +36,7 @@ public class UserRepository
         {
             return false;
         }
+
         return user.Admin;
     }
 }

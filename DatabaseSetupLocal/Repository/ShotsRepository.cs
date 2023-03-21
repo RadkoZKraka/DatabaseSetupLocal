@@ -71,9 +71,9 @@ public class ShotsRepository : IShotRepository
         var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();
         return result;
     }
-    public List<int> GetYears()
+    public List<int> GetUsersYears(string userId)
     {
-        var result = _shotsContext.RaceModel.Select(x => x.RaceYear).Distinct().ToList();
+        var result = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList();
         return result;
     }
 
@@ -98,6 +98,8 @@ public class ShotsRepository : IShotRepository
     {
         var user = _shotsContext.UserModel.Find(userId);
         _shotsContext.UserModel.Remove(user);
+        _shotsContext.SaveChanges();
+
     }
 
     public void UpdateUser(UserShots userShots)

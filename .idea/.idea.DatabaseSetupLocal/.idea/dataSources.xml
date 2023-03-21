@@ -52,7 +52,7 @@
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\malco\AppData\Local\shots.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:C:\Users\malco\RiderProjects\DatabaseSetupLocal\DatabaseSetupLocal\shots.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

@@ -10,7 +10,6 @@
     }
     else
     {
-        
         @if (ViewBag.UserHasShots)
         {
             <h3>Go to current race!</h3>
@@ -19,10 +18,9 @@
         else
         {
             <h3>You dont have F1Shots™ set up, click button below to do so:</h3>
-            @Html.ActionLink("Add new user", "AddUser", "Shots", new{userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
-
+            @Html.ActionLink("Add new user", "AddUser", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
         }
     }
     <br/>
-        @Html.ActionLink("Users List", "Index", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+    @Html.ActionLink("Users List", "Index", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
 </div>

@@ -1,10 +1,12 @@
 ﻿@using DatabaseSetupLocal.Data
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @model List<UserShots>
 
 @{
     ViewBag.Title = "User List";
     Layout = "_Layout";
 }
+@Html.Partial("UsersNavigationPartial")
 
 <div class="align-middle" style="margin-left: 40%">
 
