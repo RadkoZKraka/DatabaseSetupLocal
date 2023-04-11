@@ -1,17 +1,19 @@
 using System.Runtime.InteropServices.JavaScript;
+using DatabaseSetupLocal.Areas.Identity.Data;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Rep;
 using DatabaseSetupLocal.Repository;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseSetupLocal.Controllers;
 
 public class AdminController : Controller
 {
     private readonly ILogger<AdminController> _logger;
-    private UserRepository _userRepository;
-    private ShotsRepository _shotsRepository;
+    private readonly UserRepository _userRepository;
 
     public AdminController(ILogger<AdminController> logger)
     {
@@ -22,6 +24,60 @@ public class AdminController : Controller
     {
         return View();
     }
+    public IActionResult Users()
+    {
+        var appUserId = User.Identity.GetUserId();
+
+        var usersList = _userRepository.GetUsers();
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+
+        return View(usersList);
+    }
+    
+    public ActionResult EditUsers()
+    {
+
+        var appUserId = User.Identity.GetUserId();
+
+        var usersList = _userRepository.GetUsers();
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        var users = _userRepository.GetUsers();
+
+
+        return View(users);
+    }
+
+    [HttpPost, ActionName("EditUsers")]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditUsersPost()
+    {
+        var usersContext = new UsersContext();
+        var usersToUpdate = await usersContext.UserModel.ToListAsync();
+        if (await TryUpdateModelAsync<List<AppUser>>(
+                usersToUpdate,
+                "",
+                s => s))
+        {
+            try
+            {
+                await usersContext.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException /* ex */)
+            {
+                //Log the error (uncomment ex variable name and write a log.)
+                ModelState.AddModelError("", "Unable to save changes. " +
+                                             "Try again, and if the problem persists, " +
+                                             "see your system administrator.");
+            }
+        }
+
+        return View(usersToUpdate);
+    }
+    
     public void DownloadCountryListOfRaces()
     {
         var year = DateTime.Now.Year;
@@ -32,11 +88,7 @@ public class AdminController : Controller
         var year = DateTime.Now.Year;
         F1WebScraper.GetDatesListOfRaces(year);
     }
-    public IActionResult AppUsers()
-    {
-        var usersList = _userRepository.GetUsers();
-        return View(usersList);
-    }
+
     public void DownloadResultOfRaces(int year, int raceNumber)
     {
         var raceResults = F1WebScraper.GetRaceResults(year, raceNumber);
@@ -54,6 +106,6 @@ public class AdminController : Controller
     public void DeleteUser()
     {
         var userId = User.Identity.GetUserId();
-        _shotsRepository.DeleteUser(userId);
+        _userRepository.DeleteUser(userId);
     }
 }

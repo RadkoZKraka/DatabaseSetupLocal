@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http.Extensions; 
 
 
 namespace DatabaseSetupLocal.Controllers;
@@ -60,15 +61,13 @@ public class ShotsController : Controller
         ViewBag.UserId = userId;
         ViewBag.Location = raceLocation;
         ViewBag.RaceId = raceId;
-        ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
+        ViewBag.Year = ShotsRepository.GetRaceYearById(raceId);
 
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
+        
         var race = ShotsRepository.GetRaceById(raceId);
-        if (race == null)
-        {
-            return HttpNotFound();
-        }
 
         return View(race);
     }
@@ -78,12 +77,15 @@ public class ShotsController : Controller
         ViewBag.User = ShotsRepository.GetUserById(userId);
         ViewBag.UsersList = UserRepository.GetUsers();
         var years = ShotsRepository.GetUsersYears(userId);
-        if (years == null)
-        {
-            return HttpNotFound();
-        }
 
         return View(years);
+    }
+    public void GetRaceResults(string userId)
+    {
+        ViewBag.User = ShotsRepository.GetUserById(userId);
+        ViewBag.UsersList = UserRepository.GetUsers();
+        var years = ShotsRepository.GetUsersYears(userId);
+        Response.Redirect(HttpContext.Request.GetEncodedUrl());
     }
 
     public ActionResult EditOneShot(int? shotId)

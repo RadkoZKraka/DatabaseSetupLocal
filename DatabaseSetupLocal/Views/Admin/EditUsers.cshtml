@@ -1,0 +1,82 @@
+@model List<DatabaseSetupLocal.Areas.Identity.Data.AppUser>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>title</h2>
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 80%;
+    }
+    </style>
+<div style="margin-left: 20%">
+    <h2>Editing:</h2>
+    <br/>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col">
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true)
+                    @* @Html.HiddenFor(model => model.Id) *@
+                    <table >
+                        <tr>
+                            <th>
+                                <h5>User:</h5>
+                            </th>
+                            <th>
+                                <h5>First Name:</h5>
+                            </th>
+                            <th>
+                                <h5>Last Name:</h5>
+                            </th>
+                            
+                            <th>
+                                <h5>Admin:</h5>
+                            </th>
+
+                        </tr>
+                        <br/>
+
+                        @for (var i = 1; i - 1 < Model.Count; i++)
+                        {
+                            <tr style="height: 40px">
+                                <td>
+                                    @i
+                                </td>
+                                <td>
+                                    @Html.EditorFor(model => model[i - 1].FirstName)
+                                    @Html.ValidationMessageFor(model => model[i - 1].FirstName)
+                                </td>
+                                <td>
+                                    @Html.EditorFor(model => model[i - 1].LastName)
+                                    @Html.ValidationMessageFor(model => model[i - 1].LastName)
+                                </td>
+                                <td>
+                                    @Html.EditorFor(model => model[i - 1].Admin)
+                                    @Html.ValidationMessageFor(model => model[i - 1].Admin)
+                                </td>
+                            </tr>
+                        }
+                    </table >
+
+                    @*Genre and Price removed for brevity.*@
+                    <div class="form-group">
+                        <div >
+                            <input type="submit" value="Save" class="btn btn-primary" style="margin-top: 20px; width: 50%; margin-left: 15%"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+    <div>
+        @* @Html.ActionLink("Back to List", "Shots", new {userId = ViewBag.User.Id, raceId = ViewBag.RaceId, raceLocation = ViewBag.Location}, new {@class="btn btn-primary", style="margin-top: 10px; margin-left: 37%"}) *@
+    </div>
+</div>

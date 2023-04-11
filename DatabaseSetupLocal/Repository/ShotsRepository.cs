@@ -1,4 +1,5 @@
 ﻿using DatabaseSetupLocal.Data;
+using DatabaseSetupLocal.Exceptions;
 using DatabaseSetupLocal.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -63,7 +64,22 @@ public class ShotsRepository : IShotRepository
     }
     public Race? GetRaceById(int raceId)
     {
-        return _shotsContext.RaceModel.Find(raceId);
+        var race = _shotsContext.RaceModel.Find(raceId);
+        if (race == null)
+        {
+            throw new RaceDoesntExistException();
+        }
+        return race;
+
+    }
+    public int GetRaceYearById(int raceId)
+    {
+        var race = _shotsContext.RaceModel.Find(raceId);
+        if (race == null)
+        {
+            throw new RaceDoesntExistException();
+        }
+        return race.RaceYear;
 
     }
     public List<Race> GetUserRacesById(string userId)
@@ -73,8 +89,9 @@ public class ShotsRepository : IShotRepository
     }
     public List<int> GetUsersYears(string userId)
     {
-        var result = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList();
-        return result;
+        var yearsList = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList() 
+                        ?? throw new YearListDoesntExistException();
+        return yearsList;
     }
 
     public List<Shot>? GetUserShotsByUserIdAndRaceId(string userId, int raceId)

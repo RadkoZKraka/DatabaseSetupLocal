@@ -23,4 +23,9 @@
     }
     <br/>
     @Html.ActionLink("Users List", "Index", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
-</div>
+    @if (ViewBag.IsAdmin)
+        {
+                @Html.ActionLink("Admin do it all button", "Index", "Admin", null, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+
+        }
+    </div>

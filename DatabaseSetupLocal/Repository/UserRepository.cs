@@ -1,11 +1,12 @@
 using DatabaseSetupLocal.Areas.Identity.Data;
 using DatabaseSetupLocal.Data;
+using DatabaseSetupLocal.Exceptions;
 
 namespace DatabaseSetupLocal.Repository;
 
 public class UserRepository
 {
-    public UsersContext _usersContext;
+    public readonly UsersContext _usersContext;
 
     public UserRepository(UsersContext usersContext)
     {
@@ -14,7 +15,12 @@ public class UserRepository
 
     public AppUser GetUserById(string userId)
     {
-        return _usersContext.UserModel.Find(userId);
+        var user = _usersContext.UserModel.Find(userId);
+        if (user  == null)
+        {
+            throw new AppUserDoesntExistException();
+        }
+        return user;
     }
 
     public List<AppUser> GetUsers()

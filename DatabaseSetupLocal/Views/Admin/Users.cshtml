@@ -1,0 +1,40 @@
+﻿@model List<DatabaseSetupLocal.Areas.Identity.Data.AppUser>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>App Users List</h2>
+<div class="align-middle" style="margin-left: 40%">
+
+    <table>
+        <tr>
+            <th>
+                <h4>Users:</h4>
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => user.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => user.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => user.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => user.Admin)
+                </td>
+            </tr>
+        }
+        <td>
+            @Html.ActionLink("Edit", "EditUsers", "Admin", "", new {@class = "btn btn-primary"})
+        </td>
+    </table>
+</div>

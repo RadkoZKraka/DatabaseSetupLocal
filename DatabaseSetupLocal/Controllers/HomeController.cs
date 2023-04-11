@@ -23,8 +23,10 @@ public class HomeController : Controller
     {
         var appUserId = User.Identity.GetUserId();
         ViewBag.AppUserId = appUserId;
-        var shotsRepo = new ShotsRepository(new ShotsContext());
-        ViewBag.UserHasShots = shotsRepo.GetIfAppUserHasShots(appUserId);
+        var shotsRepository = new ShotsRepository(new ShotsContext());
+        ViewBag.UserHasShots = shotsRepository.GetIfAppUserHasShots(appUserId);
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
         return View();
     }
 

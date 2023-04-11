@@ -89,5 +89,9 @@
         {
             <p>You dont have access to edit.</p>
         }
+        @if (ViewBag.HasAccessToEdit)
+        {
+            @Html.ActionLink("Get race results", "GetRaceResults", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
+        }
     </div>
 </div>
