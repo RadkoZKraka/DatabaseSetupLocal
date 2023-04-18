@@ -34,7 +34,18 @@ public class AdminController : Controller
 
         return View(usersList);
     }
-    
+    public ActionResult EditUser(string? userId)
+    {
+
+        var appUserId = User.Identity.GetUserId();
+
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        var user = _userRepository.GetUserById(userId);
+
+
+        return View(user);
+    }
     public ActionResult EditUsers()
     {
 
@@ -52,7 +63,7 @@ public class AdminController : Controller
     [HttpPost, ActionName("EditUsers")]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditUsersPost()
+    public async Task<IActionResult> EditUsersPost(string? userId)
     {
         var usersContext = new UsersContext();
         var usersToUpdate = await usersContext.UserModel.ToListAsync();

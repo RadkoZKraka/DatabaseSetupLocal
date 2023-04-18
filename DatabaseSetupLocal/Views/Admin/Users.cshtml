@@ -31,6 +31,10 @@
                 <td>
                     @Html.DisplayFor(modelItem => user.Admin)
                 </td>
+                <td>
+                    @Html.ActionLink("Edit", "EditUser", "Admin", new {userId = user.Id}, new {@class = "btn btn-primary"})
+
+                </td>
             </tr>
         }
         <td>

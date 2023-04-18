@@ -1,11 +1,11 @@
-@model List<DatabaseSetupLocal.Areas.Identity.Data.AppUser>
+@model DatabaseSetupLocal.Areas.Identity.Data.AppUser
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<h2>Edit one user</h2>
 <style>
     table {
       font-family: arial, sans-serif;
@@ -23,7 +23,6 @@
             <div class="col">
                 <div class="form-horizontal">
                     @Html.ValidationSummary(true)
-                    @* @Html.HiddenFor(model => model.Id) *@
                     <table >
                         <tr>
                             <th>
@@ -35,7 +34,7 @@
                             <th>
                                 <h5>Last Name:</h5>
                             </th>
-                            
+
                             <th>
                                 <h5>Admin:</h5>
                             </th>
@@ -43,28 +42,23 @@
                         </tr>
                         <br/>
 
-                        @for (var i = 1; i - 1 < Model.Count; i++)
-                        {
-                            <tr style="height: 40px">
-                                <td>
-                                    @i
-                                </td>
-                                <td>
-                                    @Html.EditorFor(model => model[i - 1].FirstName)
-                                    @Html.ValidationMessageFor(model => model[i - 1].FirstName)
-                                </td>
-                                <td>
-                                    @Html.EditorFor(model => model[i - 1].LastName)
-                                    @Html.ValidationMessageFor(model => model[i - 1].LastName)
-                                </td>
-                                <td>
-                                    @Html.EditorFor(model => model[i - 1].Admin)
-                                    @Html.ValidationMessageFor(model => model[i - 1].Admin)
-                                </td>
-                            </tr>
-                        }
-                    </table >
+                        <tr style="height: 40px">
 
+                            <td>
+                                @Html.EditorFor(model => model.FirstName)
+                                @Html.ValidationMessageFor(model => model.FirstName)
+                            </td>
+                            <td>
+                                @Html.EditorFor(model => model.LastName)
+                                @Html.ValidationMessageFor(model => model.LastName)
+                            </td>
+                            <td>
+                                @Html.EditorFor(model => model.Admin)
+                                @Html.ValidationMessageFor(model => model.Admin)
+                            </td>
+                        </tr>
+
+                    </table >
                     <div class="form-group">
                         <div >
                             <input type="submit" value="Save" class="btn btn-primary" style="margin-top: 20px; width: 50%; margin-left: 15%"/>
