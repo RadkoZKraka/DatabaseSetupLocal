@@ -46,6 +46,34 @@ public class AdminController : Controller
 
         return View(user);
     }
+    [HttpPost, ActionName("EditUser")]
+    [AllowAnonymous]
+    // [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditUserPost(string userId)
+    {
+        var userContext = new UsersContext();
+        var userToUpdate = await userContext.UserModel.FindAsync(userId);
+        if (await TryUpdateModelAsync<AppUser>(
+                userToUpdate,
+                "",
+                s => s.Admin))
+        {
+            try
+            {
+                await userContext.SaveChangesAsync();
+                return RedirectToAction(nameof(Users));
+            }
+            catch (DbUpdateException /* ex */)
+            {
+                //Log the error (uncomment ex variable name and write a log.)
+                ModelState.AddModelError("", "Unable to save changes. " +
+                                             "Try again, and if the problem persists, " +
+                                             "see your system administrator.");
+            }
+        }
+
+        return View(userToUpdate);
+    }
     public ActionResult EditUsers()
     {
 
@@ -59,23 +87,25 @@ public class AdminController : Controller
 
         return View(users);
     }
-
+    
     [HttpPost, ActionName("EditUsers")]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditUsersPost(string? userId)
     {
         var usersContext = new UsersContext();
+        var appUsers = new AppUsers();
         var usersToUpdate = await usersContext.UserModel.ToListAsync();
-        if (await TryUpdateModelAsync<List<AppUser>>(
-                usersToUpdate,
+        appUsers.Users = new List<AppUser>(usersToUpdate);
+        if (await TryUpdateModelAsync<AppUsers>(
+                appUsers,
                 "",
-                s => s))
+                s => s.Users))
         {
             try
             {
                 await usersContext.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Users));
             }
             catch (DbUpdateException /* ex */)
             {
@@ -119,4 +149,9 @@ public class AdminController : Controller
         var userId = User.Identity.GetUserId();
         _userRepository.DeleteUser(userId);
     }
+}
+
+class AppUsers
+{
+    public List<AppUser> Users { get; set; }
 }

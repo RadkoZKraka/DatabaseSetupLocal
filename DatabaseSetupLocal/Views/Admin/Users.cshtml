@@ -10,10 +10,26 @@
 
     <table>
         <tr>
-            <th>
+            <td>
                 <h4>Users:</h4>
-            </th>
-            <th></th>
+            </td>
+            <tr style="height: 40px">
+                <td>
+                    <h5>Username</h5>
+                </td>
+                <td>
+                    <h5>First Name</h5>
+
+                </td>
+                <td>
+                    <h5>Last Name</h5>
+
+                </td>
+                <td>
+                    <h5>Admin</h5>
+
+                </td>
+            </tr>
         </tr>
 
         @foreach (var user in Model)
@@ -38,7 +54,7 @@
             </tr>
         }
         <td>
-            @Html.ActionLink("Edit", "EditUsers", "Admin", "", new {@class = "btn btn-primary"})
+            @* @Html.ActionLink("Edit", "EditUsers", "Admin", "", new {@class = "btn btn-primary"}) *@
         </td>
     </table>
 </div>

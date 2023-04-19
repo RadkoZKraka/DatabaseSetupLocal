@@ -144,6 +144,8 @@ public class ShotsController : Controller
         ViewBag.Location = ShotsRepository.GetRaceById(raceId).RaceLocation;
         ViewBag.RaceId = raceId;
         ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
+        ViewBag.PreviousUrl = HttpContext.Request.GetEncodedUrl();
+        
 
         var selectListItems = new List<string>();
         selectListItems.AddRange(AppSetup.DeserializeDrivers().Drivers.Select(x => x.FullName).ToList());
@@ -183,7 +185,7 @@ public class ShotsController : Controller
             try
             {
                 await ShotsContext.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Redirect(Request.GetEncodedUrl());
             }
             catch (DbUpdateException /* ex */)
             {

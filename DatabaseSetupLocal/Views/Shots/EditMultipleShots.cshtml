@@ -4,6 +4,31 @@
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    var isFormDirty = false;
+
+    $(document).ready(function () {
+        $('form :input').change(function () {
+            isFormDirty = true;
+            $('#unsaved-message').show();
+        });
+
+        $('form').submit(function () {
+            isFormDirty = false;
+            $('#unsaved-message').hide();
+        });
+
+        window.onbeforeunload = function () {
+            if (isFormDirty) {
+                return "You have unsaved changes. Are you sure you want to leave this page?";
+            }
+        };
+    });
+</script>
+
+
 <style>
     table {
       font-family: arial, sans-serif;
@@ -15,6 +40,8 @@
     <h2>Editing:</h2>
     <h2>@ViewBag.User.UserName - @ViewBag.Year - @ViewBag.Location</h2>
     <br/>
+    <div id="unsaved-message" style="display: none;">You have unsaved changes.</div>
+
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
