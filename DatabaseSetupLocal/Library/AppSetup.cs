@@ -13,12 +13,12 @@ namespace DatabaseSetupLocal.Rep;
 
 public static class AppSetup
 {
-    public static void  SeedDb()
+    public static void SeedDb()
     {
         using (var db = new ShotsContext())
         {
             // db.Database.EnsureDeleted();
-            db.Database.EnsureCreated();
+            // db.Database.EnsureCreated();
             // db.Database.Migrate();
             if (db.UserModel.Any())
             {
@@ -167,7 +167,7 @@ public static class AppSetup
 
         var closest = ReturnClosest(listOfDates);
         var closestRaceName = f1Schedule.Races.Where(x => x.F1Events.Where(x => x.EventDateAndTime == closest).Any())
-                .First().RaceName;
+            .First().RaceName;
         return closestRaceName;
     }
 

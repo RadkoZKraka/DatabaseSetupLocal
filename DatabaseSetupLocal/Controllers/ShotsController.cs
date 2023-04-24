@@ -37,7 +37,18 @@ public class ShotsController : Controller
     public IActionResult Index()
     {
         var users = ShotsRepository.GetUsers();
-        ViewBag.AppUserId = User.Identity.GetUserId();
+        var userId = User.Identity.GetUserId();
+        ViewBag.AppUserId = userId;
+        ViewBag.IsUserAdmin = UserRepository.GetIfUserIsAdminById(userId);
+
+        return View(users.ToList());
+    }
+    public IActionResult Results()
+    {
+        var users = ShotsRepository.GetUsers();
+        var userId = User.Identity.GetUserId();
+        ViewBag.AppUserId = userId;
+        ViewBag.IsUserAdmin = UserRepository.GetIfUserIsAdminById(userId);
 
         return View(users.ToList());
     }
@@ -79,6 +90,18 @@ public class ShotsController : Controller
         var years = ShotsRepository.GetUsersYears(userId);
 
         return View(years);
+    }
+    public ActionResult HideUser(string userId)
+    {
+        ShotsRepository.HideUser(userId);
+
+        return View("Index", ShotsRepository.GetUsers().ToList());
+    }
+    public ActionResult DeleteUser(string userId)
+    {
+        ShotsRepository.DeleteUser(userId);
+
+        return View("Index");
     }
     public void GetRaceResults(string userId)
     {
@@ -199,16 +222,17 @@ public class ShotsController : Controller
         return View(shotsToUpdate);
     }
 
-    public void AddUser(string userId)
+    public ActionResult AddUser(string userId)
     {
         if (String.IsNullOrEmpty(userId))
         {
-            return;
+            return HttpNotFound();
         }
 
         var user = UserRepository.GetUserById(userId);
         var shots = AppSetup.SetupShotsForNewUser(userId, user.FirstName + " " + user.LastName);
         ShotsRepository.InsertUser(shots);
+        return View("../Views/Home/Index");
     }
 
     public ActionResult CurrentRace()

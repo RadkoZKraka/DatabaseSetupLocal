@@ -12,6 +12,9 @@ public class UserShots
     public string UserName { get; set; }
     public string? OwnerId { get; set; }
     public List<Race> Race { get; set; }
+    public bool Hidden { get; set; }
+    public bool Banned { get; set; }
+
 }
 
 public class Race

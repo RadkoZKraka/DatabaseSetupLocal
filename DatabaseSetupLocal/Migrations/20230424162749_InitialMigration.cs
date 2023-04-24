@@ -5,7 +5,7 @@
 namespace DatabaseSetupLocal.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateCustomUserData5 : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,8 @@ namespace DatabaseSetupLocal.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", nullable: false)
+                    UserName = table.Column<string>(type: "TEXT", nullable: false),
+                    OwnerId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -34,14 +35,17 @@ namespace DatabaseSetupLocal.Migrations
                     Points = table.Column<int>(type: "INTEGER", nullable: false),
                     Rand = table.Column<string>(type: "TEXT", nullable: true),
                     PolePosition = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: true)
+                    FastestLap = table.Column<string>(type: "TEXT", nullable: true),
+                    Hidden = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Locked = table.Column<bool>(type: "INTEGER", nullable: false),
+                    UserShotsId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RaceModel", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RaceModel_UserModel_UserId",
-                        column: x => x.UserId,
+                        name: "FK_RaceModel_UserModel_UserShotsId",
+                        column: x => x.UserShotsId,
                         principalTable: "UserModel",
                         principalColumn: "Id");
                 });
@@ -52,9 +56,10 @@ namespace DatabaseSetupLocal.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    UserDriver = table.Column<string>(type: "TEXT", nullable: true),
+                    OwnerId = table.Column<string>(type: "TEXT", nullable: true),
+                    UsersShotDriver = table.Column<string>(type: "TEXT", nullable: true),
                     ResultDriver = table.Column<string>(type: "TEXT", nullable: true),
-                    Result = table.Column<bool>(type: "INTEGER", nullable: true),
+                    Points = table.Column<int>(type: "INTEGER", nullable: false),
                     RaceId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
@@ -68,9 +73,9 @@ namespace DatabaseSetupLocal.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RaceModel_UserId",
+                name: "IX_RaceModel_UserShotsId",
                 table: "RaceModel",
-                column: "UserId");
+                column: "UserShotsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShotModel_RaceId",

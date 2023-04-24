@@ -11,19 +11,28 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations
 {
     [DbContext(typeof(ShotsContext))]
-    [Migration("20230301142425_CreateCustomUserData12")]
-    partial class CreateCustomUserData12
+    [Migration("20230424162749_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.3");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
 
             modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FastestLap")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Locked")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Points")
@@ -63,10 +72,10 @@ namespace DatabaseSetupLocal.Migrations
                     b.Property<string>("OwnerId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("RaceId")
+                    b.Property<int>("Points")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool?>("Result")
+                    b.Property<int?>("RaceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ResultDriver")
@@ -86,6 +95,9 @@ namespace DatabaseSetupLocal.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OwnerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")

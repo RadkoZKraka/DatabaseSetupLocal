@@ -93,6 +93,24 @@ public class ShotsRepository : IShotRepository
                         ?? throw new YearListDoesntExistException();
         return yearsList;
     }
+    public List<int> GetUserPointsByYear(string userId, int year)
+    {
+        var userPointsByYear = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.Points);
+        var result = new List<int>();
+        var temp = 0;
+        foreach (var points in userPointsByYear)
+        {
+            result.Add(temp + points);
+        }
+
+        return result;
+    }
+
+    public List<String> GetListOfRaceLocations(int year)
+    {
+        var listOfRaces = _shotsContext.RaceModel.Where(x => x.RaceYear == year).Select(x => x.RaceLocation).ToList();
+        return listOfRaces;
+    }
 
     public List<Shot>? GetUserShotsByUserIdAndRaceId(string userId, int raceId)
     {
@@ -115,6 +133,13 @@ public class ShotsRepository : IShotRepository
     {
         var user = _shotsContext.UserModel.Find(userId);
         _shotsContext.UserModel.Remove(user);
+        _shotsContext.SaveChanges();
+
+    }
+    public void HideUser(string userId)
+    {
+        var user = _shotsContext.UserModel.Find(userId);
+        _shotsContext.UserModel.Find(userId);
         _shotsContext.SaveChanges();
 
     }

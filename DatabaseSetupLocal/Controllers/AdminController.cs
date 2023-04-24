@@ -34,7 +34,7 @@ public class AdminController : Controller
 
         return View(usersList);
     }
-    public ActionResult EditUser(string? userId)
+    public ActionResult EditAppUser(string? userId)
     {
 
         var appUserId = User.Identity.GetUserId();
@@ -46,10 +46,10 @@ public class AdminController : Controller
 
         return View(user);
     }
-    [HttpPost, ActionName("EditUser")]
+    [HttpPost, ActionName("EditAppUser")]
     [AllowAnonymous]
     // [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditUserPost(string userId)
+    public async Task<IActionResult> EditAppUserPost(string userId)
     {
         var userContext = new UsersContext();
         var userToUpdate = await userContext.UserModel.FindAsync(userId);

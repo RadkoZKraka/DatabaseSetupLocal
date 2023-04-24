@@ -89,7 +89,8 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
 
     var f1ShotsUserContext = services.GetRequiredService<UsersContext>();
-    f1ShotsUserContext.Database.Migrate();
+    // f1ShotsUserContext.Database.EnsureDeleted();
+    // f1ShotsUserContext.Database.Migrate();
     var shotsContext = services.GetRequiredService<ShotsContext>();
     // shotsContext.Database.Migrate();
 }

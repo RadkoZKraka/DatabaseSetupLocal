@@ -1,4 +1,5 @@
 ﻿@using DatabaseSetupLocal.Data
+@using Microsoft.AspNetCore.Mvc.ModelBinding.Validation
 @using Microsoft.EntityFrameworkCore.Metadata.Internal
 @model List<UserShots>
 
@@ -28,6 +29,20 @@
                 <td>
                     @Html.ActionLink("Years", "Years", new {userId = item.Id}, new {@class = "btn btn-primary"})
                 </td>
+                @if (ViewBag.IsUserAdmin)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Hidden)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Hide user", "HideUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
+
+                    </td>
+
+                    <td>
+                        @Html.ActionLink("Delete user", "DeleteUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
+                    </td>
+                }
             </tr>
         }
     </table>
@@ -37,8 +52,8 @@
     }
     else
     {
-        @Html.ActionLink("Add new user", "AddUser", null, new{userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
+        @Html.ActionLink("Add new user", "AddUser", null, new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
     }
-    
+
 
 </div>

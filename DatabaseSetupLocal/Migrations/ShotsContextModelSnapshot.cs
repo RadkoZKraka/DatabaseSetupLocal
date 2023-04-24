@@ -3,7 +3,6 @@ using System;
 using DatabaseSetupLocal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,19 +10,23 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations
 {
     [DbContext(typeof(ShotsContext))]
-    [Migration("20230228200411_CreateCustomUserData10")]
-    partial class CreateCustomUserData10
+    partial class ShotsContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.3");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
 
             modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FastestLap")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Locked")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Points")
@@ -44,12 +47,12 @@ namespace DatabaseSetupLocal.Migrations
                     b.Property<string>("Rand")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("UserShotsId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserShotsId");
 
                     b.ToTable("RaceModel");
                 });
@@ -63,16 +66,16 @@ namespace DatabaseSetupLocal.Migrations
                     b.Property<string>("OwnerId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("RaceId")
+                    b.Property<int>("Points")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool?>("Result")
+                    b.Property<int?>("RaceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ResultDriver")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserDriver")
+                    b.Property<string>("UsersShotDriver")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -82,10 +85,19 @@ namespace DatabaseSetupLocal.Migrations
                     b.ToTable("ShotModel");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.User", b =>
+            modelBuilder.Entity("DatabaseSetupLocal.Models.UserShots", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Banned")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OwnerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
@@ -99,9 +111,9 @@ namespace DatabaseSetupLocal.Migrations
 
             modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
                 {
-                    b.HasOne("DatabaseSetupLocal.Models.User", null)
+                    b.HasOne("DatabaseSetupLocal.Models.UserShots", null)
                         .WithMany("Race")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserShotsId");
                 });
 
             modelBuilder.Entity("DatabaseSetupLocal.Models.Shot", b =>
@@ -116,7 +128,7 @@ namespace DatabaseSetupLocal.Migrations
                     b.Navigation("Shot");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.User", b =>
+            modelBuilder.Entity("DatabaseSetupLocal.Models.UserShots", b =>
                 {
                     b.Navigation("Race");
                 });
