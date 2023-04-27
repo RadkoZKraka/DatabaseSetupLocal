@@ -31,6 +31,7 @@ public class ShotsRepository : IShotRepository
     {
         return _shotsContext;
     }
+
     public IEnumerable<UserShots> GetUsers()
     {
         return _shotsContext.UserModel.ToList();
@@ -40,28 +41,130 @@ public class ShotsRepository : IShotRepository
     {
         return _shotsContext.UserModel.Find(userId);
     }
+
     public string GetUserIdByOwnerId(string ownerId)
     {
         return _shotsContext.UserModel.Where(x => x.OwnerId == ownerId).First().Id;
     }
+
     public UserShots GetUserByOwnerId(string userId)
     {
         return _shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault();
     }
+
     public bool GetIfAppUserHasShots(string userId)
     {
         if (_shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault() == null)
         {
             return false;
         }
+
         return true;
     }
 
-    public int? GetRaceIdByRaceLoc(string userId,string raceLoc)
+    public bool LockCurrentRace(int raceYear,string raceLoc)
+    {
+        var races = _shotsContext.RaceModel.Where(x => x.RaceLocation == raceLoc && x.RaceYear == raceYear).ToList();
+        try
+        {
+            foreach (var race in races)
+            {
+                race.Locked = true;
+                UpdateRace(race);
+            }
+            return true;
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+            return false;
+
+        }
+    }
+
+    public List<int> CalculateUsersPoints(List<string> listA, List<string> listB)
+    {
+        var result = new List<int>();
+
+        for (int i = 0; i < listA.Count; i++)
+        {
+            if (i == 0)
+            {
+                if (listA[i] == listB[i])
+                {
+                    result.Add(3);
+                    continue;
+                }
+
+                if (listA[i + 1] == listB[i])
+                {
+                    result.Add(1);
+                    continue;
+                }
+            }
+
+            if (i == listA.Count - 1)
+            {
+                if (listA[i] == listB[i])
+                {
+                    result.Add(3);
+                    continue;
+                }
+
+                if (listA[i - 1] == listB[i])
+                {
+                    result.Add(1);
+                    continue;
+                }
+
+                result.Add(0);
+                break;
+            }
+
+            if (i > 0)
+            {
+                if (listA[i] == listB[i])
+                {
+                    result.Add(3);
+                    continue;
+                }
+
+                if (listA[i + 1] == listB[i])
+                {
+                    result.Add(1);
+                    continue;
+                }
+
+                if (listA[i - 1] == listB[i])
+                {
+                    result.Add(1);
+                    continue;
+                }
+            }
+
+            result.Add(0);
+        }
+
+        return result;
+    }
+
+    public bool UpdateRacePoints(Race race, List<string> results)
+    {
+        for (int i = 0; i < race.Shot.Count; i++)
+        {
+            race.Shot[i].ResultDriver = results[i];
+        }
+
+        return true;
+    }
+
+    public int? GetRaceIdByRaceLoc(string userId, string raceLoc)
     {
         return _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc).Id;
-
     }
+
     public Race? GetRaceById(int raceId)
     {
         var race = _shotsContext.RaceModel.Find(raceId);
@@ -69,9 +172,10 @@ public class ShotsRepository : IShotRepository
         {
             throw new RaceDoesntExistException();
         }
-        return race;
 
+        return race;
     }
+
     public int GetRaceYearById(int raceId)
     {
         var race = _shotsContext.RaceModel.Find(raceId);
@@ -79,20 +183,23 @@ public class ShotsRepository : IShotRepository
         {
             throw new RaceDoesntExistException();
         }
-        return race.RaceYear;
 
+        return race.RaceYear;
     }
+
     public List<Race> GetUserRacesById(string userId)
     {
         var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();
         return result;
     }
+
     public List<int> GetUsersYears(string userId)
     {
-        var yearsList = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList() 
+        var yearsList = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList()
                         ?? throw new YearListDoesntExistException();
         return yearsList;
     }
+
     public List<int> GetUserPointsByYear(string userId, int year)
     {
         var userPointsByYear = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.Points);
@@ -117,6 +224,7 @@ public class ShotsRepository : IShotRepository
         var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.Id == raceId)?.Shot;
         return result;
     }
+
     public List<Shot>? GetUserShotsByUserIdAndRaceLoc(string userId, string raceLoc)
     {
         var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc)?.Shot;
@@ -134,19 +242,34 @@ public class ShotsRepository : IShotRepository
         var user = _shotsContext.UserModel.Find(userId);
         _shotsContext.UserModel.Remove(user);
         _shotsContext.SaveChanges();
-
     }
+
     public void HideUser(string userId)
     {
         var user = _shotsContext.UserModel.Find(userId);
-        _shotsContext.UserModel.Find(userId);
-        _shotsContext.SaveChanges();
 
+        user.Hidden = true;
+        UpdateUser(user);
+    }
+
+    public void ShowUser(string userId)
+    {
+        var user = _shotsContext.UserModel.Find(userId);
+
+        user.Hidden = false;
+        UpdateUser(user);
     }
 
     public void UpdateUser(UserShots userShots)
     {
         _shotsContext.Entry(userShots).State = EntityState.Modified;
+        _shotsContext.SaveChanges();
+    }
+
+    public void UpdateRace(Race race)
+    {
+        _shotsContext.RaceModel.Entry(race).State = EntityState.Modified;
+        _shotsContext.SaveChanges();
     }
 
     public void Save()

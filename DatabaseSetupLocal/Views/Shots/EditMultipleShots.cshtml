@@ -3,30 +3,15 @@
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+
+    var selectedDrivers = Model.Shot.Select(x => x.UsersShotDriver).ToList();
 }
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@{
+            var raceDate = (ViewBag.CurrentRace as RaceSchedule).F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToUniversalTime().ToString("s") + "Z";
+            var raceDateToShow = (ViewBag.CurrentRace as RaceSchedule).F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToString("f");
+        }
 
-<script>
-    var isFormDirty = false;
-
-    $(document).ready(function () {
-        $('form :input').change(function () {
-            isFormDirty = true;
-            $('#unsaved-message').show();
-        });
-
-        $('form').submit(function () {
-            isFormDirty = false;
-            $('#unsaved-message').hide();
-        });
-
-        window.onbeforeunload = function () {
-            if (isFormDirty) {
-                return "You have unsaved changes. Are you sure you want to leave this page?";
-            }
-        };
-    });
-</script>
 
 
 <style>
@@ -39,6 +24,8 @@
 <div style="margin-left: 20%">
     <h2>Editing:</h2>
     <h2>@ViewBag.User.UserName - @ViewBag.Year - @ViewBag.Location</h2>
+    <h2>@raceDateToShow</h2>
+    <h2 style="font-weight: bold" id="countdown"></h2>
     <br/>
     <div id="unsaved-message" style="display: none;">You have unsaved changes.</div>
 
@@ -54,6 +41,9 @@
                         <tr>
                             <th>
                                 <h5>Position:</h5>
+                            </th>
+                            <th>
+                                <h5>Users driver:</h5>
                             </th>
                             <th>
                                 <h5>Users driver:</h5>
@@ -89,6 +79,52 @@
         </div>
     }
     <div>
-        @Html.ActionLink("Back to List", "Shots", new {userId = ViewBag.User.Id, raceId = ViewBag.RaceId, raceLocation = ViewBag.Location}, new {@class="btn btn-primary", style="margin-top: 10px; margin-left: 37%"})
+        @Html.ActionLink("Back to List", "Shots", new {userId = ViewBag.User.Id, raceId = ViewBag.RaceId, raceLocation = ViewBag.Location}, new {@class = "btn btn-primary", style = "margin-top: 10px; margin-left: 37%"})
     </div>
 </div>
+<script>
+    var isFormDirty = false;
+
+    $(document).ready(function () {
+        $('form :input').change(function () {
+            isFormDirty = true;
+            $('#unsaved-message').show();
+        });
+
+        $('form').submit(function () {
+            isFormDirty = false;
+            $('#unsaved-message').hide();
+        });
+
+        window.onbeforeunload = function () {
+            if (isFormDirty) {
+                return "You have unsaved changes. Are you sure you want to leave this page?";
+            }
+        };
+    });
+    // Set the target date and time (replace with your own)
+        
+        var date = "@raceDate";
+        var targetDate = new Date(Date.parse(date));
+        
+        // Get the timer element
+        var timerElement = document.getElementById("countdown");
+        
+        // Update the timer element every second
+        setInterval(function() {
+            // Get the current date and time
+            var currentDate = new Date();
+            
+            // Calculate the time remaining
+            var timeRemaining = targetDate - currentDate;
+            
+            // Calculate the days, hours, minutes, and seconds remaining
+            var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Update the timer element with the remaining time
+            timerElement.innerHTML = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
+        }, 1000);
+</script>

@@ -1,0 +1,35 @@
+@model F1Schedule
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Schedule</h2>
+<h2>@Model.Year</h2>
+<table>
+    <tr>
+        <th>
+            <h4>User name:</h4>
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Races)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RaceName)
+            </td>
+            @foreach (var item2 in item.F1Events)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item2.EventName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item2.EventDateAndTime)
+                </td>
+            }
+        </tr>
+    }
+</table>

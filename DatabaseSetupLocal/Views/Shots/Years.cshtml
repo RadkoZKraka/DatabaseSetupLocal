@@ -8,19 +8,21 @@
 <h2>@ViewBag.User.UserName</h2>
 <h2>Select a year:</h2>
 
-<table style="margin-left: 5%">
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item)
-            </td>
+    <table style="margin-left: 5%">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item)
+                </td>
             
-            <td>
-                @Html.ActionLink("Select", "Races", new {userId = ViewBag.User.Id, year = item}, new {@class = "btn btn-primary"})
-            </td>
+                <td>
+                    @Html.ActionLink("Select", "Races", new {userId = ViewBag.User.Id, year = item}, new {@class = "btn btn-primary"})
+                </td>
 
-        </tr>
-    }
-</table>
+            </tr>
+        }
+    </table>
+    <a href="javascript:history.go(-1)" class = "btn btn-primary" >Back</a>
+    
 </div>

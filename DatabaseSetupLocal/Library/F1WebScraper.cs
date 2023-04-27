@@ -9,9 +9,9 @@ public static class F1WebScraper
 {
     public static List<string> GetRaceResults(int year, int raceNumber)
     {
-        var noRace = 1124 + raceNumber;
         var results = new List<string>();
-        var url = $"https://www.formula1.com/en/results.html/{year}/races/{noRace}/race-result.html";
+        var listOfLinksForRaces = GetUrlsOfRaces(year);
+        var url = listOfLinksForRaces[raceNumber - 1];
         HtmlWeb web = new HtmlWeb();
         HtmlDocument doc = web.Load(url);
         var tableXPath = "//tr";
@@ -21,6 +21,45 @@ public static class F1WebScraper
         foreach (var resultsNode in resultsNodes)
         {
             results.Add(resultsNode);
+        }
+
+        return results;
+    }
+
+    public static List<string> GetUrlsOfRaces(int year)
+    {
+        var url = $"https://www.formula1.com/en/results.html/{year}/races.html";
+        HtmlWeb web = new HtmlWeb();
+        HtmlDocument doc = web.Load(url);
+        var xPath = "//*[contains(@class, 'dark bold ArchiveLink')]";
+        var listOfOuterHtmls = doc.DocumentNode.SelectNodes(xPath).Select(x => x.OuterHtml).ToList();
+        var result = ExtractUrls(listOfOuterHtmls);
+        
+        return result;
+    }
+
+    public static List<string> ExtractUrls(List<string> outerHtmls)
+    {
+        var results = new List<string>();
+        
+        foreach (var input in outerHtmls)
+        {
+            // Define a regular expression pattern to match the href attribute
+            string pattern = @"href=""([^""]*)""";
+
+            // Use Regex.Match method to find the first occurrence of the pattern in the input string
+            Match match = Regex.Match(input, pattern);
+
+            if (match.Success)
+            {
+                // Extract the href attribute value from the matched group
+                string href = match.Groups[1].Value;
+                results.Add("https://www.formula1.com" + href);
+            }
+            else
+            {
+                Console.WriteLine("No href attribute found.");
+            }
         }
 
         return results;

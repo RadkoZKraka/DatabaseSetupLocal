@@ -19,6 +19,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 AppSetup.SeedDb();
 AppSetup.SerializeDrivers();
 AppSetup.SerializeDates();
+await AppSetup.ScheduleTasks();
 // AppSetup.GetCurrentRace();
 
 

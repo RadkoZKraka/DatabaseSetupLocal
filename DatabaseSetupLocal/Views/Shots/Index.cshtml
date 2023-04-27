@@ -1,13 +1,22 @@
 ﻿@using DatabaseSetupLocal.Data
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Mvc.ModelBinding.Validation
 @using Microsoft.EntityFrameworkCore.Metadata.Internal
-@model List<UserShots>
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web
 
+@using DatabaseSetupLocal.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject Microsoft.AspNetCore.Identity.UserManager<AppUser> UserManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+@model List<UserShots>
 @{
     ViewBag.Title = "User List";
     Layout = "_Layout";
 }
 @* @Html.Partial("UsersNavigationPartial") *@
+
 
 <div class="align-middle" style="margin-left: 40%">
 
@@ -22,13 +31,16 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserName)
-                </td>
+                @if (!item.Hidden || ViewBag.IsUserAdmin)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
 
-                <td>
-                    @Html.ActionLink("Years", "Years", new {userId = item.Id}, new {@class = "btn btn-primary"})
-                </td>
+                    <td>
+                        @Html.ActionLink("Years", "Years", new {userId = item.Id}, new {@class = "btn btn-primary"})
+                    </td>
+                }
                 @if (ViewBag.IsUserAdmin)
                 {
                     <td>
@@ -40,8 +52,17 @@
                     </td>
 
                     <td>
-                        @Html.ActionLink("Delete user", "DeleteUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
+                        @Html.ActionLink("Show user", "ShowUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
+
                     </td>
+                    <td>
+                        @Html.ActionLink("Assign users", "AssignUser", "Shots", new{userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+                    </td>
+
+
+                    @* <td> *@
+                    @*     @Html.ActionLink("Delete user", "DeleteUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"}) *@
+                    @* </td> *@
                 }
             </tr>
         }
@@ -52,8 +73,9 @@
     }
     else
     {
-        @Html.ActionLink("Add new user", "AddUser", null, new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
+        @Html.ActionLink("Add new user", "AddUser", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
     }
+
 
 
 </div>

@@ -1,7 +1,37 @@
-
+@using DatabaseSetupLocal.Repository
+@model List<(UserShots, List<int>)>
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+    var year = DateTime.Now.Year;
 }
 
 <h2>Results</h2>
+<table>
+    <tr>
+        <th>
+            <h4>User name:</h4>
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            @if (!item.Item1.Hidden || ViewBag.IsUserAdmin)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Item1.UserName)
+                </td>
+                <td>
+
+                    @{
+                        var sum = item.Item2.Sum();
+                        Html.DisplayFor(modelItem => sum);
+
+                    }
+                </td>
+            }
+        </tr>
+    }
+</table>

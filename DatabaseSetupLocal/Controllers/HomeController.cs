@@ -24,10 +24,11 @@ public class HomeController : Controller
         var appUserId = User.Identity.GetUserId();
         ViewBag.AppUserId = appUserId;
         var shotsRepository = new ShotsRepository(new ShotsContext());
+        var race = AppSetup.GetCurrentRaceSchedule();
         ViewBag.UserHasShots = shotsRepository.GetIfAppUserHasShots(appUserId);
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
-        return View();
+        return View(race);
     }
 
     public IActionResult Privacy()

@@ -18,7 +18,10 @@
     <h2>@ViewBag.User.UserName</h2>
     <h2>@ViewBag.Year</h2>
     <h2>@ViewBag.Location</h2>
-
+    @if (Model.Locked)
+    {
+        <h3 style="color: red">Race is locked, editing is turned off.</h3>
+    }
     <table >
         <tr>
             <th>
@@ -81,7 +84,7 @@
         </tr>
     </table>
     <div>
-        @if (ViewBag.HasAccessToEdit)
+        @if (ViewBag.HasAccessToEdit || ViewBag.IsAdmin || !Model.Locked)
         {
             @Html.ActionLink("Edit", "EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
         }
@@ -89,9 +92,11 @@
         {
             <p>You dont have access to edit.</p>
         }
-        @if (ViewBag.HasAccessToEdit)
+        @if (ViewBag.HasAccessToEdit || ViewBag.IsAdmin)
         {
             @Html.ActionLink("Get race results", "GetRaceResults", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
         }
     </div>
+    <a href="javascript:history.go(-1)" class = "btn btn-primary" >Back</a>
+    
 </div>

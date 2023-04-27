@@ -135,6 +135,19 @@ public static class AppSetup
         return f1Grid;
     }
 
+    public static List<string> AbrToFullName(List<string> abr)
+    {
+        var f1Grid = DeserializeDrivers();
+        var res = new List<string>();
+
+        foreach (var s in abr)
+        {
+            res.Add(f1Grid.Drivers.Where(x => x.Abbreviation == s).First().FullName);
+        }
+
+        return res;
+    }
+
     public static void SerializeDates()
     {
         var file = "dates.json";
@@ -159,7 +172,7 @@ public static class AppSetup
         return f1Schedule;
     }
 
-    public static string GetCurrentRace()
+    public static string GetCurrentRaceLocation()
     {
         var f1Schedule = DeserializeDates();
         var listOfDates = f1Schedule.Races
@@ -169,6 +182,53 @@ public static class AppSetup
         var closestRaceName = f1Schedule.Races.Where(x => x.F1Events.Where(x => x.EventDateAndTime == closest).Any())
             .First().RaceName;
         return closestRaceName;
+    }
+
+    public static RaceSchedule GetCurrentRaceSchedule()
+    {
+        var f1Schedule = DeserializeDates();
+        var listOfDates = f1Schedule.Races
+            .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime).ToList();
+
+        var closestDate = ReturnClosest(listOfDates);
+        var closestRace = f1Schedule.Races.Where(x => x.F1Events.Where(x => x.EventDateAndTime == closestDate).Any())
+            .First();
+        return closestRace;
+    }
+
+    public static async Task ScheduleTasks()
+    {
+        var taskTimes = new List<DateTime>();
+        taskTimes.AddRange(AppSetup.DeserializeDates().Races
+            .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").Select(x => x.EventDateAndTime).ToList())
+            .ToList().SelectMany(x => x));
+        var currentRaceLocation = AppSetup.GetCurrentRaceLocation();
+        var currentYear = DateTime.Now.Year;
+
+        await ScheduleTasksAtSpecifiedTimes(taskTimes, async () =>
+        {
+            Console.WriteLine("It went off!");
+            var shotsRepo = new ShotsRepository(new ShotsContext());
+            shotsRepo.LockCurrentRace(currentYear, currentRaceLocation);
+            // Call your method that saves the form here.
+        });
+    }
+
+    public static async Task ScheduleTasksAtSpecifiedTimes(List<DateTime> times, Func<Task> taskFunc)
+    {
+        while (times.Count > 0)
+        {
+            var nextTime = times.OrderBy(x => x).First();
+            var delayTime = nextTime - DateTime.Now;
+            if (delayTime.TotalMilliseconds > 0)
+            {
+                await Task.Delay(delayTime);
+            }
+
+            await taskFunc();
+            Console.WriteLine("It went off.");
+            times.Remove(nextTime);
+        }
     }
 
     public static DateTime ReturnClosest(List<DateTime> dateTimes)

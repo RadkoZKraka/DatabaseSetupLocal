@@ -34,6 +34,26 @@ public class AdminController : Controller
 
         return View(usersList);
     }
+    public IActionResult LockPreviousRaces()
+    {
+        var appUserId = User.Identity.GetUserId();
+
+        var usersList = _userRepository.GetUsers();
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+
+        return RedirectToAction("Index");
+    }
+    public IActionResult LockCurrentRace()
+    {
+        var appUserId = User.Identity.GetUserId();
+
+        var usersList = _userRepository.GetUsers();
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+
+        return RedirectToAction("Index");
+    }
     public ActionResult EditAppUser(string? userId)
     {
 

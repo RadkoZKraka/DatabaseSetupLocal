@@ -1,9 +1,13 @@
-﻿@{
+﻿@model RaceSchedule
+@{
     ViewData["Title"] = "Home Page";
 }
 
+
 <div class="text-center">
     <h1 class="display-4">Welcome to F1Shots™</h1>
+    <h2>@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToString("f")</h2>
+    <h2 style="font-weight: bold" id="countdown"></h2>
     @if (ViewBag.AppUserId == null)
     {
         <h3>Login to get to current race.</h3>
@@ -23,9 +27,36 @@
     }
     <br/>
     @Html.ActionLink("Users List", "Index", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+    <br/>
     @if (ViewBag.IsAdmin)
-        {
-                @Html.ActionLink("Admin do it all button", "Index", "Admin", null, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+    {
+        @Html.ActionLink("Admin do it all button", "Index", "Admin", null, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
 
-        }
-    </div>
+    }
+</div>
+<script>
+    // Set the target date and time (replace with your own)
+    var date = "@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToUniversalTime().ToString("s")Z";
+    var targetDate = new Date(Date.parse(date));
+    
+    // Get the timer element
+    var timerElement = document.getElementById("countdown");
+    
+    // Update the timer element every second
+    setInterval(function() {
+        // Get the current date and time
+        var currentDate = new Date();
+        
+        // Calculate the time remaining
+        var timeRemaining = targetDate - currentDate;
+        
+        // Calculate the days, hours, minutes, and seconds remaining
+        var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+        
+        // Update the timer element with the remaining time
+        timerElement.innerHTML = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
+    }, 1000);
+</script>

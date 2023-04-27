@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Http.Extensions; 
+using Microsoft.AspNetCore.Http.Extensions;
 
 
 namespace DatabaseSetupLocal.Controllers;
@@ -43,14 +43,27 @@ public class ShotsController : Controller
 
         return View(users.ToList());
     }
+
     public IActionResult Results()
     {
-        var users = ShotsRepository.GetUsers();
+        var users = ShotsRepository.GetUsers().ToArray();
         var userId = User.Identity.GetUserId();
         ViewBag.AppUserId = userId;
         ViewBag.IsUserAdmin = UserRepository.GetIfUserIsAdminById(userId);
+        var usersPoints = new List<(UserShots, List<int>)>();
+        foreach (var user in users)
+        {
+            usersPoints.Add((user, ShotsRepository.GetUserPointsByYear(user.Id, DateTime.Now.Year)));
+        }
 
-        return View(users.ToList());
+        ViewBag.UsersPoints = usersPoints;
+        return View(usersPoints);
+    }
+
+    public IActionResult Schedule()
+    {
+        var schedule = AppSetup.DeserializeDates();
+        return View(schedule);
     }
 
     public ActionResult Races(string userId, int year)
@@ -77,7 +90,7 @@ public class ShotsController : Controller
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
-        
+
         var race = ShotsRepository.GetRaceById(raceId);
 
         return View(race);
@@ -91,25 +104,46 @@ public class ShotsController : Controller
 
         return View(years);
     }
+
     public ActionResult HideUser(string userId)
     {
         ShotsRepository.HideUser(userId);
 
-        return View("Index", ShotsRepository.GetUsers().ToList());
+        return RedirectToAction("Index");
     }
+
+    public ActionResult ShowUser(string userId)
+    {
+        ShotsRepository.ShowUser(userId);
+
+        return RedirectToAction("Index");
+    }
+
     public ActionResult DeleteUser(string userId)
     {
         ShotsRepository.DeleteUser(userId);
 
-        return View("Index");
+        return RedirectToAction("Index");
     }
-    public void GetRaceResults(string userId)
+
+    public ActionResult GetRaceResults(int raceId)
     {
-        ViewBag.User = ShotsRepository.GetUserById(userId);
         ViewBag.UsersList = UserRepository.GetUsers();
-        var years = ShotsRepository.GetUsersYears(userId);
-        Response.Redirect(HttpContext.Request.GetEncodedUrl());
+        var race = ShotsRepository.GetRaceById(raceId);
+        var results = F1WebScraper.GetRaceResults(race.RaceYear, race.RaceNo);
+        var usersShots = race.Shot.Select(x => x.UsersShotDriver).ToList();
+        var fullNameResult = AppSetup.AbrToFullName(results);
+        var listOfPoints = ShotsRepository.CalculateUsersPoints(usersShots, fullNameResult);
+        for (int i = 0; i < listOfPoints.Count; i++)
+        {
+            race.Shot[i].Points = listOfPoints[i];
+            race.Shot[i].ResultDriver = results[i];
+        }
+
+        ShotsRepository.UpdateRace(race);
+        return Redirect(HttpContext.Request.Headers["Referer"]);
     }
+    
 
     public ActionResult EditOneShot(int? shotId)
     {
@@ -168,7 +202,8 @@ public class ShotsController : Controller
         ViewBag.RaceId = raceId;
         ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
         ViewBag.PreviousUrl = HttpContext.Request.GetEncodedUrl();
-        
+        ViewBag.CurrentRace = AppSetup.GetCurrentRaceSchedule();
+
 
         var selectListItems = new List<string>();
         selectListItems.AddRange(AppSetup.DeserializeDrivers().Drivers.Select(x => x.FullName).ToList());
@@ -232,8 +267,49 @@ public class ShotsController : Controller
         var user = UserRepository.GetUserById(userId);
         var shots = AppSetup.SetupShotsForNewUser(userId, user.FirstName + " " + user.LastName);
         ShotsRepository.InsertUser(shots);
-        return View("../Views/Home/Index");
+        return RedirectToAction("Index");
     }
+
+    public ActionResult AssignUser(string userId)
+    {
+        if (String.IsNullOrEmpty(userId))
+        {
+            return HttpNotFound();
+        }
+
+        var user = ShotsRepository.GetUserById(userId);
+        ViewBag.UsersList = UserRepository.GetUsers().Select(x => new{x.Id, x.FirstName, x.LastName});
+        return View(user);
+    }
+
+    [HttpPost, ActionName("AssignUser")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AssignUserPost(string userId)
+    {
+
+        var userModelToUpdate = await ShotsContext.UserModel.FirstOrDefaultAsync(s => s.Id == userId);
+        if (await TryUpdateModelAsync<UserShots>(
+                userModelToUpdate,
+                "",
+                s => s.OwnerId))
+        {
+            try
+            {
+                await ShotsContext.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException /* ex */)
+            {
+                //Log the error (uncomment ex variable name and write a log.)
+                ModelState.AddModelError("", "Unable to save changes. " +
+                                             "Try again, and if the problem persists, " +
+                                             "see your system administrator.");
+            }
+        }
+
+        return View("../Home/Index");
+    }
+
 
     public ActionResult CurrentRace()
     {
@@ -242,12 +318,12 @@ public class ShotsController : Controller
 
         ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
         ViewBag.UserId = userShot.Id;
-        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRace());
-        ViewBag.Location = AppSetup.GetCurrentRace();
+        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation());
+        ViewBag.Location = AppSetup.GetCurrentRaceLocation();
 
         var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
-        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRace());
+        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRaceLocation());
         if (shots == null)
         {
             return HttpNotFound();
@@ -263,12 +339,12 @@ public class ShotsController : Controller
 
         ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
         ViewBag.UserId = userShot.Id;
-        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRace());
-        ViewBag.Location = AppSetup.GetCurrentRace();
+        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation());
+        ViewBag.Location = AppSetup.GetCurrentRaceLocation();
 
         var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
-        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRace());
+        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRaceLocation());
         if (shots == null)
         {
             return HttpNotFound();
