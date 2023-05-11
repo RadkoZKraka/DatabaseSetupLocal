@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Areas.Identity.Data;
 using DatabaseSetupLocal.Models;
-using DatabaseSetupLocal.Rep;
+using DatabaseSetupLocal.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
@@ -19,6 +19,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 AppSetup.SeedDb();
 AppSetup.SerializeDrivers();
 AppSetup.SerializeDates();
+AppSetup.LockPreviousRaces();
 await AppSetup.ScheduleTasks();
 // AppSetup.GetCurrentRace();
 

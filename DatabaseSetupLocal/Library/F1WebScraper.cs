@@ -3,7 +3,7 @@ using DatabaseSetupLocal.Models;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 
-namespace DatabaseSetupLocal.Rep;
+namespace DatabaseSetupLocal.Library;
 
 public static class F1WebScraper
 {

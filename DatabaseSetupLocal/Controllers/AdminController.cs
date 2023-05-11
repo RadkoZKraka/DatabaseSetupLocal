@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices.JavaScript;
 using DatabaseSetupLocal.Areas.Identity.Data;
 using DatabaseSetupLocal.Data;
-using DatabaseSetupLocal.Rep;
+using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Repository;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;

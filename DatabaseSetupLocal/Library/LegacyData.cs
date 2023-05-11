@@ -2,7 +2,7 @@
 using DatabaseSetupLocal.Models;
 using OfficeOpenXml;
 
-namespace DatabaseSetupLocal.Rep;
+namespace DatabaseSetupLocal.Library;
 
 public static class LegacyData
 {

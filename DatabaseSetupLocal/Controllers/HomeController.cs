@@ -2,7 +2,7 @@
 using DatabaseSetupLocal.Data;
 using Microsoft.AspNetCore.Mvc;
 using DatabaseSetupLocal.Models;
-using DatabaseSetupLocal.Rep;
+using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Repository;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;

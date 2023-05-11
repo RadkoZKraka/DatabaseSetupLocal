@@ -1,15 +1,10 @@
-﻿using System.ComponentModel;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Repository;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using NuGet.Packaging;
-using OfficeOpenXml;
-using LicenseContext = OfficeOpenXml.LicenseContext;
 
-namespace DatabaseSetupLocal.Rep;
+namespace DatabaseSetupLocal.Library;
 
 public static class AppSetup
 {
@@ -178,10 +173,30 @@ public static class AppSetup
         var listOfDates = f1Schedule.Races
             .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime).ToList();
 
-        var closest = ReturnClosest(listOfDates);
+        var closest = GetNextDateTime(listOfDates);
         var closestRaceName = f1Schedule.Races.Where(x => x.F1Events.Where(x => x.EventDateAndTime == closest).Any())
             .First().RaceName;
         return closestRaceName;
+    }
+
+    public static void LockPreviousRaces()
+    {
+        
+        var listOfLocations = DeserializeDates().Races.Select(x => x.RaceName).ToList();
+        var times = AppSetup.DeserializeDates().Races
+            .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").Select(x => x.EventDateAndTime).ToList())
+            .ToList().SelectMany(x => x);
+        var racesPassed = GetNumberOfPassedDates(times.ToList());
+        foreach (var location in listOfLocations.Take(racesPassed))
+        {
+            var shotsRepo = new ShotsRepository(new ShotsContext());
+            shotsRepo.LockRace(DateTime.Now.Year, location);
+        }
+    }
+    public static int GetNumberOfPassedDates(List<DateTime> dateTimes)
+    {
+        DateTime now = DateTime.Now;
+        return dateTimes.Count(dt => dt < now);
     }
 
     public static RaceSchedule GetCurrentRaceSchedule()
@@ -190,7 +205,7 @@ public static class AppSetup
         var listOfDates = f1Schedule.Races
             .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime).ToList();
 
-        var closestDate = ReturnClosest(listOfDates);
+        var closestDate = GetNextDateTime(listOfDates);
         var closestRace = f1Schedule.Races.Where(x => x.F1Events.Where(x => x.EventDateAndTime == closestDate).Any())
             .First();
         return closestRace;
@@ -202,6 +217,7 @@ public static class AppSetup
         taskTimes.AddRange(AppSetup.DeserializeDates().Races
             .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").Select(x => x.EventDateAndTime).ToList())
             .ToList().SelectMany(x => x));
+
         var currentRaceLocation = AppSetup.GetCurrentRaceLocation();
         var currentYear = DateTime.Now.Year;
 
@@ -209,54 +225,40 @@ public static class AppSetup
         {
             Console.WriteLine("It went off!");
             var shotsRepo = new ShotsRepository(new ShotsContext());
-            shotsRepo.LockCurrentRace(currentYear, currentRaceLocation);
+            await shotsRepo.LockRaceAsync(currentYear, currentRaceLocation);
             // Call your method that saves the form here.
         });
     }
 
     public static async Task ScheduleTasksAtSpecifiedTimes(List<DateTime> times, Func<Task> taskFunc)
     {
-        while (times.Count > 0)
+        var nextTaskTime = times.OrderBy(t => t).FirstOrDefault(t => t > DateTime.Now);
+        if (nextTaskTime == default)
         {
-            var nextTime = times.OrderBy(x => x).First();
-            var delayTime = nextTime - DateTime.Now;
-            if (delayTime.TotalMilliseconds > 0)
-            {
-                await Task.Delay(delayTime);
-            }
-
-            await taskFunc();
-            Console.WriteLine("It went off.");
-            times.Remove(nextTime);
+            return;
         }
+
+        // Calculate the delay until the next task time
+        var delayTime = nextTaskTime - DateTime.Now;
+        var timer = new System.Timers.Timer(delayTime.TotalMilliseconds);
+        timer.AutoReset = false;
+
+        // Schedule the next task
+        timer.Elapsed += async (sender, e) =>
+        {
+            await taskFunc();
+
+            // Schedule the next task recursively
+            await ScheduleTasksAtSpecifiedTimes(times, taskFunc);
+        };
+
+        timer.Start();
     }
 
-    public static DateTime ReturnClosest(List<DateTime> dateTimes)
+    public static DateTime GetNextDateTime(List<DateTime> dateTimes)
     {
-        //Establish Now for simpler code below
-        var now = DateTime.Now;
-
-        //Start by assuming the first in the list is the closest
-        var closestDateToNow = dateTimes[0];
-
-        //Set up initial interval value, accounting for dates before and after Now
-        TimeSpan shortestInterval = now > dateTimes[0] ? now - dateTimes[0] : dateTimes[0] - now;
-
-        //Loop through the rest of the list and correct closest item if appropriate
-        //Note this starts at index 1, which is the SECOND value, we've evaluated the first above
-        for (var i = 1; i < dateTimes.Count; i++)
-        {
-            TimeSpan testinterval = now > dateTimes[i] ? now - dateTimes[i] : dateTimes[i] - now;
-
-            if (testinterval < shortestInterval)
-            {
-                shortestInterval = testinterval;
-                closestDateToNow = dateTimes[i];
-            }
-        }
-
-        //return the closest Datetime object
-        return closestDateToNow;
+        DateTime now = DateTime.Now;
+        return dateTimes.OrderBy(dt => dt).FirstOrDefault(dt => dt > now);
     }
 
     public static UserShots SetupShotsForNewUser(string ownerId, string fullName)
