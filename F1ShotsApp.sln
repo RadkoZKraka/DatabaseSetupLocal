@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSetupLocal", "DatabaseSetupLocal\DatabaseSetupLocal.csproj", "{14A4FCCD-6B42-4DED-A44D-B972EFE074CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F1ShotsApp", "F1ShotsApp\F1ShotsApp.csproj", "{14A4FCCD-6B42-4DED-A44D-B972EFE074CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

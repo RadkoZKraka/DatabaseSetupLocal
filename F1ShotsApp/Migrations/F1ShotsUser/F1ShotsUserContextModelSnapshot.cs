@@ -3,7 +3,6 @@ using System;
 using DatabaseSetupLocal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,11 +10,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations.F1ShotsUser
 {
     [DbContext(typeof(UsersContext))]
-    [Migration("20230228200348_CreateCustomUserData10")]
-    partial class CreateCustomUserData10
+    partial class F1ShotsUserContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.3");
@@ -224,7 +221,7 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Areas.Identity.Data.F1ShotsUser", b =>
+            modelBuilder.Entity("F1ShotsApp.Areas.Identity.Data.AppUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
@@ -240,7 +237,7 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                     b.Property<string>("LastName")
                         .HasColumnType("TEXT");
 
-                    b.HasDiscriminator().HasValue("F1ShotsUser");
+                    b.HasDiscriminator().HasValue("AppUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

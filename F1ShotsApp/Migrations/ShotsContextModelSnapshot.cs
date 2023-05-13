@@ -17,7 +17,7 @@ namespace DatabaseSetupLocal.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
+            modelBuilder.Entity("F1ShotsApp.Models.Race", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,7 +57,7 @@ namespace DatabaseSetupLocal.Migrations
                     b.ToTable("RaceModel");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.Shot", b =>
+            modelBuilder.Entity("F1ShotsApp.Models.Shot", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -85,7 +85,7 @@ namespace DatabaseSetupLocal.Migrations
                     b.ToTable("ShotModel");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.UserShots", b =>
+            modelBuilder.Entity("F1ShotsApp.Models.UserShots", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -109,26 +109,26 @@ namespace DatabaseSetupLocal.Migrations
                     b.ToTable("UserModel");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
+            modelBuilder.Entity("F1ShotsApp.Models.Race", b =>
                 {
-                    b.HasOne("DatabaseSetupLocal.Models.UserShots", null)
+                    b.HasOne("F1ShotsApp.Models.UserShots", null)
                         .WithMany("Race")
                         .HasForeignKey("UserShotsId");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.Shot", b =>
+            modelBuilder.Entity("F1ShotsApp.Models.Shot", b =>
                 {
-                    b.HasOne("DatabaseSetupLocal.Models.Race", null)
+                    b.HasOne("F1ShotsApp.Models.Race", null)
                         .WithMany("Shot")
                         .HasForeignKey("RaceId");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.Race", b =>
+            modelBuilder.Entity("F1ShotsApp.Models.Race", b =>
                 {
                     b.Navigation("Shot");
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Models.UserShots", b =>
+            modelBuilder.Entity("F1ShotsApp.Models.UserShots", b =>
                 {
                     b.Navigation("Race");
                 });

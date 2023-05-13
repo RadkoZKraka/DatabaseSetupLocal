@@ -84,7 +84,7 @@
         </tr>
     </table>
     <div>
-        @if (ViewBag.HasAccessToEdit || ViewBag.IsAdmin || !Model.Locked)
+        @if (ViewBag.HasAccessToEdit && !Model.Locked || ViewBag.IsAdmin)
         {
             @Html.ActionLink("Edit", "EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
         }

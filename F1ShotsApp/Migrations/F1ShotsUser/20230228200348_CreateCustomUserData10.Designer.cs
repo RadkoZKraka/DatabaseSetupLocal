@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations.F1ShotsUser
 {
     [DbContext(typeof(UsersContext))]
-    [Migration("20230225200605_CreateCustomUserData7")]
-    partial class CreateCustomUserData7
+    [Migration("20230228200348_CreateCustomUserData10")]
+    partial class CreateCustomUserData10
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -167,9 +167,11 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderKey")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderDisplayName")
@@ -207,9 +209,11 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
@@ -220,15 +224,15 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Areas.Identity.Data.F1ShotsUser", b =>
+            modelBuilder.Entity("F1ShotsApp.Areas.Identity.Data.F1ShotsUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
+                    b.Property<bool>("Admin")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("F1ShotsUserId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("TEXT");

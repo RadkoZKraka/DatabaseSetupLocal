@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations.F1ShotsUser
 {
     [DbContext(typeof(UsersContext))]
-    [Migration("20230225195937_CreateCustomUserData6")]
-    partial class CreateCustomUserData6
+    [Migration("20230225200605_CreateCustomUserData7")]
+    partial class CreateCustomUserData7
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,7 +220,7 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Areas.Identity.Data.F1ShotsUser", b =>
+            modelBuilder.Entity("F1ShotsApp.Areas.Identity.Data.F1ShotsUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 

@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-DatabaseSetupLocal-5D7F0B17-3F16-4D74-9548-E3FAB6DBD389</UserSecretsId>
+        <RootNamespace>DatabaseSetupLocal</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseSetupLocal.Migrations.F1ShotsUser
 {
     [DbContext(typeof(UsersContext))]
-    [Migration("20230301135154_CreateCustomUserData11")]
-    partial class CreateCustomUserData11
+    [Migration("20230225195850_CreateCustomUserData5")]
+    partial class CreateCustomUserData5
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -167,11 +167,9 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderDisplayName")
@@ -209,11 +207,9 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
@@ -224,12 +220,9 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DatabaseSetupLocal.Areas.Identity.Data.AppUser", b =>
+            modelBuilder.Entity("F1ShotsApp.Areas.Identity.Data.F1ShotsUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.Property<bool>("Admin")
-                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
@@ -240,7 +233,7 @@ namespace DatabaseSetupLocal.Migrations.F1ShotsUser
                     b.Property<string>("LastName")
                         .HasColumnType("TEXT");
 
-                    b.HasDiscriminator().HasValue("AppUser");
+                    b.HasDiscriminator().HasValue("F1ShotsUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
