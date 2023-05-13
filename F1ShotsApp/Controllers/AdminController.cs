@@ -14,16 +14,20 @@ public class AdminController : Controller
 {
     private readonly ILogger<AdminController> _logger;
     private readonly UserRepository _userRepository;
+    private readonly ShotsRepository _shotRepository;
 
     public AdminController(ILogger<AdminController> logger)
     {
         _userRepository = new UserRepository(new UsersContext());
+        _shotRepository = new ShotsRepository(new ShotsContext());
         _logger = logger;
     }
+
     public IActionResult Index()
     {
         return View();
     }
+
     public IActionResult Users()
     {
         var appUserId = User.Identity.GetUserId();
@@ -34,6 +38,7 @@ public class AdminController : Controller
 
         return View(usersList);
     }
+
     public IActionResult LockPreviousRaces()
     {
         var appUserId = User.Identity.GetUserId();
@@ -41,9 +46,23 @@ public class AdminController : Controller
         var usersList = _userRepository.GetUsers();
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
-
+        AppSetup.LockPreviousRaces();
         return RedirectToAction("Index");
     }
+
+    public IActionResult LockPreviousYear()
+    {
+        var appUserId = User.Identity.GetUserId();
+
+        var usersList = _userRepository.GetUsers();
+        var usersRepository = new UserRepository(new UsersContext());
+        var shotsRepository = new ShotsRepository(new ShotsContext());
+        shotsRepository.LockYear(2022);
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        return RedirectToAction("Index");
+    }
+
+
     public IActionResult LockCurrentRace()
     {
         var appUserId = User.Identity.GetUserId();
@@ -54,9 +73,38 @@ public class AdminController : Controller
 
         return RedirectToAction("Index");
     }
+
+    public IActionResult SumPointsForRaces()
+    {
+        var races = _shotRepository.GetRaces();
+        foreach (var race in races)
+        {
+            _shotRepository.SumPointsInRace(race);
+        }
+
+        return RedirectToAction("Index");
+    }
+
+    public IActionResult CountPointsInLockedRaces()
+    {
+        var appUserId = User.Identity.GetUserId();
+
+        var usersList = _shotRepository.GetUsers();
+        var lockedRaces = usersList.Select(x => x.Race.Where(x => x.Locked)).SelectMany(x => x).ToList();
+        foreach (var lockedRace in lockedRaces)
+        {
+            _shotRepository.CountPointsByRace(lockedRace);
+        }
+
+        ;
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+
+        return RedirectToAction("Index");
+    }
+
     public ActionResult EditAppUser(string? userId)
     {
-
         var appUserId = User.Identity.GetUserId();
 
         var usersRepository = new UserRepository(new UsersContext());
@@ -66,6 +114,7 @@ public class AdminController : Controller
 
         return View(user);
     }
+
     [HttpPost, ActionName("EditAppUser")]
     [AllowAnonymous]
     // [ValidateAntiForgeryToken]
@@ -94,9 +143,9 @@ public class AdminController : Controller
 
         return View(userToUpdate);
     }
+
     public ActionResult EditUsers()
     {
-
         var appUserId = User.Identity.GetUserId();
 
         var usersList = _userRepository.GetUsers();
@@ -107,7 +156,7 @@ public class AdminController : Controller
 
         return View(users);
     }
-    
+
     [HttpPost, ActionName("EditUsers")]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
@@ -138,32 +187,51 @@ public class AdminController : Controller
 
         return View(usersToUpdate);
     }
-    
+
     public void DownloadCountryListOfRaces()
     {
         var year = DateTime.Now.Year;
         F1WebScraper.GetCountryListOfRaces(year);
     }
-    public void DownloadDatesListOfRaces()
+
+    public IActionResult DownloadDatesListOfRaces()
     {
         var year = DateTime.Now.Year;
         F1WebScraper.GetDatesListOfRaces(year);
+        return RedirectToAction("Index");
     }
 
-    public void DownloadResultOfRaces(int year, int raceNumber)
+    public IActionResult DownloadResultOfRaces(int year, int raceNumber)
     {
         var raceResults = F1WebScraper.GetRaceResults(year, raceNumber);
+        return RedirectToAction("Index");
     }
-    public void GetDriversData()
+
+    public IActionResult GetDriversData()
     {
-        
-        F1WebScraper.GetDriversData();
+        int[] years = {2022, 2023};
+        foreach (var year in years)
+        {
+            F1WebScraper.GetDriversData(year);
+        }
+
+        return RedirectToAction("Index");
     }
-    public void GetScheduleData()
+
+    public IActionResult ResetLegacyData()
     {
-        
+        AppSetup.DeleteDb();
+        AppSetup.SeedDb();
+        return RedirectToAction("Index");
+    }
+
+
+    public IActionResult GetScheduleData()
+    {
         F1WebScraper.GetScheduleData();
+        return RedirectToAction("Index");
     }
+
     public void DeleteUser()
     {
         var userId = User.Identity.GetUserId();

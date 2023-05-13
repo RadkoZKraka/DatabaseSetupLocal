@@ -17,9 +17,14 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 
 AppSetup.SeedDb();
-AppSetup.SerializeDrivers();
+int[] years = {2022, 2023};
+foreach (var year in years)
+{
+    AppSetup.SerializeDrivers(year);
+
+}
 AppSetup.SerializeDates();
-AppSetup.LockPreviousRaces();
+// AppSetup.LockPreviousRaces();
 await AppSetup.ScheduleTasks();
 // AppSetup.GetCurrentRace();
 

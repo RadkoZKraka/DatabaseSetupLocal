@@ -36,6 +36,13 @@
             <th>
                 <h5>Points:</h5>
             </th>
+            @if (ViewBag.IsAdmin)
+            {
+                <td>
+                    <h5>ID:</h5>
+
+                </td>
+            }
             <th></th>
         </tr>
 
@@ -54,6 +61,12 @@
                 <td>
                     @Html.DisplayFor(modelItem => Model.Shot[i - 1].Points)
                 </td>
+                @if (ViewBag.IsAdmin)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => Model.Shot[i - 1].Id)
+                    </td>
+                }
             </tr>
         }
         <tr>
@@ -81,6 +94,7 @@
                     @Html.DisplayFor(modelItem => Model.FastestLap)
                 </td>
             }
+
         </tr>
     </table>
     <div>
@@ -97,6 +111,6 @@
             @Html.ActionLink("Get race results", "GetRaceResults", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
         }
     </div>
-    <a href="javascript:history.go(-1)" class = "btn btn-primary" >Back</a>
-    
+    <a href="javascript:history.go(-1)" class="btn btn-primary">Back</a>
+
 </div>

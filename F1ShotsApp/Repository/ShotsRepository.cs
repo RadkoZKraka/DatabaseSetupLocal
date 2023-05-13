@@ -1,5 +1,6 @@
 ﻿using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Exceptions;
+using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +37,10 @@ public class ShotsRepository : IShotRepository
     {
         return _shotsContext.UserModel.ToList();
     }
+    public IEnumerable<Race> GetRaces()
+    {
+        return _shotsContext.RaceModel.ToList();
+    }
 
     public UserShots GetUserById(string userId)
     {
@@ -50,6 +55,16 @@ public class ShotsRepository : IShotRepository
     public UserShots GetUserByOwnerId(string userId)
     {
         return _shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault();
+    }
+    public void SumPointsInRace(Race race)
+    {
+        var points = 0;
+        foreach (var shot in race.Shot)
+        {
+            points += shot.Points;
+        }
+        race.Points = points;
+        UpdateRace(race);
     }
 
     public bool GetIfAppUserHasShots(string userId)
@@ -93,199 +108,233 @@ public class ShotsRepository : IShotRepository
         }
     }
 
-    public List<int> CalculateUsersPoints(List<string> listA, List<string> listB)
+    public void LockYear(int raceYear)
+    {
+        var races = _shotsContext.RaceModel.Where(x => x.RaceYear == raceYear).ToList();
+        races.ForEach(x => x.Locked = true);
+        foreach (var raceLocked in races)
         {
-            var result = new List<int>();
+            UpdateRace(raceLocked);
+        }
+    }
 
-            for (int i = 0; i < listA.Count; i++)
+    public void CountPointsByRace(Race race)
+    {
+        var results = F1WebScraper.GetRaceResults(race.RaceYear, race.RaceNo);
+        var usersShots = race.Shot.Select(x => x.UsersShotDriver).ToList();
+        var fullNameResult = AppSetup.AbrListToFullName(results, race.RaceYear);
+        for (int i = 0; i < usersShots.Count; i++)
+        {
+            if (usersShots[i].Length == 3)
             {
-                if (i == 0)
-                {
-                    if (listA[i] == listB[i])
-                    {
-                        result.Add(3);
-                        continue;
-                    }
+                usersShots[i] = AppSetup.AbrOneDriverToFullName(usersShots[i], race.RaceYear);
+            }
+        }
 
-                    if (listA[i + 1] == listB[i])
-                    {
-                        result.Add(1);
-                        continue;
-                    }
+        var listOfPoints = CalculateUsersPoints(usersShots, fullNameResult);
+        for (int i = 0; i < listOfPoints.Count; i++)
+        {
+            race.Shot[i].Points = listOfPoints[i];
+            race.Shot[i].ResultDriver = results[i];
+        }
+
+
+        UpdateRace(race);
+    }
+
+    public List<int> CalculateUsersPoints(List<string> listA, List<string> listB)
+    {
+        var result = new List<int>();
+
+        for (int i = 0; i < listA.Count; i++)
+        {
+            if (i == 0)
+            {
+                if (listA[i] == listB[i])
+                {
+                    result.Add(3);
+                    continue;
                 }
 
-                if (i == listA.Count - 1)
+                if (listA[i + 1] == listB[i])
                 {
-                    if (listA[i] == listB[i])
-                    {
-                        result.Add(3);
-                        continue;
-                    }
+                    result.Add(1);
+                    continue;
+                }
+            }
 
-                    if (listA[i - 1] == listB[i])
-                    {
-                        result.Add(1);
-                        continue;
-                    }
-
-                    result.Add(0);
-                    break;
+            if (i == listA.Count - 1)
+            {
+                if (listA[i] == listB[i])
+                {
+                    result.Add(3);
+                    continue;
                 }
 
-                if (i > 0)
+                if (listA[i - 1] == listB[i])
                 {
-                    if (listA[i] == listB[i])
-                    {
-                        result.Add(3);
-                        continue;
-                    }
-
-                    if (listA[i + 1] == listB[i])
-                    {
-                        result.Add(1);
-                        continue;
-                    }
-
-                    if (listA[i - 1] == listB[i])
-                    {
-                        result.Add(1);
-                        continue;
-                    }
+                    result.Add(1);
+                    continue;
                 }
 
                 result.Add(0);
+                break;
             }
 
-            return result;
-        }
-
-        public bool UpdateRacePoints(Race race, List<string> results)
-        {
-            for (int i = 0; i < race.Shot.Count; i++)
+            if (i > 0)
             {
-                race.Shot[i].ResultDriver = results[i];
+                if (listA[i] == listB[i])
+                {
+                    result.Add(3);
+                    continue;
+                }
+
+                if (listA[i + 1] == listB[i])
+                {
+                    result.Add(1);
+                    continue;
+                }
+
+                if (listA[i - 1] == listB[i])
+                {
+                    result.Add(1);
+                    continue;
+                }
             }
 
-            return true;
+            result.Add(0);
         }
 
-        public int? GetRaceIdByRaceLoc(string userId, string raceLoc)
+        return result;
+    }
+
+    public bool UpdateRacePoints(Race race, List<string> results)
+    {
+        for (int i = 0; i < race.Shot.Count; i++)
         {
-            return _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc).Id;
+            race.Shot[i].ResultDriver = results[i];
         }
 
-        public Race? GetRaceById(int raceId)
+        return true;
+    }
+
+    public int? GetRaceIdByRaceLoc(string userId, string raceLoc)
+    {
+        return _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc).Id;
+    }
+
+    public Race? GetRaceById(int raceId)
+    {
+        var race = _shotsContext.RaceModel.Find(raceId);
+        if (race == null)
         {
-            var race = _shotsContext.RaceModel.Find(raceId);
-            if (race == null)
-            {
-                throw new RaceDoesntExistException();
-            }
-
-            return race;
+            throw new RaceDoesntExistException();
         }
 
-        public int GetRaceYearById(int raceId)
+        return race;
+    }
+
+    public int GetRaceYearById(int raceId)
+    {
+        var race = _shotsContext.RaceModel.Find(raceId);
+        if (race == null)
         {
-            var race = _shotsContext.RaceModel.Find(raceId);
-            if (race == null)
-            {
-                throw new RaceDoesntExistException();
-            }
-
-            return race.RaceYear;
+            throw new RaceDoesntExistException();
         }
 
-        public List<Race> GetUserRacesById(string userId)
+        return race.RaceYear;
+    }
+
+    public List<Race> GetUserRacesById(string userId)
+    {
+        var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();
+        return result;
+    }
+
+    public List<int> GetUsersYears(string userId)
+    {
+        var yearsList = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList()
+                        ?? throw new YearListDoesntExistException();
+        return yearsList;
+    }
+
+    public List<int> GetUserPointsByYear(string userId, int year)
+    {
+        var userPointsByYear = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.Points);
+        var result = new List<int>();
+        var temp = 0;
+        foreach (var points in userPointsByYear)
         {
-            var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();
-            return result;
+            result.Add(temp + points);
         }
 
-        public List<int> GetUsersYears(string userId)
-        {
-            var yearsList = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList()
-                            ?? throw new YearListDoesntExistException();
-            return yearsList;
-        }
+        return result;
+    }
 
-        public List<int> GetUserPointsByYear(string userId, int year)
-        {
-            var userPointsByYear = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.Points);
-            var result = new List<int>();
-            var temp = 0;
-            foreach (var points in userPointsByYear)
-            {
-                result.Add(temp + points);
-            }
+    public List<String> GetListOfRaceLocations(int year)
+    {
+        var listOfRaces = _shotsContext.RaceModel.Where(x => x.RaceYear == year).Select(x => x.RaceLocation)
+            .ToList();
+        return listOfRaces;
+    }
 
-            return result;
-        }
+    public List<Shot>? GetUserShotsByUserIdAndRaceId(string userId, int raceId)
+    {
+        var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.Id == raceId)?.Shot;
+        return result;
+    }
 
-        public List<String> GetListOfRaceLocations(int year)
-        {
-            var listOfRaces = _shotsContext.RaceModel.Where(x => x.RaceYear == year).Select(x => x.RaceLocation)
-                .ToList();
-            return listOfRaces;
-        }
+    public List<Shot>? GetUserShotsByUserIdAndRaceLoc(string userId, string raceLoc)
+    {
+        var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc)?.Shot;
+        return result;
+    }
 
-        public List<Shot>? GetUserShotsByUserIdAndRaceId(string userId, int raceId)
-        {
-            var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.Id == raceId)?.Shot;
-            return result;
-        }
+    public void InsertUser(UserShots userShots)
+    {
+        _shotsContext.UserModel.Add(userShots);
+        _shotsContext.SaveChanges();
+    }
 
-        public List<Shot>? GetUserShotsByUserIdAndRaceLoc(string userId, string raceLoc)
-        {
-            var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc)?.Shot;
-            return result;
-        }
+    public void DeleteUser(string userId)
+    {
+        var user = _shotsContext.UserModel.Find(userId);
+        _shotsContext.UserModel.Remove(user);
+        _shotsContext.SaveChanges();
+    }
 
-        public void InsertUser(UserShots userShots)
-        {
-            _shotsContext.UserModel.Add(userShots);
-            _shotsContext.SaveChanges();
-        }
+    public void HideUser(string userId)
+    {
+        var user = _shotsContext.UserModel.Find(userId);
 
-        public void DeleteUser(string userId)
-        {
-            var user = _shotsContext.UserModel.Find(userId);
-            _shotsContext.UserModel.Remove(user);
-            _shotsContext.SaveChanges();
-        }
+        user.Hidden = true;
+        UpdateUser(user);
+    }
 
-        public void HideUser(string userId)
-        {
-            var user = _shotsContext.UserModel.Find(userId);
+    public void ShowUser(string userId)
+    {
+        var user = _shotsContext.UserModel.Find(userId);
 
-            user.Hidden = true;
-            UpdateUser(user);
-        }
+        user.Hidden = false;
+        UpdateUser(user);
+    }
 
-        public void ShowUser(string userId)
-        {
-            var user = _shotsContext.UserModel.Find(userId);
+    public void UpdateUser(UserShots userShots)
+    {
+        _shotsContext.Entry(userShots).State = EntityState.Modified;
+        _shotsContext.SaveChanges();
+    }
 
-            user.Hidden = false;
-            UpdateUser(user);
-        }
+    public void UpdateRace(Race race)
+    {
+        _shotsContext.RaceModel.Entry(race).State = EntityState.Modified;
+        _shotsContext.SaveChanges();
+    }
 
-        public void UpdateUser(UserShots userShots)
-        {
-            _shotsContext.Entry(userShots).State = EntityState.Modified;
-            _shotsContext.SaveChanges();
-        }
-
-        public void UpdateRace(Race race)
-        {
-            _shotsContext.RaceModel.Entry(race).State = EntityState.Modified;
-            _shotsContext.SaveChanges();
-        }
-
-        public void Save()
-        {
-            _shotsContext.SaveChanges();
-        }
+    public void Save()
+    {
+        _shotsContext.SaveChanges();
+    }
 
     private bool _disposed;
 

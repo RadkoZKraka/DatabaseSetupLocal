@@ -8,6 +8,13 @@ namespace DatabaseSetupLocal.Library;
 
 public static class AppSetup
 {
+    public static void DeleteDb()
+    {
+        using (var db = new ShotsContext())
+        {
+            db.Database.EnsureDeleted();
+        }
+    }
     public static void SeedDb()
     {
         using (var db = new ShotsContext())
@@ -29,7 +36,8 @@ public static class AppSetup
             currentUser.UserName = user.Key.ToUpper();
             currentUser.Race = new List<Race>();
             var raceNo = 1;
-            foreach (var race in user.Value)
+            var races = user.Value.Skip(1);
+            foreach (var race in races)
             {
                 var currentRace = new Race();
                 currentRace.Shot = new List<Shot>();
@@ -106,13 +114,13 @@ public static class AppSetup
         return raceListToSeed;
     }
 
-    public static void SerializeDrivers()
+    public static void SerializeDrivers(int year)
     {
-        var file = "drivers.json";
+        var file = $"drivers{year}.json";
         if (!File.Exists(file))
 
         {
-            var grid = F1WebScraper.GetDriversData();
+            var grid = F1WebScraper.GetDriversData(year);
             JsonSerializer serializer = new JsonSerializer();
             using (StreamWriter sw = new StreamWriter(file))
             using (JsonWriter writer = new JsonTextWriter(sw))
@@ -122,23 +130,31 @@ public static class AppSetup
         }
     }
 
-    public static F1Grid? DeserializeDrivers()
+    public static F1Grid? DeserializeDrivers(int year)
     {
-        var file = "drivers.json";
+        var file = $"drivers{year}.json";
         var f1Grid = JsonConvert.DeserializeObject<F1Grid>(File.ReadAllText(file));
 
         return f1Grid;
     }
 
-    public static List<string> AbrToFullName(List<string> abr)
+    public static List<string> AbrListToFullName(List<string> abr, int year)
     {
-        var f1Grid = DeserializeDrivers();
+        var f1Grid = DeserializeDrivers(year);
         var res = new List<string>();
 
         foreach (var s in abr)
         {
             res.Add(f1Grid.Drivers.Where(x => x.Abbreviation == s).First().FullName);
         }
+
+        return res;
+    }
+    public static string AbrOneDriverToFullName(string abr, int year)
+    {
+        var f1Grid = DeserializeDrivers(year);
+
+        var res = f1Grid.Drivers.Where(x => x.Abbreviation == abr).First().FullName;
 
         return res;
     }
@@ -193,6 +209,7 @@ public static class AppSetup
             shotsRepo.LockRace(DateTime.Now.Year, location);
         }
     }
+    
     public static int GetNumberOfPassedDates(List<DateTime> dateTimes)
     {
         DateTime now = DateTime.Now;

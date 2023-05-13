@@ -70,6 +70,10 @@ public class ShotsController : Controller
     {
         ViewBag.User = ShotsRepository.GetUserById(userId);
         ViewBag.Year = year;
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
+
         var races = ShotsRepository.GetUserRacesById(userId).Where(x => x.RaceYear == year).ToList();
         if (races == null)
         {
@@ -132,7 +136,16 @@ public class ShotsController : Controller
         var race = ShotsRepository.GetRaceById(raceId);
         var results = F1WebScraper.GetRaceResults(race.RaceYear, race.RaceNo);
         var usersShots = race.Shot.Select(x => x.UsersShotDriver).ToList();
-        var fullNameResult = AppSetup.AbrToFullName(results);
+        var fullNameResult = AppSetup.AbrListToFullName(results, race.RaceYear);
+        for (int i = 0; i < usersShots.Count; i++)
+        {
+
+            if (usersShots[i].Length == 3)
+            {
+                usersShots[i] = AppSetup.AbrOneDriverToFullName(usersShots[i], race.RaceYear);
+            }
+        }
+
         var listOfPoints = ShotsRepository.CalculateUsersPoints(usersShots, fullNameResult);
         for (int i = 0; i < listOfPoints.Count; i++)
         {
@@ -143,7 +156,7 @@ public class ShotsController : Controller
         ShotsRepository.UpdateRace(race);
         return Redirect(HttpContext.Request.Headers["Referer"]);
     }
-    
+
 
     public ActionResult EditOneShot(int? shotId)
     {
@@ -206,7 +219,8 @@ public class ShotsController : Controller
 
 
         var selectListItems = new List<string>();
-        selectListItems.AddRange(AppSetup.DeserializeDrivers().Drivers.Select(x => x.FullName).ToList());
+        selectListItems.AddRange(AppSetup.DeserializeDrivers(ShotsRepository.GetRaceYearById(raceId)).Drivers
+            .OrderBy(x => x.LastName).Select(x => x.FullName).ToList());
         ViewBag.F1Grid = selectListItems;
 
         if (raceId == null)
@@ -278,7 +292,7 @@ public class ShotsController : Controller
         }
 
         var user = ShotsRepository.GetUserById(userId);
-        ViewBag.UsersList = UserRepository.GetUsers().Select(x => new{x.Id, x.FirstName, x.LastName});
+        ViewBag.UsersList = UserRepository.GetUsers().Select(x => new {x.Id, x.FirstName, x.LastName});
         return View(user);
     }
 
@@ -286,7 +300,6 @@ public class ShotsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AssignUserPost(string userId)
     {
-
         var userModelToUpdate = await ShotsContext.UserModel.FirstOrDefaultAsync(s => s.Id == userId);
         if (await TryUpdateModelAsync<UserShots>(
                 userModelToUpdate,

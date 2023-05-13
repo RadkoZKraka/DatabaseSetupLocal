@@ -8,12 +8,16 @@
 <h2>Admin page</h2>
 
 <br/>
-@Html.ActionLink("Update races for this year", "DownloadCountryListOfRaces", null, null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
-@Html.ActionLink("Update latest results", "DownloadResultOfRaces", null, null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
-@Html.ActionLink("Download dates of races", "DownloadDatesListOfRaces", null, null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
-@Html.ActionLink("Check drivers data", "GetDriversData", null, null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
-@Html.ActionLink("Check schedule data", "GetScheduleData", null, null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
-@Html.ActionLink("Delete your user", "DeleteUser", null, null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Update races for this year", "DownloadCountryListOfRaces", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Update latest results", "DownloadResultOfRaces", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Download dates of races", "DownloadDatesListOfRaces", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Check drivers data", "GetDriversData", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Check schedule data", "GetScheduleData", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Delete your user", "DeleteUser", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Reset legacy data", "ResetLegacyData", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
 @Html.ActionLink("Check Users", "Users", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Count locked races", "CountPointsInLockedRaces", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Sum points for races", "SumPointsForRaces", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
 @Html.ActionLink("Lock previous races", "LockPreviousRaces", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
+@Html.ActionLink("Lock previous year", "LockPreviousYear", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>
 @Html.ActionLink("Lock current race", "LockCurrentRace", "Admin", null, new {@class = "btn btn-primary", @style = "margin-bottom: 20px"}) <br/>

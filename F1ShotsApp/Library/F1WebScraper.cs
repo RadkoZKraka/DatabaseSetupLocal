@@ -34,14 +34,14 @@ public static class F1WebScraper
         var xPath = "//*[contains(@class, 'dark bold ArchiveLink')]";
         var listOfOuterHtmls = doc.DocumentNode.SelectNodes(xPath).Select(x => x.OuterHtml).ToList();
         var result = ExtractUrls(listOfOuterHtmls);
-        
+
         return result;
     }
 
     public static List<string> ExtractUrls(List<string> outerHtmls)
     {
         var results = new List<string>();
-        
+
         foreach (var input in outerHtmls)
         {
             // Define a regular expression pattern to match the href attribute
@@ -96,9 +96,10 @@ public static class F1WebScraper
         return result;
     }
 
-    public static F1Grid GetDriversData()
+    public static F1Grid GetDriversData(int year)
     {
-        var url = $"https://www.formula1.com/en/results.html/2023/races/1141/bahrain/race-result.html";
+        var url = $"https://www.formula1.com/en/results.html/{year}/drivers.html";
+
         HtmlWeb web = new HtmlWeb();
         HtmlDocument doc = web.Load(url);
         var fullNameXPath = "//*[contains(@class, 'dark bold')]";
@@ -112,20 +113,20 @@ public static class F1WebScraper
             x.ChildNodes.Where((val, i) => i % 2 != 0).Select(x => x.InnerHtml).Skip(1).First()).ToList();
         var resultAbb = doc.DocumentNode.SelectNodes(fullNameXPath).Where((x, i) => i % 2 == 0).Select(x =>
             x.ChildNodes.Where((val, i) => i % 2 != 0).Select(x => x.InnerHtml).Skip(2).First()).ToList();
-        var resultNumber = doc.DocumentNode.SelectNodes(numberXPath)
-            .Select(x => x.ChildNodes.Select(x => x.InnerHtml).First()).ToList();
-        var resultTeam = doc.DocumentNode.SelectNodes(teamXPath).Select(x => x.InnerHtml).ToList();
+        // var resultNumber = doc.DocumentNode.SelectNodes(numberXPath)
+        //     .Select(x => x.ChildNodes.Select(x => x.InnerHtml).First()).ToList();
+        // var resultTeam = doc.DocumentNode.SelectNodes(teamXPath).Select(x => x.InnerHtml).ToList();
         var f1Grid = new F1Grid();
-        f1Grid.Year = 2023;
+        f1Grid.Year = year;
         var driversList = new List<Driver>();
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < resultFullName.Count; i++)
         {
             var driver = new Driver();
-            driver.Number = resultNumber[i];
+            // driver.Number = resultNumber[i];
             driver.FirstName = resultFirstName[i];
             driver.LastName = resultLastName[i];
             driver.Abbreviation = resultAbb[i];
-            driver.Team = resultTeam[i];
+            // driver.Team = resultTeam[i];
             driver.FullName = resultFirstName[i] + " " + resultLastName[i];
             driversList.Add(driver);
         }
