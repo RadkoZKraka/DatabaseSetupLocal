@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http.Extensions;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 
 namespace DatabaseSetupLocal.Controllers;
@@ -134,25 +135,7 @@ public class ShotsController : Controller
     {
         ViewBag.UsersList = UserRepository.GetUsers();
         var race = ShotsRepository.GetRaceById(raceId);
-        var results = F1WebScraper.GetRaceResults(race.RaceYear, race.RaceNo);
-        var usersShots = race.Shot.Select(x => x.UsersShotDriver).ToList();
-        var fullNameResult = AppSetup.AbrListToFullName(results, race.RaceYear);
-        for (int i = 0; i < usersShots.Count; i++)
-        {
-
-            if (usersShots[i].Length == 3)
-            {
-                usersShots[i] = AppSetup.AbrOneDriverToFullName(usersShots[i], race.RaceYear);
-            }
-        }
-
-        var listOfPoints = ShotsRepository.CalculateUsersPoints(usersShots, fullNameResult);
-        for (int i = 0; i < listOfPoints.Count; i++)
-        {
-            race.Shot[i].Points = listOfPoints[i];
-            race.Shot[i].ResultDriver = results[i];
-        }
-
+        ShotsRepository.CountPointsByRace(race);
         ShotsRepository.UpdateRace(race);
         return Redirect(HttpContext.Request.Headers["Referer"]);
     }
@@ -174,6 +157,22 @@ public class ShotsController : Controller
 
         return View(shot);
     }
+
+    public IActionResult ImportFromClipBoard(string data, int raceId)
+    {
+        Race race = ShotsRepository.GetRaceById(raceId);
+        var listOfShots = data.Split("\n");
+        for (int i = 0; i < 20; i++)
+        {
+            race.Shot[i].UsersShotDriver = listOfShots[i];
+        }
+
+        race.PolePosition = listOfShots[20];
+        race.FastestLap = listOfShots[21];
+        ShotsRepository.UpdateRace(race);
+        return RedirectToAction("Index");
+    }
+
 
     [HttpPost, ActionName("EditOneShot")]
     [ValidateAntiForgeryToken]
@@ -300,7 +299,7 @@ public class ShotsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AssignUserPost(string userId)
     {
-        var userModelToUpdate = await ShotsContext.UserModel.FirstOrDefaultAsync(s => s.Id == userId);
+        var userModelToUpdate = await ShotsContext.UserShotsModel.FirstOrDefaultAsync(s => s.Id == userId);
         if (await TryUpdateModelAsync<UserShots>(
                 userModelToUpdate,
                 "",

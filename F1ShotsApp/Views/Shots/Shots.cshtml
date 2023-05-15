@@ -1,10 +1,17 @@
-﻿@model Race
-
+﻿@inject IJSRuntime JSRuntime
+@using Microsoft.JSInterop
+@using DatabaseSetupLocal.Repository
+@using DatabaseSetupLocal.Data
+@using Microsoft.AspNetCore.Components.Web
+@using System.Text.Json
+@using JsonSerializer = Newtonsoft.Json.JsonSerializer
+@model Race
 
 @{
     ViewBag.Title = ViewBag.User.UserName + " Shots";
     Layout = "_Layout";
 }
+
 @* @Html.Partial("UsersNavigationPartial") *@
 <style>
     table {
@@ -69,34 +76,36 @@
                 }
             </tr>
         }
-        <tr>
-            <td></td>
-            @if (Model.RaceYear == 2022)
-            {
-                <td>
-
-                    <h5>Random:</h5>
-
-                    @Html.DisplayFor(modelItem => Model.Rand)
-                </td>
-            }
-
-            <td>
-                <h5>Pole position:</h5>
-                @Html.DisplayFor(modelItem => Model.PolePosition)
-            </td>
-            @if (Model.RaceYear == 2023)
-            {
-                <td>
-
-                    <h5>Fastest lap:</h5>
-
-                    @Html.DisplayFor(modelItem => Model.FastestLap)
-                </td>
-            }
-
-        </tr>
     </table>
+
+    <div style="margin-left: 30%">
+
+        @if (Model.RaceYear == 2022)
+        {
+            <h5>Random:</h5>
+
+            @Html.DisplayFor(modelItem => Model.Rand)
+        }
+        <h5>Pole position:</h5>
+        @Html.DisplayFor(modelItem => Model.PolePosition)
+        @Html.DisplayFor(modelItem => Model.PolePositionPoints)
+        @if (Model.RaceYear == 2023)
+        {
+            <h5>Fastest lap:</h5>
+
+            @Html.DisplayFor(modelItem => Model.FastestLap)
+            @Html.DisplayFor(modelItem => Model.FastestLapPoints)
+        }
+    </div>
+
+    <h4>
+        Final Points:
+        @{
+            var sum = Model.Shot.Select(x => x.Points).Sum() + Model.FastestLapPoints + Model.PolePositionPoints;
+            Model.Points = sum;
+        }
+        @Html.DisplayFor(modelItem => sum)
+    </h4>
     <div>
         @if (ViewBag.HasAccessToEdit && !Model.Locked || ViewBag.IsAdmin)
         {
@@ -110,7 +119,35 @@
         {
             @Html.ActionLink("Get race results", "GetRaceResults", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
         }
+        <div>
+            @if (ViewBag.IsAdmin)
+            {
+                <button class="btn btn-primary" id="copy-button" style="margin-top: 20px; width: 50%; margin-left: 15%">Paste from Clipboard</button>
+            }
+
+        </div>
     </div>
     <a href="javascript:history.go(-1)" class="btn btn-primary">Back</a>
-
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+        $(function () {
+            $('#copy-button').click(function () {
+                // Copy the text from the clipboard
+                navigator.clipboard.readText().then(function (text) {
+                    // Send the text to the server using an AJAX request
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ImportFromClipBoard", "Shots")",
+                        data: { 
+                            data: text,
+                            raceId: @Model.Id
+                        },
+                        success: function (response) {
+                            alert('The text "' + text + '" was copied to the server.');
+                        }
+                    });
+                });
+            });
+        });
+    </script>

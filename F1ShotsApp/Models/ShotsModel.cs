@@ -28,8 +28,11 @@ public class Race
     public int RaceNo { get; set; }
     public int Points { get; set; }
     public string? Rand { get; set; }
+    public string? RandPoints { get; set; }
     public string? PolePosition { get; set; }
+    public int PolePositionPoints { get; set; }
     public string? FastestLap { get; set; }
+    public int FastestLapPoints { get; set; }
     public bool Locked { get; set; }
 }
 

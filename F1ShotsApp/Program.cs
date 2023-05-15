@@ -24,6 +24,7 @@ foreach (var year in years)
 
 }
 AppSetup.SerializeDates();
+F1WebScraper.GetPoleSitter(2023, 3);
 // AppSetup.LockPreviousRaces();
 await AppSetup.ScheduleTasks();
 // AppSetup.GetCurrentRace();
@@ -97,7 +98,7 @@ using (var scope = app.Services.CreateScope())
 
     var f1ShotsUserContext = services.GetRequiredService<UsersContext>();
     // f1ShotsUserContext.Database.EnsureDeleted();
-    // f1ShotsUserContext.Database.Migrate();
+    f1ShotsUserContext.Database.Migrate();
     var shotsContext = services.GetRequiredService<ShotsContext>();
     // shotsContext.Database.Migrate();
 }

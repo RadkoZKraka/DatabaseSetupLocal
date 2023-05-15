@@ -29,7 +29,7 @@ public class ShotsContext : DbContext
         modelBuilder.Entity<Shot>(entity => { entity.HasKey(e => e.Id); });
     }
 
-    public DbSet<UserShots> UserModel { get; set; }
+    public DbSet<UserShots> UserShotsModel { get; set; }
     public DbSet<Race> RaceModel { get; set; }
     public DbSet<Shot> ShotModel { get; set; }
 }

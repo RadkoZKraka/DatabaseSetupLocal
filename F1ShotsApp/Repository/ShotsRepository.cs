@@ -35,7 +35,7 @@ public class ShotsRepository : IShotRepository
 
     public IEnumerable<UserShots> GetUsers()
     {
-        return _shotsContext.UserModel.ToList();
+        return _shotsContext.UserShotsModel.ToList();
     }
     public IEnumerable<Race> GetRaces()
     {
@@ -44,17 +44,17 @@ public class ShotsRepository : IShotRepository
 
     public UserShots GetUserById(string userId)
     {
-        return _shotsContext.UserModel.Find(userId);
+        return _shotsContext.UserShotsModel.Find(userId);
     }
 
     public string GetUserIdByOwnerId(string ownerId)
     {
-        return _shotsContext.UserModel.Where(x => x.OwnerId == ownerId).First().Id;
+        return _shotsContext.UserShotsModel.Where(x => x.OwnerId == ownerId).First().Id;
     }
 
     public UserShots GetUserByOwnerId(string userId)
     {
-        return _shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault();
+        return _shotsContext.UserShotsModel.Where(x => x.OwnerId == userId).FirstOrDefault();
     }
     public void SumPointsInRace(Race race)
     {
@@ -69,7 +69,7 @@ public class ShotsRepository : IShotRepository
 
     public bool GetIfAppUserHasShots(string userId)
     {
-        if (_shotsContext.UserModel.Where(x => x.OwnerId == userId).FirstOrDefault() == null)
+        if (_shotsContext.UserShotsModel.Where(x => x.OwnerId == userId).FirstOrDefault() == null)
         {
             return false;
         }
@@ -121,14 +121,17 @@ public class ShotsRepository : IShotRepository
     public void CountPointsByRace(Race race)
     {
         var results = F1WebScraper.GetRaceResults(race.RaceYear, race.RaceNo);
+        var polePosition = F1WebScraper.GetPoleSitter(race.RaceYear, race.RaceNo);
+        var fastestLap = F1WebScraper.GetFastestLap(race.RaceYear, race.RaceNo);
         var usersShots = race.Shot.Select(x => x.UsersShotDriver).ToList();
         var fullNameResult = AppSetup.AbrListToFullName(results, race.RaceYear);
         for (int i = 0; i < usersShots.Count; i++)
         {
-            if (usersShots[i].Length == 3)
+            if (usersShots[i] == null || usersShots[i].Length != 3)
             {
-                usersShots[i] = AppSetup.AbrOneDriverToFullName(usersShots[i], race.RaceYear);
+                continue;
             }
+            usersShots[i] = AppSetup.AbrOneDriverToFullName(usersShots[i], race.RaceYear);
         }
 
         var listOfPoints = CalculateUsersPoints(usersShots, fullNameResult);
@@ -136,6 +139,24 @@ public class ShotsRepository : IShotRepository
         {
             race.Shot[i].Points = listOfPoints[i];
             race.Shot[i].ResultDriver = results[i];
+        }
+
+        if (!string.IsNullOrEmpty(race.FastestLap) && race.FastestLap.Length == 3)
+        {
+            race.FastestLap = AppSetup.AbrOneDriverToFullName(race.FastestLap, race.RaceYear);
+        }
+        if (!string.IsNullOrEmpty(race.PolePosition) && race.PolePosition.Length == 3)
+        {
+            race.PolePosition = AppSetup.AbrOneDriverToFullName(race.PolePosition, race.RaceYear);
+        }
+        
+        if (race.FastestLap == AppSetup.AbrOneDriverToFullName(fastestLap, race.RaceYear))
+        {
+            race.FastestLapPoints = 2;
+        }
+        if (race.PolePosition == AppSetup.AbrOneDriverToFullName(polePosition, race.RaceYear))
+        {
+            race.FastestLapPoints = 2;
         }
 
 
@@ -220,7 +241,7 @@ public class ShotsRepository : IShotRepository
 
     public int? GetRaceIdByRaceLoc(string userId, string raceLoc)
     {
-        return _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc).Id;
+        return _shotsContext.UserShotsModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc).Id;
     }
 
     public Race? GetRaceById(int raceId)
@@ -247,20 +268,20 @@ public class ShotsRepository : IShotRepository
 
     public List<Race> GetUserRacesById(string userId)
     {
-        var result = _shotsContext.UserModel.Find(userId)?.Race.ToList();
+        var result = _shotsContext.UserShotsModel.Find(userId)?.Race.ToList();
         return result;
     }
 
     public List<int> GetUsersYears(string userId)
     {
-        var yearsList = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList()
+        var yearsList = _shotsContext.UserShotsModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList()
                         ?? throw new YearListDoesntExistException();
         return yearsList;
     }
 
     public List<int> GetUserPointsByYear(string userId, int year)
     {
-        var userPointsByYear = _shotsContext.UserModel.Find(userId)?.Race.Select(x => x.Points);
+        var userPointsByYear = _shotsContext.UserShotsModel.Find(userId)?.Race.Select(x => x.Points);
         var result = new List<int>();
         var temp = 0;
         foreach (var points in userPointsByYear)
@@ -280,32 +301,45 @@ public class ShotsRepository : IShotRepository
 
     public List<Shot>? GetUserShotsByUserIdAndRaceId(string userId, int raceId)
     {
-        var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.Id == raceId)?.Shot;
+        var result = _shotsContext.UserShotsModel.Find(userId)?.Race.Find(x => x.Id == raceId)?.Shot;
         return result;
     }
 
     public List<Shot>? GetUserShotsByUserIdAndRaceLoc(string userId, string raceLoc)
     {
-        var result = _shotsContext.UserModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc)?.Shot;
+        var result = _shotsContext.UserShotsModel.Find(userId)?.Race.Find(x => x.RaceLocation == raceLoc)?.Shot;
         return result;
+    }
+    public void ChangeAllAbrToFullNameInARace(Race race)
+    {
+        
+        foreach (var shot in race.Shot)
+        {
+            if (shot.UsersShotDriver == null || shot.UsersShotDriver.Length != 3)
+            {
+                continue;
+            }
+            shot.UsersShotDriver = AppSetup.AbrOneDriverToFullName(shot.UsersShotDriver, race.RaceYear);
+        }
+        UpdateRace(race);
     }
 
     public void InsertUser(UserShots userShots)
     {
-        _shotsContext.UserModel.Add(userShots);
+        _shotsContext.UserShotsModel.Add(userShots);
         _shotsContext.SaveChanges();
     }
 
     public void DeleteUser(string userId)
     {
-        var user = _shotsContext.UserModel.Find(userId);
-        _shotsContext.UserModel.Remove(user);
+        var user = _shotsContext.UserShotsModel.Find(userId);
+        _shotsContext.UserShotsModel.Remove(user);
         _shotsContext.SaveChanges();
     }
 
     public void HideUser(string userId)
     {
-        var user = _shotsContext.UserModel.Find(userId);
+        var user = _shotsContext.UserShotsModel.Find(userId);
 
         user.Hidden = true;
         UpdateUser(user);
@@ -313,7 +347,7 @@ public class ShotsRepository : IShotRepository
 
     public void ShowUser(string userId)
     {
-        var user = _shotsContext.UserModel.Find(userId);
+        var user = _shotsContext.UserShotsModel.Find(userId);
 
         user.Hidden = false;
         UpdateUser(user);

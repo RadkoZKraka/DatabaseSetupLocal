@@ -26,6 +26,75 @@ public static class F1WebScraper
         return results;
     }
 
+    public static string GetRaceUrl(int year, int raceNumber)
+    {
+        var listOfLinksForRaces = GetUrlsOfRaces(year);
+        var url = listOfLinksForRaces[raceNumber - 1];
+        return url;
+    }
+
+    public static string GetPoleSitter(int year, int raceNumber)
+    {
+        var raceUrl = GetRaceUrl(year, raceNumber);
+        var poleSitter = ExtractPoleSitter(raceUrl);
+
+        return poleSitter;
+    }
+
+    public static string GetFastestLap(int year, int raceNumber)
+    {
+        var raceUrl = GetRaceUrl(year, raceNumber);
+        var poleSitter = ExtractFastestLap(raceUrl);
+
+        return poleSitter;
+    }
+
+    public static string ExtractPoleSitter(string url)
+    {
+        HtmlWeb web = new HtmlWeb();
+        HtmlDocument doc = web.Load(url);
+        var xPath = "//*[contains(@class, 'side-nav-item')]";
+        var temp = doc.DocumentNode.SelectNodes(xPath)[9].InnerHtml;
+        var ppUrl = "https://www.formula1.com" + ExtractPpUrl(temp);
+        HtmlWeb web2 = new HtmlWeb();
+
+        HtmlDocument doc2 = web2.Load(ppUrl);
+        var xPath2 = "//*[contains(@class, 'dark bold')]";
+        var temp2 = doc2.DocumentNode.SelectNodes(xPath2);
+
+        return temp2[0].InnerText.Split("\n").Select(x => x.Trim()).Where(x => !String.IsNullOrEmpty(x)).Last();
+    }
+
+    public static string ExtractFastestLap(string url)
+    {
+        HtmlWeb web = new HtmlWeb();
+        HtmlDocument doc = web.Load(url);
+        var xPath = "//*[contains(@class, 'side-nav-item')]";
+        var temp = doc.DocumentNode.SelectNodes(xPath)[3].InnerHtml;
+        var ppUrl = "https://www.formula1.com" + ExtractPpUrl(temp);
+        HtmlDocument doc2 = web.Load(ppUrl);
+        var xPath2 = "//*[contains(@class, 'dark bold')]";
+        var temp2 = doc2.DocumentNode.SelectNodes(xPath2);
+
+        return temp2[0].InnerText.Split("\n").Select(x => x.Trim()).Where(x => !String.IsNullOrEmpty(x)).Last();
+    }
+
+    public static string ExtractPpUrl(string inputString)
+    {
+        string url = string.Empty;
+
+        int start = inputString.IndexOf("href=\"") + 6; // add 6 to skip "href="""
+        int end = inputString.IndexOf("\"", start);
+
+        if (start >= 0 && end >= 0)
+        {
+            url = inputString.Substring(start, end - start);
+        }
+
+        return url;
+    }
+
+
     public static List<string> GetUrlsOfRaces(int year)
     {
         var url = $"https://www.formula1.com/en/results.html/{year}/races.html";

@@ -22,7 +22,7 @@ public static class AppSetup
             // db.Database.EnsureDeleted();
             // db.Database.EnsureCreated();
             // db.Database.Migrate();
-            if (db.UserModel.Any())
+            if (db.UserShotsModel.Any())
             {
                 return;
             }
@@ -81,7 +81,7 @@ public static class AppSetup
 
             foreach (var user in userList)
             {
-                context.UserModel.Add(user);
+                context.UserShotsModel.Add(user);
             }
 
             context.SaveChanges();
@@ -145,6 +145,10 @@ public static class AppSetup
 
         foreach (var s in abr)
         {
+            if (s.Length != 3)
+            {
+                continue;
+            }
             res.Add(f1Grid.Drivers.Where(x => x.Abbreviation == s).First().FullName);
         }
 

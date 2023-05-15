@@ -44,33 +44,49 @@
             <th></th>
         </tr>
 
-        @foreach (var item in Model)
+        @for (int i = 0; i < Model.Count; i++)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RaceNo)
+                    @Html.DisplayFor(modelItem => Model[i].RaceNo)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.RaceLocation)
+                    @Html.DisplayFor(modelItem => Model[i].RaceLocation)
                 </td>
 
 
                 <td>
-                    @Html.DisplayFor(modelItem => item.Points)
+                    @Html.DisplayFor(modelItem => Model[i].Points)
+                </td>
+                <td>
+                    @{
+                        var sum = Model.Select(x => x.Points).ToArray().Take(i).Sum();
+                    }
+                    @Html.DisplayFor(modelItem => sum)
                 </td>
                 @if (ViewBag.IsAdmin)
                 {
                     <td>
-                        @Html.DisplayFor(modelItem => item.Id)
+                        @Html.DisplayFor(modelItem => Model[i].Id)
                     </td>
                 }
 
                 <td>
-                    @Html.ActionLink("Select", "Shots", new {userId = ViewBag.User.Id, raceId = item.Id, raceLocation = item.RaceLocation}, new {@class = "btn btn-primary"})
+                    @Html.ActionLink("Select", "Shots", new {userId = ViewBag.User.Id, raceId = Model[i].Id, raceLocation = Model[i].RaceLocation}, new {@class = "btn btn-primary"})
                 </td>
 
             </tr>
         }
+        <tr>
+            <td>
+                <p>Final points:</p>
+                @{
+                    var finalPoints = Model.Select(x => x.Points).Sum();
+                }
+                @Html.DisplayFor(modelItem => finalPoints)
+
+            </td>
+        </tr>
     </table>
     <a href="javascript:history.go(-1)" class="btn btn-primary">Back</a>
 </div>

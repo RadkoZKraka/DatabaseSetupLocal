@@ -85,6 +85,27 @@ public class AdminController : Controller
         return RedirectToAction("Index");
     }
 
+    public IActionResult ImportFromClipBoard(string data)
+    {
+        var test = "ss";
+        return RedirectToAction("Index");
+
+    }
+    public IActionResult ChangeAllAbrToFullName()
+    {
+        var all = _shotRepository.GetUsers();
+        foreach (var userShots in all)
+        {
+            foreach (var race in userShots.Race)
+            {
+                _shotRepository.ChangeAllAbrToFullNameInARace(race);
+            }
+        }
+        
+        return RedirectToAction("Index");
+
+    }
+
     public IActionResult CountPointsInLockedRaces()
     {
         var appUserId = User.Identity.GetUserId();
@@ -224,6 +245,7 @@ public class AdminController : Controller
         AppSetup.SeedDb();
         return RedirectToAction("Index");
     }
+    
 
 
     public IActionResult GetScheduleData()

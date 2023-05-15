@@ -1,0 +1,38 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Button Click Example</title>
+</head>
+<body>
+<h1>Button Click Example</h1>
+
+<button onclick="ButtonClick()">Click me!</button>
+
+<p>@Message</p>
+
+<script>
+        function ButtonClick() {
+            DotNet.invokeMethodAsync("MyApp", "ButtonClick");
+        }
+    </script>
+
+<environment include="Development">
+    <script src="~/_framework/blazor.server.js"></script>
+</environment>
+</body>
+</html>
+
+@functions {
+    public string Message { get; set; } = "";
+
+    public void ButtonClick()
+    {
+        Message = "Button clicked!";
+    }
+}
