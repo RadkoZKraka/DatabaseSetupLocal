@@ -12,43 +12,101 @@
     Layout = "_Layout";
 }
 
-@* @Html.Partial("UsersNavigationPartial") *@
 <style>
-    table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 80%;
+    .custom-table {
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        width: 80%;
     }
 
+    .custom-table th,
+    .custom-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .custom-table th {
+        background-color: #f2f2f2;
+    }
+
+    .custom-container {
+        margin-left: 20%;
+    }
+
+    .custom-content {
+        margin-left: 30%;
+    }
+
+    .custom-notification {
+        margin-bottom: 20px;
+    }
+
+    .custom-btn {
+        display: inline-block;
+        margin-top: 20px;
+        width: 50%;
+        margin-left: 15%;
+        padding: 10px 20px;
+        font-size: 16px;
+        text-align: center;
+        text-decoration: none;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .custom-btn-primary {
+        background-color: #007bff;
+    }
+
+    .custom-btn-primary:hover {
+        background-color: #0069d9;
+    }
+
+    .custom-btn-primary:active {
+        background-color: #0062cc;
+    }
+
+    .custom-back-link {
+        margin-top: 20px;
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        text-decoration: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+    }
+
+    .custom-back-link:hover {
+        background-color: #0069d9;
+    }
+
+    .custom-back-link:active {
+        background-color: #0062cc;
+    }
 </style>
-<div style="margin-left: 20%">
+
+<div class="custom-container">
     <h2>@ViewBag.User.UserName</h2>
     <h2>@ViewBag.Year</h2>
     <h2>@ViewBag.Location</h2>
     @if (Model.Locked)
     {
-        <h3 style="color: red">Race is locked, editing is turned off.</h3>
+        <h3>Race is locked, editing is turned off.</h3>
     }
-    <table >
+    <table class="custom-table">
         <tr>
-            <th>
-                <h5>Position:</h5>
-            </th>
-            <th>
-                <h5>Users driver:</h5>
-            </th>
-            <th>
-                <h5>Result driver:</h5>
-            </th>
-            <th>
-                <h5>Points:</h5>
-            </th>
+            <th>Position:</th>
+            <th>Users driver:</th>
+            <th>Result driver:</th>
+            <th>Points:</th>
             @if (ViewBag.IsAdmin)
             {
-                <td>
-                    <h5>ID:</h5>
-
-                </td>
+                <th>ID:</th>
             }
             <th></th>
         </tr>
@@ -56,98 +114,87 @@
         @for (var i = 1; i - 1 < Model.Shot.Count; i++)
         {
             <tr style="height: 40px">
-                <td >
-                    @i
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => Model.Shot[i - 1].UsersShotDriver)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => Model.Shot[i - 1].ResultDriver)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => Model.Shot[i - 1].Points)
-                </td>
+                <td>@i</td>
+                <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].UsersShotDriver)</td>
+                <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].ResultDriver)</td>
+                <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].Points)</td>
                 @if (ViewBag.IsAdmin)
                 {
-                    <td>
-                        @Html.DisplayFor(modelItem => Model.Shot[i - 1].Id)
-                    </td>
+                    <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].Id)</td>
                 }
             </tr>
         }
     </table>
 
-    <div style="margin-left: 30%">
-
-        @if (Model.RaceYear == 2022)
-        {
-            <h5>Random:</h5>
-
-            @Html.DisplayFor(modelItem => Model.Rand)
-        }
-        <h5>Pole position:</h5>
-        @Html.DisplayFor(modelItem => Model.PolePosition)
-        @Html.DisplayFor(modelItem => Model.PolePositionPoints)
-        @if (Model.RaceYear == 2023)
-        {
-            <h5>Fastest lap:</h5>
-
-            @Html.DisplayFor(modelItem => Model.FastestLap)
-            @Html.DisplayFor(modelItem => Model.FastestLapPoints)
-        }
-    </div>
-
-    <h4>
-        Final Points:
+    <div class="custom-content">
+        <div>
+            @if (Model.RaceYear == 2022)
+            {
+                <h5>Random:</h5>
+                <p>@Html.DisplayFor(modelItem => Model.Rand)</p>
+            }
+            <h5>Pole position:</h5>
+            <p>@Html.DisplayFor(modelItem => Model.PolePosition)</p>
+            <p>@Html.DisplayFor(modelItem => Model.PolePositionPoints)</p>
+            @if (Model.RaceYear == 2023)
+            {
+                <h5>Fastest lap:</h5>
+                <p>@Html.DisplayFor(modelItem => Model.FastestLap)</p>
+                <p>@Html.DisplayFor(modelItem => Model.FastestLapPoints)</p>
+            }
+        </div>
+    
+        <h4>Final Points:</h4>
         @{
             var sum = Model.Shot.Select(x => x.Points).Sum() + Model.FastestLapPoints + Model.PolePositionPoints;
             Model.Points = sum;
         }
-        @Html.DisplayFor(modelItem => sum)
-    </h4>
+        <p>@Html.DisplayFor(modelItem => sum)</p>
+    </div>
+    
     <div>
         @if (ViewBag.HasAccessToEdit && !Model.Locked || ViewBag.IsAdmin)
         {
-            @Html.ActionLink("Edit", "EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
+            <a class="custom-btn custom-btn-primary" href="@Url.Action("EditMultipleShots", new { raceId = ViewBag.RaceId, userId = ViewBag.UserId })">Edit</a>
         }
         else
         {
-            <p>You dont have access to edit.</p>
+            <p>You don't have access to edit.</p>
         }
         @if (ViewBag.HasAccessToEdit || ViewBag.IsAdmin)
         {
-            @Html.ActionLink("Get race results", "GetRaceResults", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; width: 50%; margin-left: 15%"})
+            <a class="custom-btn custom-btn-primary" href="@Url.Action("GetRaceResults", new { raceId = ViewBag.RaceId, userId = ViewBag.UserId })">Get race results</a>
         }
         <div>
             @if (ViewBag.IsAdmin)
             {
-                <button class="btn btn-primary" id="copy-button" style="margin-top: 20px; width: 50%; margin-left: 15%">Paste from Clipboard</button>
+                <button class="custom-btn" id="copy-button">Paste from Clipboard</button>
             }
-
         </div>
     </div>
-    <a href="javascript:history.go(-1)" class="btn btn-primary">Back</a>
+    
+    <a href="javascript:history.go(-1)" class="custom-back-link" >Back</a>
+<div style="margin-bottom: 70px"></div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-        $(function () {
-            $('#copy-button').click(function () {
-                // Copy the text from the clipboard
-                navigator.clipboard.readText().then(function (text) {
-                    // Send the text to the server using an AJAX request
-                    $.ajax({
-                        type: "POST",
-                        url: "@Url.Action("ImportFromClipBoard", "Shots")",
-                        data: { 
-                            data: text,
-                            raceId: @Model.Id
-                        },
-                        success: function (response) {
-                            alert('The text "' + text + '" was copied to the server.');
-                        }
-                    });
+    $(function () {
+        $('#copy-button').click(function () {
+            // Copy the text from the clipboard
+            navigator.clipboard.readText().then(function (text) {
+                // Send the text to the server using an AJAX request
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ImportFromClipBoard", "Shots")",
+                    data: {
+                        data: text,
+                        raceId: @Model.Id
+                    },
+                    success: function (response) {
+                        alert('The text "' + text + '" was copied to the server.');
+                    }
                 });
             });
         });
-    </script>
+    });
+</script>

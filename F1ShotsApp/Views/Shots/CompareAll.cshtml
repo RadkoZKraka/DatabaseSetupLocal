@@ -1,0 +1,121 @@
+@model (List<UserShots>, int, int)
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Compare All</h2>
+<h2>@Model.Item1.First().Race.Where(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3).First().RaceLocation</h2>
+<h2>@Model.Item2</h2>
+
+<div class="row">
+    <div class="col-md-1">
+                    <h4>  &nbsp;</h4>
+        
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    <h5>Position:</h5>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            @for (var i = 1; i - 1 < 20; i++)
+            {
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                </tr>
+            }
+
+            </tbody>
+        </table>
+    </div>
+
+    @foreach (var user in Model.Item1)
+    {
+        if (user.Hidden || user.Banned)
+        {
+            continue;
+        }
+        <div class="col-md-2">
+            <h4>@user.UserName</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>
+                        <h5>Shot:</h5>
+                    </th>
+                    <th>
+                        <h5>Points:</h5>
+                    </th>
+                    @if (ViewBag.IsAdmin)
+                    {
+                        <th>
+                            <h5>ID:</h5>
+                        </th>
+                    }
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @{
+                    var race = user.Race.Where(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3).FirstOrDefault();
+                    var shots = race.Shot;
+                }
+                @{
+                    var previousPosition = -1;
+                }
+                @for (var i = 1; i - 1 < shots.Count; i++)
+                {
+                    <tr>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => shots[i - 1].UsersShotDriver)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => shots[i - 1].Points)
+                        </td>
+                        @if (ViewBag.IsAdmin)
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => shots[i - 1].Id)
+                            </td>
+                        }
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+            <div>
+                @if (race.RaceYear == 2022)
+                {
+                    <h5>Random:</h5>
+                    @Html.DisplayFor(modelItem => race.Rand)
+                }
+                <h5>Pole position:</h5>
+                @Html.DisplayFor(modelItem => race.PolePosition)
+                @Html.DisplayFor(modelItem => race.PolePositionPoints)
+                @if (race.RaceYear == 2023)
+                {
+                    <h5>Fastest lap:</h5>
+                    @Html.DisplayFor(modelItem => race.FastestLap)
+                    @Html.DisplayFor(modelItem => race.FastestLapPoints)
+                }
+            </div>
+
+            <h4>
+                Final Points:
+                @{
+                    var sum = race.Shot.Select(x => x.Points).Sum() + race.FastestLapPoints + race.PolePositionPoints;
+                    race.Points = sum;
+                }
+                @Html.DisplayFor(modelItem => sum)
+            </h4>
+        </div>
+    }
+</div>

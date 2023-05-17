@@ -1,35 +1,101 @@
 @model F1Schedule
-
-@{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
-}
-
-<h2>Schedule</h2>
-<h2>@Model.Year</h2>
-<table>
-    <tr>
-        <th>
-            <h4>User name:</h4>
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model.Races)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RaceName)
-            </td>
-            @foreach (var item2 in item.F1Events)
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item2.EventName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item2.EventDateAndTime)
-                </td>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>F1 Schedule</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        td, th {
+          border-right: 1px solid #ddd;
+        }
+        
+        td:last-child, th:last-child {
+          border-right: none;
+        }
+        .upcoming-event {
+            background-color: #f5f5f5;
+        }
+        .scroll-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .toggle-button {
+            display: block;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        function scrollToNextEvent() {
+            var upcomingEvent = document.querySelector('.upcoming-event');
+            if (upcomingEvent) {
+                upcomingEvent.scrollIntoView({ behavior: 'smooth' });
             }
-        </tr>
+        }
+
+        function togglePassedEvents() {
+            var passedEvents = document.querySelectorAll('.passed-event');
+            passedEvents.forEach(function (event) {
+                event.style.display = event.style.display === 'none' ? 'table-row' : 'none';
+            });
+        }
+    </script>
+</head>
+<body>
+<h1>F1 Schedule</h1>
+<button class="scroll-button" onclick="scrollToNextEvent()">Scroll to Next Event</button>
+
+<button class="toggle-button" onclick="togglePassedEvents()">Toggle Passed Events</button>
+
+<table>
+    <thead>
+    <tr>
+        <th>Year</th>
+        <th>Race Name</th>
+        <th>Event Name</th>
+        <th>Event Date and Time</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var race in Model.Races)
+    {
+        foreach (var f1Event in race.F1Events)
+        {
+            <tr class="@(f1Event.EventDateAndTime > DateTime.Now ? "upcoming-event" : "passed-event")">
+                @if (race.F1Events.IndexOf(f1Event) == 0)
+                {
+                    <td rowspan="@race.F1Events.Count">@Model.Year</td>
+                    <td rowspan="@race.F1Events.Count">@race.RaceName</td>
+                }
+                <td>@f1Event.EventName</td>
+                <td>@f1Event.EventDateAndTime.ToString("yyyy-MM-dd HH:mm")</td>
+            </tr>
+        }
     }
+    </tbody>
 </table>
+
+</body>
+</html>

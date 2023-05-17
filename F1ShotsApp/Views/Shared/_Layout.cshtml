@@ -3,19 +3,34 @@
 @using DatabaseSetupLocal.Repository
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
+@using DatabaseSetupLocal.Repository
+@inject ShotsRepository ShotsRepository
 
 <style>
-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: #f5f5f5;
-    text-align: center;
-    font-size: 14px;
-    padding: 10px 0;
-}
+    footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #f5f5f5;
+        text-align: center;
+        font-size: 14px;
+        padding: 10px 0;
+    }
+    .dropdown-submenu {
+      position: relative;
+    }
+    
+    .dropdown-submenu .dropdown-menu {
+      top: 0;
+      left: 100%;
+      margin-top: -1px;
+      overflow: visible;
+    }
 </style>
+@{
+    var users = ShotsRepository.GetUsers();
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,12 +47,13 @@ footer {
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">F1Shots™</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
+            <div class="navbar-collapse collapse d-sm-flex justify-content-between">
+                <ul class="navbar-nav navbar-center">
+                    <!-- Apply the CSS class here -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Index">Users List</a>
                     </li>
@@ -53,14 +69,50 @@ footer {
                             <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Live Timing</a>
                         </li>
                     }
+                    <li>
+                        <partial name="UsersNavigationPartial"/>
+
+                    </li>
                 </ul>
+
+
+                <div style="float: right">
                 <partial name="_LoginPartial"/>
+                    
+                </div>
             </div>
         </div>
     </nav>
 </header>
+
+<style>
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-item {
+        display: inline-block;
+        padding: 10px;
+    }
+
+    .nav-link {
+        color: white;
+        text-decoration: none;
+        font-size: small;
+    }
+
+    .navbar-nav.navbar-center {
+        margin: auto;
+        display: flex;
+        align-items: center;
+    }
+</style>
+
 <div class="container">
     <main role="main" class="pb-3">
+
         @RenderBody()
     </main>
 </div>

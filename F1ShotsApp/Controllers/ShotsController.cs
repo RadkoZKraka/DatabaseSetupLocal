@@ -51,24 +51,21 @@ public class ShotsController : Controller
         var userId = User.Identity.GetUserId();
         ViewBag.AppUserId = userId;
         ViewBag.IsUserAdmin = UserRepository.GetIfUserIsAdminById(userId);
-        var usersPoints = new List<(UserShots, List<int>)>();
-        foreach (var user in users)
-        {
-            usersPoints.Add((user, ShotsRepository.GetUserPointsByYear(user.Id, DateTime.Now.Year)));
-        }
 
-        ViewBag.UsersPoints = usersPoints;
-        return View(usersPoints);
+        return View(users.ToList());
     }
 
     public IActionResult Schedule()
     {
+        ViewBag.UsersList = ShotsRepository.GetUsers();
+
         var schedule = AppSetup.DeserializeDates();
         return View(schedule);
     }
 
     public ActionResult Races(string userId, int year)
     {
+        ViewBag.UsersList = ShotsRepository.GetUsers();
         ViewBag.User = ShotsRepository.GetUserById(userId);
         ViewBag.Year = year;
         var userIdentityId = User.Identity.GetUserId();
@@ -92,9 +89,9 @@ public class ShotsController : Controller
         ViewBag.RaceId = raceId;
         ViewBag.Year = ShotsRepository.GetRaceYearById(raceId);
 
-        var userIdentityId = User.Identity.GetUserId();
-        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
-        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
+        var ownerId = User.Identity.GetUserId();
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId;
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(ownerId);
 
         var race = ShotsRepository.GetRaceById(raceId);
 
@@ -108,6 +105,22 @@ public class ShotsController : Controller
         var years = ShotsRepository.GetUsersYears(userId);
 
         return View(years);
+    }
+
+    public ActionResult CompareAll(int raceYear, int raceNo)
+    {
+
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
+        var userShots = ShotsRepository.GetUsers();
+        foreach (var user in userShots)
+        {
+            foreach (var race in user.Race)
+            {
+                // race.Shot;
+            }
+        }
+        return View((userShots.ToList(), raceYear, raceNo));
     }
 
     public ActionResult HideUser(string userId)
@@ -325,23 +338,21 @@ public class ShotsController : Controller
 
     public ActionResult CurrentRace()
     {
-        var userIdentityId = User.Identity.GetUserId();
-        var userShot = ShotsRepository.GetUserByOwnerId(userIdentityId);
+        var ownerId = User.Identity.GetUserId();
+        var userShot = ShotsRepository.GetUserByOwnerId(ownerId);
 
-        ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
+        ViewBag.User = ShotsRepository.GetUserByOwnerId(ownerId);
         ViewBag.UserId = userShot.Id;
         ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation());
         ViewBag.Location = AppSetup.GetCurrentRaceLocation();
 
-        var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
-        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
-        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRaceLocation());
-        if (shots == null)
-        {
-            return HttpNotFound();
-        }
+        var userId = ShotsRepository.GetUserIdByOwnerId(ownerId);
+        var race = ShotsRepository.GetCurrentRace(ownerId);
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId;
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(ownerId);
 
-        return View(shots);
+
+        return RedirectToAction("Shots", new {userId = userId, raceId = race.Id, raceLocation = race.RaceLocation});
     }
 
     public ActionResult LiveTiming()

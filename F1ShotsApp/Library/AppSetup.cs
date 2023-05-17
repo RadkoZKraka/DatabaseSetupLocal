@@ -198,6 +198,19 @@ public static class AppSetup
             .First().RaceName;
         return closestRaceName;
     }
+    public static List<int> CalculateCumulativeSum(IEnumerable<int> numbers)
+    {
+        List<int> cumulativeSumList = new List<int>();
+        int sum = 0;
+
+        foreach (int num in numbers)
+        {
+            sum += num;
+            cumulativeSumList.Add(sum);
+        }
+
+        return cumulativeSumList;
+    }
 
     public static void LockPreviousRaces()
     {

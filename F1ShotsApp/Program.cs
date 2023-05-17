@@ -4,6 +4,7 @@ using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Areas.Identity.Data;
 using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Library;
+using DatabaseSetupLocal.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
@@ -13,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<UsersContext>();
 builder.Services.AddDbContext<ShotsContext>();
+builder.Services.AddTransient<ShotsRepository>();
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 

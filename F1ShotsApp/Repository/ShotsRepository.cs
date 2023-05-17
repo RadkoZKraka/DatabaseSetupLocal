@@ -41,6 +41,20 @@ public class ShotsRepository : IShotRepository
     {
         return _shotsContext.RaceModel.ToList();
     }
+    public Race GetCurrentRace(string ownerId)
+    {
+        var currentLocation = AppSetup.GetCurrentRaceLocation();
+        var race = _shotsContext.UserShotsModel.Where(x => x.OwnerId == ownerId).FirstOrDefault().Race
+            .Where(x => x.RaceLocation == currentLocation).FirstOrDefault();
+        return race;
+    }
+    public int GetCurrentRaceNo()
+    {
+        var currentLocation = AppSetup.GetCurrentRaceLocation();
+        var raceNo = _shotsContext.UserShotsModel.FirstOrDefault().Race
+            .Where(x => x.RaceLocation == currentLocation).FirstOrDefault().RaceNo;
+        return raceNo;
+    }
 
     public UserShots GetUserById(string userId)
     {
@@ -276,6 +290,11 @@ public class ShotsRepository : IShotRepository
     {
         var yearsList = _shotsContext.UserShotsModel.Find(userId)?.Race.Select(x => x.RaceYear).Distinct().ToList()
                         ?? throw new YearListDoesntExistException();
+        return yearsList;
+    }
+    public List<int> GetYears()
+    {
+        var yearsList = _shotsContext.UserShotsModel.First().Race.Select(x => x.RaceYear).Distinct().ToList();
         return yearsList;
     }
 

@@ -3,60 +3,65 @@
     ViewData["Title"] = "Home Page";
 }
 
-
-<div class="text-center">
+<div class="container text-center">
     <h1 class="display-4">Welcome to F1Shots™</h1>
-    <h2>@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToString("f")</h2>
-    <h2 style="font-weight: bold" id="countdown"></h2>
+    <p class="lead">@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToString("f")</p>
+    <h2 class="font-weight-bold mb-4" id="countdown"></h2>
+    
     @if (ViewBag.AppUserId == null)
     {
-        <h3>Login to get to current race.</h3>
+        <p class="lead">Log in to access the current race.</p>
     }
     else
     {
         @if (ViewBag.UserHasShots)
         {
-            <h3>Go to current race!</h3>
-            @Html.ActionLink("Current race", "CurrentRace", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+            <p class="lead">Join the current race!</p>
+            @Html.ActionLink("Current Race", "CurrentRace", "Shots", new { userId = ViewBag.AppUserId }, new { @class = "btn btn-primary mt-4 btn-lg" })
         }
         else
         {
-            <h3>You dont have F1Shots™ set up, click button below to do so:</h3>
-            @Html.ActionLink("Add new user", "AddUser", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+            <p class="lead">You don't have F1Shots™ set up yet.</p>
+            @Html.ActionLink("Set up F1Shots™", "AddUser", "Shots", new { userId = ViewBag.AppUserId }, new { @class = "btn btn-primary mt-4 btn-lg" })
         }
     }
-    <br/>
-    @Html.ActionLink("Users List", "Index", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
-    <br/>
-    @if (ViewBag.IsAdmin)
-    {
-        @Html.ActionLink("Admin do it all button", "Index", "Admin", null, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
+    
+    <div class="mt-5">
+        @Html.ActionLink("Users List", "Index", "Shots", new { userId = ViewBag.AppUserId }, new { @class = "btn btn-primary mt-4 btn-lg" })
+    
+        @if (ViewBag.IsAdmin)
+        {
+            @Html.ActionLink("Admin Panel", "Index", "Admin", null, new { @class = "btn btn-primary mt-4 btn-lg" })
+        }
+    </div>
 
-    }
 </div>
-<script>
-    // Set the target date and time (replace with your own)
-    var date = "@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToUniversalTime().ToString("s")Z";
-    var targetDate = new Date(Date.parse(date));
-    
-    // Get the timer element
-    var timerElement = document.getElementById("countdown");
-    
-    // Update the timer element every second
-    setInterval(function() {
-        // Get the current date and time
-        var currentDate = new Date();
+
+@section scripts {
+    <script>
+        // Set the target date and time (replace with your own)
+        var date = "@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToUniversalTime().ToString("s")Z";
+        var targetDate = new Date(Date.parse(date));
         
-        // Calculate the time remaining
-        var timeRemaining = targetDate - currentDate;
+        // Get the timer element
+        var timerElement = document.getElementById("countdown");
         
-        // Calculate the days, hours, minutes, and seconds remaining
-        var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-        
-        // Update the timer element with the remaining time
-        timerElement.innerHTML = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
-    }, 1000);
-</script>
+        // Update the timer element every second
+        setInterval(function() {
+            // Get the current date and time
+            var currentDate = new Date();
+            
+            // Calculate the time remaining
+            var timeRemaining = targetDate - currentDate;
+            
+            // Calculate the days, hours, minutes, and seconds remaining
+            var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Update the timer element with the remaining time
+            timerElement.innerHTML = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
+        }, 1000);
+    </script>
+}

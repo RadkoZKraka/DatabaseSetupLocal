@@ -11,71 +11,121 @@
 @inject Microsoft.AspNetCore.Identity.UserManager<AppUser> UserManager
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 @model List<UserShots>
+
 @{
     ViewBag.Title = "User List";
     Layout = "_Layout";
 }
-@* @Html.Partial("UsersNavigationPartial") *@
 
-
-<div class="align-middle" style="margin-left: 40%">
-
-    <table>
-        <tr>
-            <th>
-                <h4>User name:</h4>
-            </th>
-            <th></th>
-        </tr>
-
-        @foreach (var item in Model)
-        {
-            <tr>
-                @if (!item.Hidden || ViewBag.IsUserAdmin)
-                {
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserName)
-                    </td>
-
-                    <td>
-                        @Html.ActionLink("Years", "Years", new {userId = item.Id}, new {@class = "btn btn-primary"})
-                    </td>
-                }
-                @if (ViewBag.IsUserAdmin)
-                {
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Hidden)
-                    </td>
-                    <td>
-                        @Html.ActionLink("Hide user", "HideUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
-
-                    </td>
-
-                    <td>
-                        @Html.ActionLink("Show user", "ShowUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
-
-                    </td>
-                    <td>
-                        @Html.ActionLink("Assign users", "AssignUser", "Shots", new{userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px"})
-                    </td>
-
-
-                    @* <td> *@
-                    @*     @Html.ActionLink("Delete user", "DeleteUser", "Shots", new {userId = item.Id}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"}) *@
-                    @* </td> *@
-                }
-            </tr>
-        }
-    </table>
-    @if (ViewBag.AppUserId == null)
-    {
-        <a>Login to add a user.</a>
-    }
-    else
-    {
-        @Html.ActionLink("Add new user", "AddUser", "Shots", new {userId = ViewBag.AppUserId}, new {@class = "btn btn-primary", @style = "margin-top: 20px; margin-left: 7%"})
-    }
-
-
-
+<div class="container mt-5">
+    <div class="row">
+        <div class="col">
+            <h2>User List</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        @if (ViewBag.IsUserAdmin)
+                        {
+                            <th>Hidden</th>
+                        }
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        if (item.Hidden && !ViewBag.IsUserAdmin)
+                        {
+                            continue;
+                        }
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                            @if (ViewBag.IsUserAdmin)
+                            {
+                                <td>
+                                    @if (item.Hidden)
+                                    {
+                                        <span class="text-success">&#x2714;</span>
+                                    }
+                                </td>
+                            }
+                            <td>
+                                @Html.ActionLink("Years", "Years", new { userId = item.Id }, new { @class = "btn btn-primary" })
+                                @if (ViewBag.IsUserAdmin)
+                                {
+                                    @if (item.Hidden)
+                                    {
+                                        <button class="btn btn-success btn-sm ml-2" data-toggle="modal" data-target="#showUserModal_@item.Id">Show User</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-danger btn-sm ml-2" data-toggle="modal" data-target="#hideUserModal_@item.Id">Hide User</button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (ViewBag.AppUserId == null)
+            {
+                <p>Login to add a user.</p>
+            }
+            else
+            {
+                @Html.ActionLink("Add New User", "AddUser", "Shots", new { userId = ViewBag.AppUserId }, new { @class = "btn btn-primary" })
+            }
+        </div>
+    </div>
 </div>
+
+@if (ViewBag.IsUserAdmin)
+{
+    foreach (var item in Model)
+    {
+        <div class="modal fade" id="hideUserModal_@item.Id" tabindex="-1" role="dialog" aria-labelledby="hideUserModalLabel_@item.Id" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="hideUserModalLabel_@item.Id">Hide User Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to hide this user? This action cannot be undone.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        @Html.ActionLink("Hide User", "HideUser", "Shots", new { userId = item.Id }, new { @class = "btn btn-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="showUserModal_@item.Id" tabindex="-1" role="dialog" aria-labelledby="showUserModalLabel_@item.Id" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="showUserModalLabel_@item.Id">Show User Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to show this user as before?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        @Html.ActionLink("Show User", "ShowUser", "Shots", new { userId = item.Id }, new { @class = "btn btn-success" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

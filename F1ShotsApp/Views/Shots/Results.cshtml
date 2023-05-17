@@ -1,56 +1,161 @@
 @using DatabaseSetupLocal.Repository
-@model List<(UserShots, List<int>)>
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using DatabaseSetupLocal.Data
+@using DatabaseSetupLocal.Library
+@using NuGet.ContentModel
+@model List<UserShots>
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
-    var year = DateTime.Now.Year;
+    var shotsRepository = new ShotsRepository(new ShotsContext());
+}
+<div class="center">
+    <h2>Results</h2>
+    <div class="tab">
+        @foreach (var year in @shotsRepository.GetYears())
+        {
+            <button class="tablinks" onclick="openYear(event, '@year')">@year</button>
+        }
+    </div>
+</div>
+
+
+@foreach (var year in @shotsRepository.GetYears())
+{
+    <div id="@year" class="tabcontent">
+        @if (@year == 2022)
+        {
+            <canvas id="myChart2022"></canvas>
+        }
+        @if (@year == 2023)
+        {
+            <canvas id="myChart2023"></canvas>
+        }
+
+    </div>
 }
 
-<h2>Results</h2>
-<table>
-    <tr>
-        <th>
-            <h4>User name:</h4>
-        </th>
-        <th></th>
-    </tr>
-    <canvas id="myChart"></canvas>
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            @if (!item.Item1.Hidden || ViewBag.IsUserAdmin)
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item.Item1.UserName)
-                </td>
-                <td>
+<script>
+function openYear(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
 
-                    @{
-                        var sum = item.Item2.Sum();
-                        Html.DisplayFor(modelItem => sum);
-
-                    }
-                </td>
-            }
-        </tr>
-    }
-</table>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var ctx = document.getElementById('myChart').getContext('2d');
+    var ctx = document.getElementById('myChart2022').getContext('2d');
     var myChart = new Chart(ctx, {
         type: 'line',
-        data: {
-            labels: @Html.Raw(Json.Serialize(Model.First().Item1.Race.Select(x => x.RaceLocation).ToArray())),
-            datasets: [{
-                label: 'F1 Shots 2022',
-                data: @Html.Raw(Json.Serialize(Model.First().Item2.ToArray())),
-                fill: false,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
+                    data: {
+                        labels: @Html.Raw(Json.Serialize(Model.First().Race.Where(x => x.RaceYear == 2022).Select(x => x.RaceLocation).ToArray())),
+                        
+                        datasets:[
+                        @foreach (var user in Model)
+                        {
+                            if (user.Hidden || user.Banned)
+                            {
+                                continue;
+                            }
+                            <text>
+                             {
+                                label: '@user.UserName',
+                                data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2022).ToArray().Select(X => X.Points).ToList()))),
+                                fill: false,
+                                @{
+                                    var rnd = new Random();
+                                }
+                                borderColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
+                                tension: 0.1
+                            },
+                         </text>
+                            
+                        }
+                        ]
+                    },
         options: {}
     });
+    var ctx2 = document.getElementById('myChart2023').getContext('2d');
+        var myChart2 = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.First().Race.Where(x => x.RaceYear == 2023).Select(x => x.RaceLocation).ToArray())),
+                
+                datasets:[
+                @foreach (var user in Model)
+                {
+                    if (user.Hidden || user.Banned)
+                    {
+                        continue;
+                    }
+                    <text>
+                     {
+                        label: '@user.UserName',
+                        data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2023).ToArray().Select(X => X.Points).ToList()))),
+                        fill: false,
+                        @{
+                            var rnd = new Random();
+                        }
+                        borderColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
+                        tension: 0.1
+                    },
+                 </text>
+                    
+                }
+                ]
+            },
+            options: {
+        }
+        });
 </script>
+<style>
+    .center {
+        text-align: center;
+      }
+      /* Style the tab */
+      .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+      }
+      
+      /* Style the buttons inside the tab */
+      .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+      }
+      
+      /* Change background color of buttons on hover */
+      .tab button:hover {
+        background-color: #ddd;
+      }
+      
+      /* Create an active/current tablink class */
+      .tab button.active {
+        background-color: #ccc;
+      }
+      
+      /* Style the tab content */
+      .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+      }
+</style>
