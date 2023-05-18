@@ -24,17 +24,14 @@ public class ShotsController : Controller
     public ShotsRepository ShotsRepository { get; set; }
     public ShotsContext ShotsContext { get; set; }
     public UserRepository UserRepository { get; set; }
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    // private readonly IHttpContextAccessor _httpContextAccessor;
     private bool isMobileDevice;
 
     public ShotsController(ILogger<HomeController> logger, ShotsRepository shotsRepository,
-        UserRepository userRepository, IHttpContextAccessor httpContextAccessor)
+        UserRepository userRepository)
     {
-        string userAgent = _httpContextAccessor.HttpContext.Request.Headers["User-Agent"].ToString();
 
-        this.isMobileDevice = IsMobileDevice(userAgent);
         _logger = logger;
-        _httpContextAccessor = httpContextAccessor;
 
         this.ShotsRepository = shotsRepository;
         this.UserRepository = userRepository;
@@ -67,7 +64,7 @@ public class ShotsController : Controller
         var userId = User.Identity.GetUserId();
         ViewBag.AppUserId = userId;
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userId);
-        ViewBag.IsMobile = isMobileDevice;
+        // ViewBag.IsMobile = isMobileDevice;
 
         return View(users.ToList());
     }

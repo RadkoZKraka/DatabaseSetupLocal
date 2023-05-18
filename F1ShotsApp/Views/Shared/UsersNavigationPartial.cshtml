@@ -80,7 +80,12 @@ height: 60%;
 <script>
 $(document).ready(function(){
   $('.dropdown-submenu a.test').on("click", function(e){
+    // Close all open dropdown menus
+    $('.dropdown-submenu .dropdown-menu').hide();
+
+    // Toggle the clicked dropdown menu
     $(this).next('ul').toggle();
+
     e.stopPropagation();
     e.preventDefault();
   });
