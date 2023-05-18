@@ -4,6 +4,8 @@
 @using DatabaseSetupLocal.Library
 @using NuGet.ContentModel
 @model List<UserShots>
+
+
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
@@ -19,7 +21,6 @@
     </div>
 </div>
 
-
 @foreach (var year in @shotsRepository.GetYears())
 {
     <div id="@year" class="tabcontent">
@@ -31,25 +32,23 @@
         {
             <canvas id="myChart2023"></canvas>
         }
-
     </div>
 }
 
-
 <script>
-function openYear(evt, cityName) {
-  var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-  document.getElementById(cityName).style.display = "block";
-  evt.currentTarget.className += " active";
-}
+    function openYear(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -57,41 +56,9 @@ function openYear(evt, cityName) {
     var ctx = document.getElementById('myChart2022').getContext('2d');
     var myChart = new Chart(ctx, {
         type: 'line',
-                    data: {
-                        labels: @Html.Raw(Json.Serialize(Model.First().Race.Where(x => x.RaceYear == 2022).Select(x => x.RaceLocation).ToArray())),
-                        
-                        datasets:[
-                        @foreach (var user in Model)
-                        {
-                            if (user.Hidden || user.Banned)
-                            {
-                                continue;
-                            }
-                            <text>
-                             {
-                                label: '@user.UserName',
-                                data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2022).ToArray().Select(X => X.Points).ToList()))),
-                                fill: false,
-                                @{
-                                    var rnd = new Random();
-                                }
-                                borderColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
-                                tension: 0.1
-                            },
-                         </text>
-                            
-                        }
-                        ]
-                    },
-        options: {}
-    });
-    var ctx2 = document.getElementById('myChart2023').getContext('2d');
-        var myChart2 = new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: @Html.Raw(Json.Serialize(Model.First().Race.Where(x => x.RaceYear == 2023).Select(x => x.RaceLocation).ToArray())),
-                
-                datasets:[
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.First().Race.Where(x => x.RaceYear == 2022).Select(x => x.RaceLocation).ToArray())),
+            datasets: [
                 @foreach (var user in Model)
                 {
                     if (user.Hidden || user.Banned)
@@ -99,7 +66,38 @@ function openYear(evt, cityName) {
                         continue;
                     }
                     <text>
-                     {
+                    {
+                        label: '@user.UserName',
+                        data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2022).ToArray().Select(X => X.Points).ToList()))),
+                        fill: false,
+                        @{
+                             var rnd = new Random();
+                         }
+                        borderColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
+                        backgroundColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
+                        tension: 0.1
+                    },
+                    </text>
+                }
+            ]
+        },
+        options: {}
+    });
+
+    var ctx2 = document.getElementById('myChart2023').getContext('2d');
+    var myChart2 = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.First().Race.Where(x => x.RaceYear == 2023).Select(x => x.RaceLocation).ToArray())),
+            datasets: [
+                @foreach (var user in Model)
+                {
+                    if (user.Hidden || user.Banned)
+                    {
+                        continue;
+                    }
+                    <text>
+                    {
                         label: '@user.UserName',
                         data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2023).ToArray().Select(X => X.Points).ToList()))),
                         fill: false,
@@ -107,55 +105,66 @@ function openYear(evt, cityName) {
                             var rnd = new Random();
                         }
                         borderColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
+                        backgroundColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
                         tension: 0.1
                     },
-                 </text>
-                    
+                    </text>
                 }
-                ]
-            },
-            options: {
-        }
-        });
+            ]
+        },
+        options: {}
+    });
+
+    function getRandomColor() {
+        var rnd = Math.floor(Math.random() * 256);
+        return 'rgb(' + rnd + ', ' + rnd + ', ' + rnd + ')';
+    }
 </script>
+
+
 <style>
     .center {
         text-align: center;
-      }
-      /* Style the tab */
-      .tab {
+        margin-bottom: 20px;
+    }
+
+    .tab {
         overflow: hidden;
         border: 1px solid #ccc;
         background-color: #f1f1f1;
-      }
-      
-      /* Style the buttons inside the tab */
-      .tab button {
+    }
+
+    .tab button {
         background-color: inherit;
-        float: left;
+        float: none;
         border: none;
         outline: none;
         cursor: pointer;
-        padding: 14px 16px;
+        padding: 10px 12px;
         transition: 0.3s;
-        font-size: 17px;
-      }
-      
-      /* Change background color of buttons on hover */
-      .tab button:hover {
+        font-size: 16px;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .tab button:hover {
         background-color: #ddd;
-      }
-      
-      /* Create an active/current tablink class */
-      .tab button.active {
+    }
+
+    .tab button.active {
         background-color: #ccc;
-      }
-      
-      /* Style the tab content */
-      .tabcontent {
+    }
+
+    .tabcontent {
         display: none;
         padding: 6px 12px;
         border: 1px solid #ccc;
         border-top: none;
-      }
+    }
+
+    canvas {
+        max-width: 100%;
+        height: auto;
+    }
 </style>

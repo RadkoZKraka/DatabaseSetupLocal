@@ -7,11 +7,11 @@ namespace DatabaseSetupLocal.Library;
 
 public static class F1WebScraper
 {
-    public static List<string> GetRaceResults(int year, int raceNumber)
+    public static List<string> GetRaceResults(int raceYear, int raceNo)
     {
         var results = new List<string>();
-        var listOfLinksForRaces = GetUrlsOfRaces(year);
-        var url = listOfLinksForRaces[raceNumber - 1];
+        var listOfLinksForRaces = GetUrlsOfRaces(raceYear);
+        var url = listOfLinksForRaces[raceNo - 1];
         HtmlWeb web = new HtmlWeb();
         HtmlDocument doc = web.Load(url);
         var tableXPath = "//tr";

@@ -1,5 +1,6 @@
 ﻿@using DatabaseSetupLocal.Repository
 @inject ShotsRepository ShotsRepository
+@inject UserRepository UserRepository 
 
 @{
     var users = ShotsRepository.GetUsers();
@@ -25,52 +26,57 @@
 height: 60%;
 }
 </style>
+@{
+    var userId = ViewBag.AppUserId;
+}
+@if (User.Identity.Name != null)
+{
+    <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            My group
 
-<div class="dropdown">
-    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-        My group
-
-    </button>
-    <ul class="dropdown-menu" style="overflow: visible">
-        <li class="dropdown-submenu">
-            <a class="test" tabindex="-1" href="#">
-                Compare All<span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-                @{
-                    var raceNo = ShotsRepository.GetCurrentRaceNo();
-                }
-                <a href="@Url.Action("CompareAll", "Shots", new {raceYear = @DateTime.Now.Year, raceNo = raceNo})" class="dropdown-item">Current Race</a>
-
-                @foreach (var race in users.First().Race.Where(x => x.RaceYear == DateTime.Now.Year))
-                {
-                    <a href="@Url.Action("CompareAll", "Shots", new {raceYear = race.RaceYear, raceNo = race.RaceNo})" class="dropdown-item">@race.RaceLocation.Replace("Grand Prix", String.Empty)</a>
-                }
-
-            </ul>
-        </li>
-
-        @foreach (var user in users)
-        {
-            if (user.Hidden || user.Banned)
-            {
-                continue;
-            }
+        </button>
+        <ul class="dropdown-menu" style="overflow: visible">
             <li class="dropdown-submenu">
                 <a class="test" tabindex="-1" href="#">
-                    @user.UserName<span class="caret"></span>
+                    Compare All<span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    @foreach (var race in user.Race.Where(x => x.RaceYear == DateTime.Now.Year))
+                    @{
+                        var raceNo = ShotsRepository.GetCurrentRaceNo();
+                    }
+                    <a href="@Url.Action("CompareAll", "Shots", new {raceYear = @DateTime.Now.Year, raceNo = raceNo})" class="dropdown-item">Current Race</a>
+
+                    @foreach (var race in users.First().Race.Where(x => x.RaceYear == DateTime.Now.Year))
                     {
-                        <a href="@Url.Action("Shots", "Shots", new {userId = user.Id, raceId = race.Id, raceLocation = race.RaceLocation})" class="dropdown-item">@race.RaceLocation.Replace("Grand Prix", String.Empty)</a>
+                        <a href="@Url.Action("CompareAll", "Shots", new {raceYear = race.RaceYear, raceNo = race.RaceNo})" class="dropdown-item">@race.RaceLocation.Replace("Grand Prix", String.Empty)</a>
                     }
 
                 </ul>
             </li>
-        }
-    </ul>
-</div>
+
+            @foreach (var user in users)
+            {
+                if (user.Hidden || user.Banned)
+                {
+                    continue;
+                }
+                <li class="dropdown-submenu">
+                    <a class="test" tabindex="-1" href="#">
+                        @user.UserName<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        @foreach (var race in user.Race.Where(x => x.RaceYear == DateTime.Now.Year))
+                        {
+                            <a href="@Url.Action("Shots", "Shots", new {userId = user.Id, raceId = race.Id, raceLocation = race.RaceLocation})" class="dropdown-item">@race.RaceLocation.Replace("Grand Prix", String.Empty)</a>
+                        }
+
+                    </ul>
+                </li>
+            }
+        </ul>
+    </div>
+}
 <script>
 $(document).ready(function(){
   $('.dropdown-submenu a.test').on("click", function(e){

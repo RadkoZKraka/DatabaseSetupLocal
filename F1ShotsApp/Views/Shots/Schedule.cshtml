@@ -1,18 +1,12 @@
 @model F1Schedule
-<!DOCTYPE html>
-<html>
-<head>
-    <title>F1 Schedule</title>
+@{
+    ViewBag.Title = "Schedule";
+    Layout = "_Layout";
+}
+
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -46,10 +40,13 @@
             display: block;
             margin-bottom: 20px;
         }
+        .closest-event{
+            background-color: #25cff2;
+        }
     </style>
     <script>
         function scrollToNextEvent() {
-            var upcomingEvent = document.querySelector('.upcoming-event');
+            var upcomingEvent = document.querySelector('.closest-event');
             if (upcomingEvent) {
                 upcomingEvent.scrollIntoView({ behavior: 'smooth' });
             }
@@ -62,9 +59,7 @@
             });
         }
     </script>
-</head>
-<body>
-<h1>F1 Schedule</h1>
+<h1 style="text-align: center">F1 Schedule</h1>
 <button class="scroll-button" onclick="scrollToNextEvent()">Scroll to Next Event</button>
 
 <button class="toggle-button" onclick="togglePassedEvents()">Toggle Passed Events</button>
@@ -79,11 +74,15 @@
     </tr>
     </thead>
     <tbody>
+    @{
+        var closestEvent = Model.Races.SelectMany(r => r.F1Events).OrderBy(e => Math.Abs((e.EventDateAndTime - DateTime.Now).TotalMilliseconds)).FirstOrDefault();
+    }
+
     @foreach (var race in Model.Races)
     {
         foreach (var f1Event in race.F1Events)
         {
-            <tr class="@(f1Event.EventDateAndTime > DateTime.Now ? "upcoming-event" : "passed-event")">
+            <tr class="@(f1Event == closestEvent ? "closest-event" : (f1Event.EventDateAndTime > DateTime.Now ? "upcoming-event" : "passed-event"))">
                 @if (race.F1Events.IndexOf(f1Event) == 0)
                 {
                     <td rowspan="@race.F1Events.Count">@Model.Year</td>
@@ -94,8 +93,7 @@
             </tr>
         }
     }
+
     </tbody>
 </table>
 
-</body>
-</html>

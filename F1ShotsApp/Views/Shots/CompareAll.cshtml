@@ -1,4 +1,5 @@
-@model (List<UserShots>, int, int)
+@using DatabaseSetupLocal.Library
+@model (List<UserShots> userShotsList, int raceYear, int raceNo)
 
 @{
     ViewBag.Title = "title";
@@ -67,12 +68,9 @@
                     var race = user.Race.Where(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3).FirstOrDefault();
                     var shots = race.Shot;
                 }
-                @{
-                    var previousPosition = -1;
-                }
                 @for (var i = 1; i - 1 < shots.Count; i++)
                 {
-                    <tr>
+                    <tr @if(shots[i - 1].Points == 3){ <text>style="background-color: green"</text>} @if(shots[i - 1].Points == 1){ <text>style="background-color: orange"</text>}>
 
                         <td>
                             @Html.DisplayFor(modelItem => shots[i - 1].UsersShotDriver)
@@ -88,6 +86,7 @@
                         }
                     </tr>
                 }
+                
                 </tbody>
             </table>
 
@@ -118,4 +117,38 @@
             </h4>
         </div>
     }
+    <div class="col-md-1">
+                        <h4>  &nbsp;</h4>
+            
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>
+                        <h5>Results:</h5>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @{
+                    var results = F1WebScraper.GetRaceResults(Model.raceYear, Model.raceNo);
+                }
+                @for (var i = 0; i < 20; i++)
+                {
+                    <tr>
+                        <td>
+                            @if (String.IsNullOrEmpty(results[i]))
+                            {
+                                <text>
+                                    Empty
+                                </text>
+                                continue;
+                            }
+                            @results[i]
+                        </td>
+                    </tr>
+                }
+    
+                </tbody>
+            </table>
+        </div>
 </div>

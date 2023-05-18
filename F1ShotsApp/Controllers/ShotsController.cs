@@ -40,7 +40,7 @@ public class ShotsController : Controller
         var users = ShotsRepository.GetUsers();
         var userId = User.Identity.GetUserId();
         ViewBag.AppUserId = userId;
-        ViewBag.IsUserAdmin = UserRepository.GetIfUserIsAdminById(userId);
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userId);
 
         return View(users.ToList());
     }
@@ -50,7 +50,7 @@ public class ShotsController : Controller
         var users = ShotsRepository.GetUsers().ToArray();
         var userId = User.Identity.GetUserId();
         ViewBag.AppUserId = userId;
-        ViewBag.IsUserAdmin = UserRepository.GetIfUserIsAdminById(userId);
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userId);
 
         return View(users.ToList());
     }
@@ -58,6 +58,8 @@ public class ShotsController : Controller
     public IActionResult Schedule()
     {
         ViewBag.UsersList = ShotsRepository.GetUsers();
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
 
         var schedule = AppSetup.DeserializeDates();
         return View(schedule);
@@ -103,6 +105,8 @@ public class ShotsController : Controller
         ViewBag.User = ShotsRepository.GetUserById(userId);
         ViewBag.UsersList = UserRepository.GetUsers();
         var years = ShotsRepository.GetUsersYears(userId);
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
 
         return View(years);
     }
@@ -156,6 +160,8 @@ public class ShotsController : Controller
 
     public ActionResult EditOneShot(int? shotId)
     {
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         if (shotId == null)
         {
             return NotFound();
@@ -173,6 +179,8 @@ public class ShotsController : Controller
 
     public IActionResult ImportFromClipBoard(string data, int raceId)
     {
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         Race race = ShotsRepository.GetRaceById(raceId);
         var listOfShots = data.Split("\n");
         for (int i = 0; i < 20; i++)
@@ -191,6 +199,8 @@ public class ShotsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditOneShotPost(int? shotId)
     {
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         if (shotId == null)
         {
             return NotFound();
@@ -228,6 +238,8 @@ public class ShotsController : Controller
         ViewBag.Year = ShotsRepository.GetRaceById(raceId).RaceYear;
         ViewBag.PreviousUrl = HttpContext.Request.GetEncodedUrl();
         ViewBag.CurrentRace = AppSetup.GetCurrentRaceSchedule();
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
 
 
         var selectListItems = new List<string>();
@@ -255,6 +267,8 @@ public class ShotsController : Controller
     // [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditMultipleShotsPost(int? raceId)
     {
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         if (raceId == null)
         {
             return NotFound();
@@ -298,6 +312,8 @@ public class ShotsController : Controller
 
     public ActionResult AssignUser(string userId)
     {
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         if (String.IsNullOrEmpty(userId))
         {
             return HttpNotFound();
@@ -312,6 +328,8 @@ public class ShotsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AssignUserPost(string userId)
     {
+        var userIdentityId = User.Identity.GetUserId();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         var userModelToUpdate = await ShotsContext.UserShotsModel.FirstOrDefaultAsync(s => s.Id == userId);
         if (await TryUpdateModelAsync<UserShots>(
                 userModelToUpdate,
@@ -364,6 +382,8 @@ public class ShotsController : Controller
         ViewBag.UserId = userShot.Id;
         ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation());
         ViewBag.Location = AppSetup.GetCurrentRaceLocation();
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
+        
 
         var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;

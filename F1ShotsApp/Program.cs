@@ -15,6 +15,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<UsersContext>();
 builder.Services.AddDbContext<ShotsContext>();
 builder.Services.AddTransient<ShotsRepository>();
+builder.Services.AddTransient<UserRepository>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

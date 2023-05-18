@@ -29,7 +29,7 @@
                 <thead>
                     <tr>
                         <th>User Name</th>
-                        @if (ViewBag.IsUserAdmin)
+                        @if (ViewBag.IsAdmin)
                         {
                             <th>Hidden</th>
                         }
@@ -39,13 +39,13 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        if (item.Hidden && !ViewBag.IsUserAdmin)
+                        if (item.Hidden && !ViewBag.IsAdmin)
                         {
                             continue;
                         }
                         <tr>
                             <td>@Html.DisplayFor(modelItem => item.UserName)</td>
-                            @if (ViewBag.IsUserAdmin)
+                            @if (ViewBag.IsAdmin)
                             {
                                 <td>
                                     @if (item.Hidden)
@@ -56,7 +56,7 @@
                             }
                             <td>
                                 @Html.ActionLink("Years", "Years", new { userId = item.Id }, new { @class = "btn btn-primary" })
-                                @if (ViewBag.IsUserAdmin)
+                                @if (ViewBag.IsAdmin)
                                 {
                                     @if (item.Hidden)
                                     {
@@ -84,7 +84,7 @@
     </div>
 </div>
 
-@if (ViewBag.IsUserAdmin)
+@if (ViewBag.IsAdmin)
 {
     foreach (var item in Model)
     {

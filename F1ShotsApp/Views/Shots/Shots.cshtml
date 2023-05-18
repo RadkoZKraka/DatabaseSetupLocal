@@ -113,11 +113,11 @@
 
         @for (var i = 1; i - 1 < Model.Shot.Count; i++)
         {
-            <tr style="height: 40px">
+            <tr @if(Model.Shot[i - 1].Points == 3){ <text>style="background-color: green"</text>} @if(Model.Shot[i - 1].Points == 1){ <text>style="background-color: orange"</text>} >
                 <td>@i</td>
                 <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].UsersShotDriver)</td>
                 <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].ResultDriver)</td>
-                <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].Points)</td>
+                <td >@Html.DisplayFor(modelItem => Model.Shot[i - 1].Points)</td>
                 @if (ViewBag.IsAdmin)
                 {
                     <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].Id)</td>
@@ -133,12 +133,13 @@
                 <h5>Random:</h5>
                 <p>@Html.DisplayFor(modelItem => Model.Rand)</p>
             }
-            <h5>Pole position:</h5>
+            <h5 @if(Model.PolePositionPoints == 2){ <text>style="background-color: green"</text>}>Pole position:</h5>
             <p>@Html.DisplayFor(modelItem => Model.PolePosition)</p>
             <p>@Html.DisplayFor(modelItem => Model.PolePositionPoints)</p>
             @if (Model.RaceYear == 2023)
             {
-                <h5>Fastest lap:</h5>
+
+                <h5 @if(Model.FastestLapPoints == 2){ <text>style="background-color: green"</text>}>Fastest lap:</h5>
                 <p>@Html.DisplayFor(modelItem => Model.FastestLap)</p>
                 <p>@Html.DisplayFor(modelItem => Model.FastestLapPoints)</p>
             }

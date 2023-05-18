@@ -2,9 +2,11 @@
 @using DatabaseSetupLocal.Areas.Identity.Data
 @using DatabaseSetupLocal.Repository
 @inject SignInManager<AppUser> SignInManager
-@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Identity.UserManager<AppUser> UserManager
 @using DatabaseSetupLocal.Repository
+@using Microsoft.AspNet.Identity
 @inject ShotsRepository ShotsRepository
+@inject UserRepository UserRepository 
 
 <style>
     footer {
@@ -14,8 +16,8 @@
         width: 100%;
         background-color: #f5f5f5;
         text-align: center;
-        font-size: 14px;
-        padding: 10px 0;
+        font-size: 12px;
+        padding: 4px 0;
     }
     .dropdown-submenu {
       position: relative;
@@ -27,6 +29,8 @@
       margin-top: -1px;
       overflow: visible;
     }
+
+
 </style>
 @{
     var users = ShotsRepository.GetUsers();
@@ -69,7 +73,15 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Live Timing</a>
                         </li>
                     }
+                    @if (UserRepository.GetIfUserIsAdminById(IdentityExtensions.GetUserId(User.Identity)))
+                    {
+                        <li class="nav-item ">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin Panel</a>
+                        </li>
+                    }
+
                     <li>
+
                         <partial name="UsersNavigationPartial"/>
 
                     </li>
@@ -77,8 +89,8 @@
 
 
                 <div style="float: right">
-                <partial name="_LoginPartial"/>
-                    
+                    <partial name="_LoginPartial"/>
+
                 </div>
             </div>
         </div>
@@ -116,10 +128,10 @@
         @RenderBody()
     </main>
 </div>
-
+<br/>
 <footer class="border-top footer text-muted" style="bottom: 0">
     <div class="container">
-        &copy; 2023 - F1Shots™ - Radosław Krowicki - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; 2023 - F1Shots™ - Radosław Krowicki - Beta 0.69 <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
