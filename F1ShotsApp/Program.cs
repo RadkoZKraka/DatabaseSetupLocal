@@ -16,6 +16,8 @@ builder.Services.AddDbContext<UsersContext>();
 builder.Services.AddDbContext<ShotsContext>();
 builder.Services.AddTransient<ShotsRepository>();
 builder.Services.AddTransient<UserRepository>();
+builder.Services.AddHostedService<BackupService>();
+builder.Services.AddTransient<LoggingService>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

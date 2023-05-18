@@ -16,10 +16,10 @@ public class AdminController : Controller
     private readonly UserRepository _userRepository;
     private readonly ShotsRepository _shotRepository;
 
-    public AdminController(ILogger<AdminController> logger)
+    public AdminController(ILogger<AdminController> logger, ShotsRepository  ShotsRepository, UserRepository UserRepository)
     {
-        _userRepository = new UserRepository(new UsersContext());
-        _shotRepository = new ShotsRepository(new ShotsContext());
+        _userRepository = UserRepository;
+        _shotRepository = ShotsRepository;
         _logger = logger;
     }
 
@@ -55,10 +55,10 @@ public class AdminController : Controller
         var appUserId = User.Identity.GetUserId();
 
         var usersList = _userRepository.GetUsers();
-        var usersRepository = new UserRepository(new UsersContext());
-        var shotsRepository = new ShotsRepository(new ShotsContext());
-        shotsRepository.LockYear(2022);
-        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        
+        
+        _shotRepository.LockYear(2022);
+        ViewBag.IsAdmin = _userRepository.GetIfUserIsAdminById(appUserId);
         return RedirectToAction("Index");
     }
 

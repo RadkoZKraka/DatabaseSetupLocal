@@ -1,18 +1,31 @@
+@using Microsoft.AspNet.Identity
 @model Race
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
 
     var selectedDrivers = Model.Shot.Select(x => x.UsersShotDriver).ToList();
 }
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 @{
-            var raceDate = (ViewBag.CurrentRace as RaceSchedule).F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToUniversalTime().ToString("s") + "Z";
-            var raceDateToShow = (ViewBag.CurrentRace as RaceSchedule).F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToString("f");
-        }
+    var raceDate = (ViewBag.CurrentRace as RaceSchedule).F1Events
+        .Where(x => x.EventName == "Qualifying")
+        .First()
+        .EventDateAndTime
+        .ToUniversalTime()
+        .ToString("s") + "Z";
 
-
+    var raceDateToShow = (ViewBag.CurrentRace as RaceSchedule)
+        .F1Events
+        .Where(x => x.EventName == "Qualifying")
+        .First()
+        .EventDateAndTime
+        .ToString("f");
+}
 
 <style>
     table {
@@ -20,7 +33,8 @@
       border-collapse: collapse;
       width: 80%;
     }
-    </style>
+</style>
+
 <div style="margin-left: 20%">
     <h2>Editing:</h2>
     <h2>@ViewBag.User.UserName - @ViewBag.Year - @ViewBag.Location</h2>
@@ -37,7 +51,7 @@
                 <div class="form-horizontal">
                     @Html.ValidationSummary(true)
                     @Html.HiddenFor(model => model.Id)
-                    <table >
+                    <table>
                         <tr>
                             <th>
                                 <h5>Position:</h5>
@@ -48,7 +62,6 @@
                             <th>
                                 <h5>Users driver:</h5>
                             </th>
-
                         </tr>
                         <br/>
 
@@ -59,29 +72,38 @@
                                     @i
                                 </td>
                                 <td>
-                                    @Html.DropDownListFor(model => model.Shot[i - 1].UsersShotDriver, new SelectList(ViewBag.F1Grid), "Select a driver.", new {@id = "ddlId", @class = "form-control"})
-                                    @* @Html.EditorFor(model => model.Shot[i - 1].UsersShotDriver) *@
+                                    @Html.DropDownListFor(
+                                        model => model.Shot[i - 1].UsersShotDriver,
+                                        new SelectList(ViewBag.F1Grid),
+                                        "Select a driver.",
+                                        new {@id = "ddlId", @class = "form-control"}
+                                    )
                                     @Html.ValidationMessageFor(model => model.Shot[i - 1].UsersShotDriver)
                                 </td>
                             </tr>
                         }
-                    </table >
+                    </table>
 
-                    @*Genre and Price removed for brevity.*@
                     <div class="form-group">
-                        <div >
+                        <div>
                             <input type="submit" value="Save" class="btn btn-primary" style="margin-top: 20px; width: 50%; margin-left: 15%"/>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     }
+
     <div>
-        @Html.ActionLink("Back to List", "Shots", new {userId = ViewBag.User.Id, raceId = ViewBag.RaceId, raceLocation = ViewBag.Location}, new {@class = "btn btn-primary", style = "margin-top: 10px; margin-left: 37%"})
+        @Html.ActionLink(
+            "Back to List",
+            "Shots",
+            new {userId = ViewBag.User.Id, raceId = ViewBag.RaceId, raceLocation = ViewBag.Location},
+            new {@class = "btn btn-primary", style = "margin-top: 10px; margin-left: 37%"}
+        )
     </div>
 </div>
+
 <script>
     var isFormDirty = false;
 
@@ -102,29 +124,21 @@
             }
         };
     });
-    // Set the target date and time (replace with your own)
-        
-        var date = "@raceDate";
-        var targetDate = new Date(Date.parse(date));
-        
-        // Get the timer element
-        var timerElement = document.getElementById("countdown");
-        
-        // Update the timer element every second
-        setInterval(function() {
-            // Get the current date and time
-            var currentDate = new Date();
-            
-            // Calculate the time remaining
-            var timeRemaining = targetDate - currentDate;
-            
-            // Calculate the days, hours, minutes, and seconds remaining
-            var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-            
-            // Update the timer element with the remaining time
-            timerElement.innerHTML = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
-        }, 1000);
+
+    var date = "@raceDate";
+    var targetDate = new Date(Date.parse(date));
+
+    var timerElement = document.getElementById("countdown");
+
+    setInterval(function() {
+        var currentDate = new Date();
+        var timeRemaining = targetDate - currentDate;
+
+        var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        timerElement.innerHTML = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
+    }, 1000);
 </script>

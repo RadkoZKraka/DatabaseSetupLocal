@@ -1,10 +1,13 @@
 ﻿@model List<Shot>
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNet.Identity
 
 
 @{
     ViewBag.Title = ViewBag.User.UserName + " Shots";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+
 }
 @section Scripts{
     <script>

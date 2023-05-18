@@ -24,15 +24,31 @@ public class ShotsController : Controller
     public ShotsRepository ShotsRepository { get; set; }
     public ShotsContext ShotsContext { get; set; }
     public UserRepository UserRepository { get; set; }
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private bool isMobileDevice;
 
-
-    public ShotsController(ILogger<HomeController> logger)
+    public ShotsController(ILogger<HomeController> logger, ShotsRepository shotsRepository,
+        UserRepository userRepository, IHttpContextAccessor httpContextAccessor)
     {
-        _logger = logger;
+        string userAgent = _httpContextAccessor.HttpContext.Request.Headers["User-Agent"].ToString();
 
-        this.ShotsRepository = new ShotsRepository(new ShotsContext());
-        this.UserRepository = new UserRepository(new UsersContext());
+        this.isMobileDevice = IsMobileDevice(userAgent);
+        _logger = logger;
+        _httpContextAccessor = httpContextAccessor;
+
+        this.ShotsRepository = shotsRepository;
+        this.UserRepository = userRepository;
         this.ShotsContext = ShotsRepository.GetShotsContext();
+    }
+    private bool IsMobileDevice(string userAgent)
+    {
+        // You can implement your own logic here to determine if the userAgent corresponds to a mobile device
+        // This can be done by checking for specific keywords or patterns in the userAgent string
+        // Here's a simple example that checks for common mobile keywords
+
+        string[] mobileKeywords = { "Android", "iPhone", "iPad", "Windows Phone" };
+
+        return mobileKeywords.Any(keyword => userAgent.Contains(keyword, StringComparison.OrdinalIgnoreCase));
     }
 
     public IActionResult Index()
@@ -51,6 +67,7 @@ public class ShotsController : Controller
         var userId = User.Identity.GetUserId();
         ViewBag.AppUserId = userId;
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userId);
+        ViewBag.IsMobile = isMobileDevice;
 
         return View(users.ToList());
     }
@@ -113,7 +130,6 @@ public class ShotsController : Controller
 
     public ActionResult CompareAll(int raceYear, int raceNo)
     {
-
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         var userShots = ShotsRepository.GetUsers();
@@ -124,19 +140,20 @@ public class ShotsController : Controller
                 // race.Shot;
             }
         }
+
         return View((userShots.ToList(), raceYear, raceNo));
     }
 
-    public ActionResult HideUser(string userId)
+    public ActionResult HideUser(string userId, string user)
     {
-        ShotsRepository.HideUser(userId);
+        ShotsRepository.HideUser(userId, user);
 
         return RedirectToAction("Index");
     }
 
-    public ActionResult ShowUser(string userId)
+    public ActionResult ShowUser(string userId, string user)
     {
-        ShotsRepository.ShowUser(userId);
+        ShotsRepository.ShowUser(userId, user);
 
         return RedirectToAction("Index");
     }
@@ -148,12 +165,12 @@ public class ShotsController : Controller
         return RedirectToAction("Index");
     }
 
-    public ActionResult GetRaceResults(int raceId)
+    public ActionResult GetRaceResults(int raceId, string user)
     {
         ViewBag.UsersList = UserRepository.GetUsers();
         var race = ShotsRepository.GetRaceById(raceId);
         ShotsRepository.CountPointsByRace(race);
-        ShotsRepository.UpdateRace(race);
+        ShotsRepository.UpdateRace(race, user);
         return Redirect(HttpContext.Request.Headers["Referer"]);
     }
 
@@ -177,7 +194,7 @@ public class ShotsController : Controller
         return View(shot);
     }
 
-    public IActionResult ImportFromClipBoard(string data, int raceId)
+    public IActionResult ImportFromClipBoard(string data, int raceId, string user)
     {
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
@@ -190,7 +207,7 @@ public class ShotsController : Controller
 
         race.PolePosition = listOfShots[20];
         race.FastestLap = listOfShots[21];
-        ShotsRepository.UpdateRace(race);
+        ShotsRepository.UpdateRace(race, user);
         return RedirectToAction("Index");
     }
 
@@ -274,9 +291,12 @@ public class ShotsController : Controller
             return NotFound();
         }
 
-        var shotsToUpdate = await ShotsContext.RaceModel.FirstOrDefaultAsync(s => s.Id == raceId);
+        var raceToUpdate = await ShotsContext.RaceModel.FirstOrDefaultAsync(s => s.Id == raceId);
+        ShotsRepository.LogAction("Race with ID: " + raceToUpdate.Id + " has been updated by " + userIdentityId +
+                                  ".\n");
+
         if (await TryUpdateModelAsync<Race>(
-                shotsToUpdate,
+                raceToUpdate,
                 "",
                 s => s.Shot))
         {
@@ -294,7 +314,7 @@ public class ShotsController : Controller
             }
         }
 
-        return View(shotsToUpdate);
+        return View(raceToUpdate);
     }
 
     public ActionResult AddUser(string userId)
@@ -331,6 +351,9 @@ public class ShotsController : Controller
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         var userModelToUpdate = await ShotsContext.UserShotsModel.FirstOrDefaultAsync(s => s.Id == userId);
+        ShotsRepository.LogAction("User with ID: " + userModelToUpdate.Id + " has been updated by " + userIdentityId +
+                                  ".\n");
+
         if (await TryUpdateModelAsync<UserShots>(
                 userModelToUpdate,
                 "",
@@ -383,7 +406,7 @@ public class ShotsController : Controller
         ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation());
         ViewBag.Location = AppSetup.GetCurrentRaceLocation();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
-        
+
 
         var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;

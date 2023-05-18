@@ -1,15 +1,17 @@
 @using DatabaseSetupLocal.Repository
-@using Microsoft.EntityFrameworkCore.Metadata.Internal
-@using DatabaseSetupLocal.Data
 @using DatabaseSetupLocal.Library
-@using NuGet.ContentModel
+@using Microsoft.AspNet.Identity
+@using Azure.Core
 @model List<UserShots>
+@inject ShotsRepository shotsRepository
 
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
-    var shotsRepository = new ShotsRepository(new ShotsContext());
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+    bool isMobileDevice = ViewBag.IsMobile;
+
 }
 <div class="center">
     <h2>Results</h2>

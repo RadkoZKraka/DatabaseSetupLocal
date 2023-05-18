@@ -8,6 +8,7 @@ namespace DatabaseSetupLocal.Library;
 
 public static class AppSetup
 {
+
     public static void DeleteDb()
     {
         using (var db = new ShotsContext())
@@ -222,7 +223,7 @@ public static class AppSetup
         var racesPassed = GetNumberOfPassedDates(times.ToList());
         foreach (var location in listOfLocations.Take(racesPassed))
         {
-            var shotsRepo = new ShotsRepository(new ShotsContext());
+            var shotsRepo = new ShotsRepository(new ShotsContext(), new LoggingService());
             shotsRepo.LockRace(DateTime.Now.Year, location);
         }
     }
@@ -258,7 +259,7 @@ public static class AppSetup
         await ScheduleTasksAtSpecifiedTimes(taskTimes, async () =>
         {
             Console.WriteLine("It went off!");
-            var shotsRepo = new ShotsRepository(new ShotsContext());
+            var shotsRepo = new ShotsRepository(new ShotsContext(), new LoggingService());
             await shotsRepo.LockRaceAsync(currentYear, currentRaceLocation);
             // Call your method that saves the form here.
         });

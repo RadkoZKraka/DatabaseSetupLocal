@@ -1,7 +1,10 @@
-﻿@model List<Shot>
+﻿@using Microsoft.AspNet.Identity
+@model List<Shot>
 @{
     ViewBag.Title = "Live Timing";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+
 }
 
 <script>

@@ -2,7 +2,9 @@
 using DatabaseSetupLocal.Exceptions;
 using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace DatabaseSetupLocal.Repository;
 
@@ -12,16 +14,18 @@ public interface IShotRepository : IDisposable
     UserShots GetUserById(String userId);
     void InsertUser(UserShots userShots);
     void DeleteUser(String userId);
-    void UpdateUser(UserShots userShots);
+    void UpdateUser(UserShots userShots, string user);
     void Save();
 }
 
 public class ShotsRepository : IShotRepository
 {
     private ShotsContext _shotsContext;
+    private LoggingService _loggingService;
 
-    public ShotsRepository(ShotsContext shotsContext)
+    public ShotsRepository(ShotsContext shotsContext, LoggingService loggingService)
     {
+        _loggingService = loggingService;
         this._shotsContext = shotsContext;
         //TODO: rozkminić dlaczego to jest potrzebne, inaczej nie wchodzi w Racey w Userze
         var races = this._shotsContext.RaceModel.ToList();
@@ -60,6 +64,11 @@ public class ShotsRepository : IShotRepository
     {
         return _shotsContext.UserShotsModel.Find(userId);
     }
+    public string GetUserIdByRaceId(int raceId)
+    {
+        return _shotsContext.UserShotsModel.Where(x => x.Race.Where(r => r.Id == raceId).First() != null).First().Id;
+    }
+
 
     public string GetUserIdByOwnerId(string ownerId)
     {
@@ -78,7 +87,7 @@ public class ShotsRepository : IShotRepository
             points += shot.Points;
         }
         race.Points = points;
-        UpdateRace(race);
+        UpdateRace(race, "System");
     }
 
     public bool GetIfAppUserHasShots(string userId)
@@ -99,7 +108,7 @@ public class ShotsRepository : IShotRepository
             foreach (var race in races)
             {
                 race.Locked = true;
-                UpdateRace(race);
+                UpdateRace(race, "System");
             }
 
             return true;
@@ -118,7 +127,7 @@ public class ShotsRepository : IShotRepository
         foreach (var race in races)
         {
             race.Locked = true;
-            UpdateRace(race);
+            UpdateRace(race, "System");
         }
     }
 
@@ -128,7 +137,7 @@ public class ShotsRepository : IShotRepository
         races.ForEach(x => x.Locked = true);
         foreach (var raceLocked in races)
         {
-            UpdateRace(raceLocked);
+            UpdateRace(raceLocked, "System");
         }
     }
 
@@ -174,7 +183,7 @@ public class ShotsRepository : IShotRepository
         }
 
 
-        UpdateRace(race);
+        UpdateRace(race , "System");
     }
 
     public List<int> CalculateUsersPoints(List<string> listA, List<string> listB)
@@ -340,7 +349,7 @@ public class ShotsRepository : IShotRepository
             }
             shot.UsersShotDriver = AppSetup.AbrOneDriverToFullName(shot.UsersShotDriver, race.RaceYear);
         }
-        UpdateRace(race);
+        UpdateRace(race, "System");
     }
 
     public void InsertUser(UserShots userShots)
@@ -356,32 +365,42 @@ public class ShotsRepository : IShotRepository
         _shotsContext.SaveChanges();
     }
 
-    public void HideUser(string userId)
+    public void HideUser(string userId, string userThatChanged)
     {
         var user = _shotsContext.UserShotsModel.Find(userId);
 
         user.Hidden = true;
-        UpdateUser(user);
+        UpdateUser(user, userThatChanged);
     }
 
-    public void ShowUser(string userId)
+    public void ShowUser(string userId, string userThatChanged)
     {
         var user = _shotsContext.UserShotsModel.Find(userId);
 
         user.Hidden = false;
-        UpdateUser(user);
+        UpdateUser(user, userThatChanged);
     }
 
-    public void UpdateUser(UserShots userShots)
+    public async void UpdateUser(UserShots userShots, string user)
     {
         _shotsContext.Entry(userShots).State = EntityState.Modified;
-        _shotsContext.SaveChanges();
+        _shotsContext.SaveChangesAsync();
+        await LogAction("User " + userShots.UserName + " has been updated by " + user + ".\n");
+    }
+    public async Task LogAction(string logMessage)
+    {
+        await _loggingService.AppendToLogFile(logMessage);
+
+        // Your other controller logic here
     }
 
-    public void UpdateRace(Race race)
+    public async void UpdateRace(Race race, string user)
     {
         _shotsContext.RaceModel.Entry(race).State = EntityState.Modified;
-        _shotsContext.SaveChanges();
+        _shotsContext.SaveChangesAsync();
+
+        await LogAction("Race with ID: " + race.Id + " has been updated by " + user + ".\n");
+
     }
 
     public void Save()

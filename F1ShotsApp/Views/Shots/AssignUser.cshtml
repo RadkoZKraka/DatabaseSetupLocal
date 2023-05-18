@@ -1,8 +1,11 @@
+@using Microsoft.AspNet.Identity
 @model UserShots
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+
 }
 
 <h2>Assign Users</h2>

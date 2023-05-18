@@ -13,9 +13,11 @@ namespace DatabaseSetupLocal.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private ShotsRepository _shotsRepository;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, ShotsRepository shotsRepository)
     {
+        this._shotsRepository = shotsRepository;
         _logger = logger;
     }
 
@@ -23,9 +25,9 @@ public class HomeController : Controller
     {
         var appUserId = User.Identity.GetUserId();
         ViewBag.AppUserId = appUserId;
-        var shotsRepository = new ShotsRepository(new ShotsContext());
+
         var race = AppSetup.GetCurrentRaceSchedule();
-        ViewBag.UserHasShots = shotsRepository.GetIfAppUserHasShots(appUserId);
+        ViewBag.UserHasShots = _shotsRepository.GetIfAppUserHasShots(appUserId);
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
         return View(race);

@@ -1,28 +1,38 @@
-﻿@model List<int>
+﻿@using Microsoft.AspNet.Identity
+@model List<int>
 
 @{
     ViewBag.Title = ViewBag.User.UserName + " Years";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+
 }
-<div style="margin-left: 40%">
-<h2>@ViewBag.User.UserName</h2>
-<h2>Select a year:</h2>
 
-    <table style="margin-left: 5%">
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item)
-                </td>
-            
-                <td>
-                    @Html.ActionLink("Select", "Races", new {userId = ViewBag.User.Id, year = item}, new {@class = "btn btn-primary"})
-                </td>
+<div class="container">
+    <div class="text-center">
+        <h2>@ViewBag.User.UserName</h2>
+        <h3>Select a year:</h3>
 
-            </tr>
-        }
-    </table>
-    <a href="javascript:history.go(-1)" class = "btn btn-primary" >Back</a>
-    
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <table class="table table-bordered">
+                    <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item)
+                            </td>
+                            <td class="text-center">
+                                @Html.ActionLink("Select", "Races", new {userId = ViewBag.User.Id, year = item}, new {@class = "btn btn-primary btn-sm"})
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @Html.ActionLink("Back to users", "Index", null, new {@class = "btn btn-primary"})
+
+    </div>
 </div>

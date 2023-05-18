@@ -1,7 +1,10 @@
+@using Microsoft.AspNet.Identity
 @model F1Schedule
 @{
     ViewBag.Title = "Schedule";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+
 }
 
 

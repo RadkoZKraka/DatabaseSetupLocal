@@ -1,92 +1,86 @@
-﻿@model List<Race>
-
+﻿@using Microsoft.AspNet.Identity
+@model List<Race>
 
 @{
     ViewBag.Title = "Races";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+
 }
-@* @Html.Partial("UsersNavigationPartial") *@
+
 <style>
     table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 80%;
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        width: 80%;
+        margin: 0 auto;
     }
-    </style>
-<div style="margin-left: 20%">
-    <h2>@ViewBag.User.UserName</h2>
-    <h2>@ViewBag.Year</h2>
-    <h2>Select a race:</h2>
+    
+    th, td {
+        padding: 10px;
+        text-align: center;
+    }
+    
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
 
-    <table >
-        <tr>
-            <th>
-                <h5>#</h5>
-            </th>
-            <th>
-                <h5>Location:</h5>
-            </th>
+<div class="container">
+    <div class="text-center">
+        <h2>@ViewBag.User.UserName</h2>
+        <h3>@ViewBag.Year</h3>
+        <h3>Select a race:</h3>
 
-
-            <th>
-                <h5>Points:</h5>
-            </th>
-            <th>
-                <h5>Sum of points:</h5>
-            </th>
-            @if (ViewBag.IsAdmin)
-            {
-                <td>
-                    <h5>ID:</h5>
-                </td>
-            }
-
-            <th></th>
-        </tr>
-
-        @for (int i = 0; i < Model.Count; i++)
-        {
+        <table>
+            <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => Model[i].RaceNo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => Model[i].RaceLocation)
-                </td>
-
-
-                <td>
-                    @Html.DisplayFor(modelItem => Model[i].Points)
-                </td>
-                <td>
-                    @{
-                        var sum = Model.Select(x => x.Points).ToArray().Take(i).Sum();
-                    }
-                    @Html.DisplayFor(modelItem => sum)
-                </td>
+                <th>#</th>
+                <th>Location</th>
+                <th>Points</th>
+                <th>Sum of points</th>
                 @if (ViewBag.IsAdmin)
                 {
-                    <td>
-                        @Html.DisplayFor(modelItem => Model[i].Id)
-                    </td>
+                    <th>ID</th>
                 }
-
-                <td>
-                    @Html.ActionLink("Select", "Shots", new {userId = ViewBag.User.Id, raceId = Model[i].Id, raceLocation = Model[i].RaceLocation}, new {@class = "btn btn-primary"})
-                </td>
-
+                <th></th>
             </tr>
-        }
-        <tr>
-            <td>
-                <p>Final points:</p>
-                @{
-                    var finalPoints = Model.Select(x => x.Points).Sum();
-                }
-                @Html.DisplayFor(modelItem => finalPoints)
+            </thead>
+            <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => Model[i].RaceNo)</td>
+                    <td>@Html.DisplayFor(modelItem => Model[i].RaceLocation)</td>
+                    <td>@Html.DisplayFor(modelItem => Model[i].Points)</td>
+                    <td>
+                        @{
+                            var sum = Model.Select(x => x.Points).Take(i).Sum();
+                        }
+                        @Html.DisplayFor(modelItem => sum)
+                    </td>
+                    @if (ViewBag.IsAdmin)
+                    {
+                        <td>@Html.DisplayFor(modelItem => Model[i].Id)</td>
+                    }
+                    <td>
+                        @Html.ActionLink("Select", "Shots", new {userId = ViewBag.User.Id, raceId = Model[i].Id, raceLocation = Model[i].RaceLocation}, new {@class = "btn btn-primary"})
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td colspan="5">
+                    <strong>Final points:</strong>
+                    @{
+                        var finalPoints = Model.Select(x => x.Points).Sum();
+                    }
+                    @Html.DisplayFor(modelItem => finalPoints)
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/>
+        @Html.ActionLink("Back to years", "Years", new {userId = ViewBag.User.Id}, new {@class = "btn btn-primary"})
 
-            </td>
-        </tr>
-    </table>
-    <a href="javascript:history.go(-1)" class="btn btn-primary">Back</a>
+    </div>
 </div>

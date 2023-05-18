@@ -1,9 +1,12 @@
 @using DatabaseSetupLocal.Library
+@using Microsoft.AspNet.Identity
 @model (List<UserShots> userShotsList, int raceYear, int raceNo)
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+    var userId = IdentityExtensions.GetUserId(User.Identity);
+
 }
 
 <h2>Compare All</h2>
