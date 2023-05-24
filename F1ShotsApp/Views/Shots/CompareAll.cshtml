@@ -139,7 +139,7 @@
                 {
                     <tr>
                         <td>
-                            @if (String.IsNullOrEmpty(results[i]))
+                            @if (results.Count <= i || String.IsNullOrEmpty(results[i]))
                             {
                                 <text>
                                     Empty

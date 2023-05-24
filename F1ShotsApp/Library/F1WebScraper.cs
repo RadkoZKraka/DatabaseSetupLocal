@@ -9,19 +9,36 @@ public static class F1WebScraper
 {
     public static List<string> GetRaceResults(int raceYear, int raceNo)
     {
-        var results = new List<string>();
-        var listOfLinksForRaces = GetUrlsOfRaces(raceYear);
-        var url = listOfLinksForRaces[raceNo - 1];
-        HtmlWeb web = new HtmlWeb();
-        HtmlDocument doc = web.Load(url);
-        var tableXPath = "//tr";
-        var resultsNodes = doc.DocumentNode.SelectNodes(tableXPath).Skip(1)
-            .Select(x => x.ChildNodes[7].ChildNodes[5].InnerHtml);
-        //doc.DocumentNode.SelectNodes("//tr")[1].ChildNodes[3]
-        foreach (var resultsNode in resultsNodes)
+        if (raceNo > 5 && raceYear == 2023)
         {
-            results.Add(resultsNode);
+            raceNo = raceNo - 1;
         }
+        var results = new List<string>(20);
+        try
+        {
+            var listOfLinksForRaces = GetUrlsOfRaces(raceYear);
+            if (listOfLinksForRaces.Count < raceNo)
+            {
+                return results;
+            }
+            var url = listOfLinksForRaces[raceNo - 1];
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = web.Load(url);
+            var tableXPath = "//tr";
+            var resultsNodes = doc.DocumentNode.SelectNodes(tableXPath).Skip(1)
+                .Select(x => x.ChildNodes[7].ChildNodes[5].InnerHtml);
+            //doc.DocumentNode.SelectNodes("//tr")[1].ChildNodes[3]
+            foreach (var resultsNode in resultsNodes)
+            {
+                results.Add(resultsNode);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        
 
         return results;
     }

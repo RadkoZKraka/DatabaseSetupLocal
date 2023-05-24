@@ -5,38 +5,93 @@
 @model List<UserShots>
 @inject ShotsRepository shotsRepository
 
-
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
     var userId = IdentityExtensions.GetUserId(User.Identity);
-
 }
+
 <div class="center">
     <h2>Results</h2>
-    <div class="tab">
+    <button id="toggleButton" onclick="toggleView()">Toggle View</button>
+    <div id="chartView">
+        <div class="tab">
+            @foreach (var year in @shotsRepository.GetYears())
+            {
+                <button class="tablinks" onclick="openYear(event, '@year')">@year</button>
+            }
+        </div>
         @foreach (var year in @shotsRepository.GetYears())
         {
-            <button class="tablinks" onclick="openYear(event, '@year')">@year</button>
+            <div id="@year" class="tabcontent">
+                @if (@year == 2022)
+                {
+                    <canvas id="myChart2022"></canvas>
+                }
+                @if (@year == 2023)
+                {
+                    <canvas id="myChart2023"></canvas>
+                }
+            </div>
         }
+    </div>
+    <div id="tableView" style="display: none;">
+        <table>
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Year</th>
+                <th>Location</th>
+                <th>Points</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var user in Model)
+            {
+                if (user.Hidden || user.Banned)
+                {
+                    continue;
+                }
+                <tr>
+                    <td>@user.UserName</td>
+                    @{var i = 0;}
+                    @for (var index = 0; index < user.Race.Count; index++)
+                    {
+                        if (user.Race[index].RaceYear == 2022)
+                        {
+                            continue;
+                        }
+                        
+                        var race = user.Race[index];
+                        @* <td>@race.RaceYear</td> *@
+                        @* <td>@race.RaceLocation</td> *@
+                        <td>@AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2023).Select(x => x.Points))[i]</td>
+                        i++;
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
     </div>
 </div>
 
-@foreach (var year in @shotsRepository.GetYears())
-{
-    <div id="@year" class="tabcontent">
-        @if (@year == 2022)
-        {
-            <canvas id="myChart2022"></canvas>
-        }
-        @if (@year == 2023)
-        {
-            <canvas id="myChart2023"></canvas>
-        }
-    </div>
-}
-
 <script>
+    function toggleView() {
+        var chartView = document.getElementById("chartView");
+        var tableView = document.getElementById("tableView");
+        var toggleButton = document.getElementById("toggleButton");
+
+        if (chartView.style.display === "none") {
+            chartView.style.display = "block";
+            tableView.style.display = "none";
+            toggleButton.textContent = "Toggle View";
+        } else {
+            chartView.style.display = "none";
+            tableView.style.display = "block";
+            toggleButton.textContent = "Toggle View";
+        }
+    }
+
     function openYear(evt, cityName) {
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tabcontent");
@@ -72,8 +127,8 @@
                         data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2022).ToArray().Select(X => X.Points).ToList()))),
                         fill: false,
                         @{
-                             var rnd = new Random();
-                         }
+                            var rnd = new Random();
+                        }
                         borderColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
                         backgroundColor: 'rgb(@rnd.Next(256), @rnd.Next(256), @rnd.Next(256))',
                         tension: 0.1
@@ -121,7 +176,6 @@
         return 'rgb(' + rnd + ', ' + rnd + ', ' + rnd + ')';
     }
 </script>
-
 
 <style>
     .center {
