@@ -106,10 +106,12 @@ public class ShotsController : Controller
         ViewBag.Year = ShotsRepository.GetRaceYearById(raceId);
 
         var ownerId = User.Identity.GetUserId();
-        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId;
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId && ownerId != null && ShotsRepository.GetUserById(userId).OwnerId != null;
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(ownerId);
 
         var race = ShotsRepository.GetRaceById(raceId);
+        ViewBag.RaceSchedule = AppSetup.GetRaceScheduleBy(race.RaceLocation);
+
 
         return View(race);
     }
@@ -267,11 +269,7 @@ public class ShotsController : Controller
         }
 
         var race = ShotsContext.RaceModel.FirstOrDefault(s => s.Id == raceId);
-
-        if (race == null)
-        {
-            return HttpNotFound();
-        }
+        ViewBag.RaceSchedule = AppSetup.GetRaceScheduleBy(race.RaceLocation);
 
         return View(race);
     }
@@ -295,7 +293,7 @@ public class ShotsController : Controller
         if (await TryUpdateModelAsync<Race>(
                 raceToUpdate,
                 "",
-                s => s.Shot))
+                s => s.Shot, s => s.PolePosition, s=> s.FastestLap))
         {
             try
             {

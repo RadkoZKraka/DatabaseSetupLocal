@@ -238,11 +238,22 @@ public static class AppSetup
     {
         var f1Schedule = DeserializeDates();
         var listOfDates = f1Schedule.Races
-            .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime).ToList();
+            .Select(x => x.F1Events.First(x => x.EventName == "Qualifying").EventDateAndTime).ToList();
 
         var closestDate = GetNextDateTime(listOfDates);
-        var closestRace = f1Schedule.Races.Where(x => x.F1Events.Where(x => x.EventDateAndTime == closestDate).Any())
-            .First();
+        var closestRace = f1Schedule.Races
+            .First(x => x.F1Events.Any(x => x.EventDateAndTime == closestDate));
+        return closestRace;
+    }
+    public static RaceSchedule GetRaceScheduleBy(string raceName)
+    {
+        var f1Schedule = DeserializeDates();
+        var listOfDates = f1Schedule.Races
+            .Where(raceSchedule => raceSchedule.RaceName == raceName).Select(x => x.F1Events.First(x => x.EventName == "Qualifying").EventDateAndTime).ToList();
+
+        var closestDate = GetNextDateTime(listOfDates);
+        var closestRace = f1Schedule.Races
+            .First(raceSchedule => raceSchedule.F1Events.Any(f1Event => f1Event.EventDateAndTime == closestDate));
         return closestRace;
     }
 

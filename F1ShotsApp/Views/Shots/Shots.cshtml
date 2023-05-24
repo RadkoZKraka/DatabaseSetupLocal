@@ -1,11 +1,9 @@
-﻿@inject IJSRuntime JSRuntime
-@inject UserRepository UserRepository
-@inject ShotsRepository ShotsRepository
-@using Microsoft.JSInterop
+﻿@inject ShotsRepository ShotsRepository
 @using DatabaseSetupLocal.Repository
 @using Microsoft.AspNet.Identity
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Race
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 @{
     ViewBag.Title = ViewBag.User.UserName + " Shots";
@@ -13,6 +11,17 @@
     var userShotsId = ShotsRepository.GetUserIdByRaceId(Model.Id);
     var userId = IdentityExtensions.GetUserId(User.Identity);
 
+    var raceDate = (ViewBag.RaceSchedule as RaceSchedule).F1Events
+        .First(x => x.EventName == "Qualifying")
+        .EventDateAndTime
+        .ToUniversalTime()
+        .ToString("s") + "Z";
+
+    var raceDateToShow = (ViewBag.RaceSchedule as RaceSchedule)
+        .F1Events
+        .First(x => x.EventName == "Qualifying")
+        .EventDateAndTime
+        .ToString("f");
 }
 
 <style>
@@ -35,14 +44,6 @@
 
     .custom-container {
         margin-left: 20%;
-    }
-
-    .custom-content {
-        margin-left: 30%;
-    }
-
-    .custom-notification {
-        margin-bottom: 20px;
     }
 
     .custom-btn {
@@ -72,31 +73,15 @@
     .custom-btn-primary:active {
         background-color: #0062cc;
     }
-
-    .custom-back-link {
-        margin-top: 20px;
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 16px;
-        text-decoration: none;
-        background-color: #007bff;
-        color: white;
-        border-radius: 4px;
-    }
-
-    .custom-back-link:hover {
-        background-color: #0069d9;
-    }
-
-    .custom-back-link:active {
-        background-color: #0062cc;
-    }
 </style>
 
 <div class="custom-container">
     <h2>@ViewBag.User.UserName</h2>
     <h2>@ViewBag.Year</h2>
     <h2>@ViewBag.Location</h2>
+    <h2>@raceDateToShow</h2>
+    <h2 style="font-weight: bold" id="countdown"></h2>
+    <div id="countdown"></div>
     @if (Model.Locked)
     {
         <h3>Race is locked, editing is turned off.</h3>
@@ -116,7 +101,16 @@
 
         @for (var i = 1; i - 1 < Model.Shot.Count; i++)
         {
-            <tr @if(Model.Shot[i - 1].Points == 3){ <text>style="background-color: green"</text>} @if(Model.Shot[i - 1].Points == 1){ <text>style="background-color: orange"</text>} >
+            <tr
+                @if (Model.Shot[i - 1].Points == 3)
+                {
+                    <text>style="background-color: green"</text>
+                }
+                @if (Model.Shot[i - 1].Points == 1)
+                {
+                    <text>style="background-color: orange"</text>
+                }
+            >
                 <td>@i</td>
                 <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].UsersShotDriver)</td>
                 <td>@Html.DisplayFor(modelItem => Model.Shot[i - 1].ResultDriver)</td>
@@ -136,18 +130,31 @@
                 <h5>Random:</h5>
                 <p>@Html.DisplayFor(modelItem => Model.Rand)</p>
             }
-            <h5 @if(Model.PolePositionPoints == 2){ <text>style="background-color: green"</text>}>Pole position:</h5>
+            <h5
+                @if (Model.PolePositionPoints == 2)
+                {
+                    <text>style="background-color: green"</text>
+                }
+            >
+                Pole position:
+            </h5>
             <p>@Html.DisplayFor(modelItem => Model.PolePosition)</p>
             <p>@Html.DisplayFor(modelItem => Model.PolePositionPoints)</p>
             @if (Model.RaceYear == 2023)
             {
-
-                <h5 @if(Model.FastestLapPoints == 2){ <text>style="background-color: green"</text>}>Fastest lap:</h5>
+                <h5
+                    @if (Model.FastestLapPoints == 2)
+                    {
+                        <text>style="background-color: green"</text>
+                    }
+                >
+                    Fastest lap:
+                </h5>
                 <p>@Html.DisplayFor(modelItem => Model.FastestLap)</p>
                 <p>@Html.DisplayFor(modelItem => Model.FastestLapPoints)</p>
             }
         </div>
-    
+
         <h4>Final Points:</h4>
         @{
             var sum = Model.Shot.Select(x => x.Points).Sum() + Model.FastestLapPoints + Model.PolePositionPoints;
@@ -155,11 +162,11 @@
         }
         <p>@Html.DisplayFor(modelItem => sum)</p>
     </div>
-    
+
     <div>
         @if (ViewBag.HasAccessToEdit && !Model.Locked || ViewBag.IsAdmin)
         {
-            <a class="custom-btn custom-btn-primary" href="@Url.Action("EditMultipleShots", new { raceId = ViewBag.RaceId, userId = ViewBag.UserId })">Edit</a>
+            <a class="custom-btn custom-btn-primary" href="@Url.Action("EditMultipleShots", new {raceId = ViewBag.RaceId, userId = ViewBag.UserId})">Edit</a>
         }
         else
         {
@@ -167,7 +174,7 @@
         }
         @if (ViewBag.HasAccessToEdit || ViewBag.IsAdmin)
         {
-            <a class="custom-btn custom-btn-primary" href="@Url.Action("GetRaceResults", new { raceId = ViewBag.RaceId, user = userId})">Get race results</a>
+            <a class="custom-btn custom-btn-primary" href="@Url.Action("GetRaceResults", new {raceId = ViewBag.RaceId, user = userId})">Get race results</a>
         }
         <div>
             @if (ViewBag.IsAdmin)
@@ -176,11 +183,10 @@
             }
         </div>
     </div>
-                <a class="custom-btn custom-btn-primary" href="@Url.Action("Races", new { userId = userShotsId, year = DateTime.Now.Year })">Back to list</a>
+    <a class="custom-btn custom-btn-primary" href="@Url.Action("Races", new {userId = userShotsId, year = DateTime.Now.Year})">Back to list</a>
 
-<div style="margin-bottom: 70px"></div>
+    <div style="margin-bottom: 70px"></div>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(function () {
         $('#copy-button').click(function () {
@@ -196,10 +202,26 @@
                         user: @userId
                     },
                     success: function (response) {
-                        alert('The text "' + text + '" was copied to the server.');
+                        alert('Drivers "' + text + '" were imported.');
                     }
                 });
             });
         });
     });
+    var date = "@raceDate";
+        var targetDate = new Date(Date.parse(date));
+    
+        var timerElement = document.getElementById("countdown");
+    
+        setInterval(function() {
+            var currentDate = new Date();
+            var timeRemaining = targetDate - currentDate;
+    
+            var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+    
+            timerElement.innerHTML = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
+        }, 1000);
 </script>
