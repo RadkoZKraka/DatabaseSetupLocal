@@ -68,6 +68,8 @@
                                     {
                                         <button class="btn btn-danger btn-sm ml-2" data-toggle="modal" data-target="#hideUserModal_@item.Id">Hide User</button>
                                     }
+                                    @Html.ActionLink("Assign User", "AssignUser", new { userId = item.Id }, new { @class = "btn btn-primary" })
+
                                 }
                             </td>
                         </tr>
@@ -129,5 +131,6 @@
                 </div>
             </div>
         </div>
+        
     }
 }
