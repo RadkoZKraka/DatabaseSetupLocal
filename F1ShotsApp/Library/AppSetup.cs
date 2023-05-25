@@ -252,6 +252,7 @@ public static class AppSetup
             .Where(raceSchedule => raceSchedule.RaceName == raceName).Select(x => x.F1Events.First(x => x.EventName == "Qualifying").EventDateAndTime).ToList();
 
         var closestDate = GetNextDateTime(listOfDates);
+        
         var closestRace = f1Schedule.Races
             .First(raceSchedule => raceSchedule.F1Events.Any(f1Event => f1Event.EventDateAndTime == closestDate));
         return closestRace;
@@ -304,7 +305,12 @@ public static class AppSetup
     public static DateTime GetNextDateTime(List<DateTime> dateTimes)
     {
         DateTime now = DateTime.Now;
-        return dateTimes.OrderBy(dt => dt).FirstOrDefault(dt => dt > now);
+        var closest = dateTimes.OrderBy(dt => dt).FirstOrDefault(dt => dt > now);
+        if (closest == DateTime.MinValue)
+        {
+            closest = dateTimes.First();
+        }
+        return closest;
     }
 
     public static UserShots SetupShotsForNewUser(string ownerId, string fullName)

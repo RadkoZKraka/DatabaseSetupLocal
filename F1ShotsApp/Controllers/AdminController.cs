@@ -137,8 +137,7 @@ public class AdminController : Controller
     }
 
     [HttpPost, ActionName("EditAppUser")]
-    [AllowAnonymous]
-    // [ValidateAntiForgeryToken]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditAppUserPost(string userId)
     {
         var userContext = new UsersContext();

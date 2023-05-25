@@ -24,7 +24,6 @@ public class ShotsController : Controller
     public ShotsRepository ShotsRepository { get; set; }
     public ShotsContext ShotsContext { get; set; }
     public UserRepository UserRepository { get; set; }
-    // private readonly IHttpContextAccessor _httpContextAccessor;
     private bool isMobileDevice;
 
     public ShotsController(ILogger<HomeController> logger, ShotsRepository shotsRepository,
@@ -275,8 +274,7 @@ public class ShotsController : Controller
     }
 
     [HttpPost, ActionName("EditMultipleShots")]
-    [AllowAnonymous]
-    // [ValidateAntiForgeryToken]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditMultipleShotsPost(int? raceId)
     {
         var userIdentityId = User.Identity.GetUserId();
@@ -325,7 +323,7 @@ public class ShotsController : Controller
         return RedirectToAction("Index");
     }
 
-    public ActionResult AssignUser(string userId)
+    public ActionResult EditUser(string userId)
     {
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
@@ -339,9 +337,9 @@ public class ShotsController : Controller
         return View(user);
     }
 
-    [HttpPost, ActionName("AssignUser")]
+    [HttpPost, ActionName("EditUser")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AssignUserPost(string userId)
+    public async Task<IActionResult> EditUserPost(string userId)
     {
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
@@ -352,7 +350,7 @@ public class ShotsController : Controller
         if (await TryUpdateModelAsync<UserShots>(
                 userModelToUpdate,
                 "",
-                s => s.OwnerId))
+                s => s.OwnerId, s => s.UserName))
         {
             try
             {

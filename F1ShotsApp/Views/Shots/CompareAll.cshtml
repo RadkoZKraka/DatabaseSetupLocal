@@ -3,7 +3,7 @@
 @model (List<UserShots> userShotsList, int raceYear, int raceNo)
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = $"Compare All - {Model.raceYear} - {Model.raceNo}";
     Layout = "_Layout";
     var userId = IdentityExtensions.GetUserId(User.Identity);
 

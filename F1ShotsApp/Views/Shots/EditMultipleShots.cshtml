@@ -2,7 +2,7 @@
 @model Race
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = $"Editing {Model.RaceYear} {Model.RaceLocation}";
     Layout = "_Layout";
     var userId = IdentityExtensions.GetUserId(User.Identity);
 

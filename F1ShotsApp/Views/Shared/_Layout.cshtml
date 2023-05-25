@@ -43,7 +43,7 @@
     <title>@ViewData["Title"] - F1Shots</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/DatabaseSetupLocal.styles.css" asp-append-version="true"/>
+    @* <link rel="stylesheet" href="~/DatabaseSetupLocal.styles.css" asp-append-version="true"/> *@
     <link rel="shortcut icon" href="/favicon.ico">
 </head>
 <body>
@@ -67,7 +67,7 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Schedule">Schedule</a>
                     </li>
-                    @if (@User.Identity?.Name != null)
+                    @if (UserRepository.GetIfUserIsAdminById(IdentityExtensions.GetUserId(User.Identity)))
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Live Timing</a>
@@ -131,7 +131,7 @@
 <br/>
 <footer class="border-top footer text-muted" style="bottom: 0">
     <div class="container">
-        &copy; 2023 - F1Shots™ - Radosław Krowicki - Beta 0.69 <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; 2023 - F1Shots™ - Radosław Krowicki - Beta 0.69 - HotfixUno - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

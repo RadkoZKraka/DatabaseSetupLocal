@@ -1,34 +1,41 @@
 @using DatabaseSetupLocal.Repository
 @using DatabaseSetupLocal.Library
 @using Microsoft.AspNet.Identity
-@using Azure.Core
 @model List<UserShots>
-@inject ShotsRepository shotsRepository
+@inject ShotsRepository ShotsRepository
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Results";
     Layout = "_Layout";
     var userId = IdentityExtensions.GetUserId(User.Identity);
 }
+<!-- CSS Stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/23.2.1/styles/ag-grid.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/23.2.1/styles/ag-theme-alpine.css">
+
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@23.2.1/dist/ag-grid-community.min.js"></script>
 
 <div class="center">
     <h2>Results</h2>
-    <button id="toggleButton" onclick="toggleView()">Toggle View</button>
+    <label class="switch">
+        <input type="checkbox" id="toggleButton" onclick="toggleView()">
+        <span class="slider"></span>
+    </label>
     <div id="chartView">
         <div class="tab">
-            @foreach (var year in @shotsRepository.GetYears())
+            @foreach (var year in ShotsRepository.GetYears())
             {
-                <button class="tablinks" onclick="openYear(event, '@year')">@year</button>
+                <button class="tablinksChart" onclick="openYearChart(event, '@year')">@year</button>
             }
         </div>
-        @foreach (var year in @shotsRepository.GetYears())
+        @foreach (var year in ShotsRepository.GetYears())
         {
-            <div id="@year" class="tabcontent">
-                @if (@year == 2022)
+            <div id="@year" class="tabcontentChart">
+                @if (year == 2022)
                 {
                     <canvas id="myChart2022"></canvas>
                 }
-                @if (@year == 2023)
+                @if (year == 2023)
                 {
                     <canvas id="myChart2023"></canvas>
                 }
@@ -36,46 +43,106 @@
         }
     </div>
     <div id="tableView" style="display: none;">
-        <table>
-            <thead>
-            <tr>
-                <th>User</th>
-                <th>Year</th>
-                <th>Location</th>
-                <th>Points</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var user in Model)
-            {
-                if (user.Hidden || user.Banned)
+        @* <div class="tab"> *@
+        @*     @foreach (var year in ShotsRepository.GetYears()) *@
+        @*     { *@
+        @*         <button class="tablinksTable" onclick="openYearTable(event, '@year')">@year</button> *@
+        @*     } *@
+        @* </div> *@
+        @foreach (var year in ShotsRepository.GetYears())
+        {
+            <div id="@year" class="tabcontentTable">
+                @if (year == 2022)
                 {
-                    continue;
+                    <div id="myGrid2022" class="ag-theme-alpine" style="width: 100%;"></div>
                 }
-                <tr>
-                    <td>@user.UserName</td>
-                    @{var i = 0;}
-                    @for (var index = 0; index < user.Race.Count; index++)
-                    {
-                        if (user.Race[index].RaceYear == 2022)
-                        {
-                            continue;
-                        }
-                        
-                        var race = user.Race[index];
-                        @* <td>@race.RaceYear</td> *@
-                        @* <td>@race.RaceLocation</td> *@
-                        <td>@AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2023).Select(x => x.Points))[i]</td>
-                        i++;
-                    }
-                </tr>
-            }
-            </tbody>
-        </table>
+                @if (year == 2023)
+                {
+                    <div id="myGrid2023" class="ag-theme-alpine" style="width: 100%;"></div>
+                }
+            </div>
+        }
     </div>
 </div>
 
 <script>
+var gridOptions2022, gridOptions2023;
+function initializeGrid2022() {
+   var rowData = [
+                           @foreach (var user in Model)
+                           {
+                               if (user.Hidden || user.Banned)
+                               {
+                                   continue;
+                               }
+                               @Html.Raw("{ userName: '" + user.UserName + "',")
+                               
+                               @* @Html.Raw("locations: [" + string.Join(", ", user.Race.Where(x => x.RaceYear == 2023).Select(x => "'" + x.RaceLocation + "'")) + "],"); *@
+                               @Html.Raw("locations: [" + string.Join(", ", AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2022).Select(x => x.Points))) + "] },")
+                               
+                           }
+                       ];
+               
+                       var columnDefs = [
+                           { headerName: 'User', field: 'userName'},
+                             @foreach (var location in Model.First().Race.Where(z => z.RaceYear == 2022).Select(x => x.RaceLocation.Replace("Grand Prix", string.Empty)))
+                             {
+                                 <text>{ headerName: '@location', width: 100,  field: 'locations', valueGetter: function(params) { return params.data.locations[@(Model.First().Race.Where(z => z.RaceYear == 2022).Select(x => x.RaceLocation.Replace("Grand Prix", string.Empty)).ToList().IndexOf(location))]; } },</text>
+                             }
+                       ];
+               
+                       gridOptions2022 = {
+                           columnDefs: columnDefs,
+                           rowData: rowData,
+                           defaultColDef: {
+                               sortable: true,
+                               resizable: true
+                           },
+                           domLayout: 'autoHeight'
+                       };
+               
+                       var gridDiv = document.querySelector('#myGrid2022');
+                       new agGrid.Grid(gridDiv, gridOptions2022);
+}
+
+        function initializeGrid2023() {
+            var rowData = [
+                                        @foreach (var user in Model)
+                                        {
+                                            if (user.Hidden || user.Banned)
+                                            {
+                                                continue;
+                                            }
+                                            @Html.Raw("{ userName: '" + user.UserName + "',")
+                                            
+                                            @* @Html.Raw("locations: [" + string.Join(", ", user.Race.Where(x => x.RaceYear == 2023).Select(x => "'" + x.RaceLocation + "'")) + "],"); *@
+                                            @Html.Raw("locations: [" + string.Join(", ", AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2023).Select(x => x.Points))) + "] },")
+                                            
+                                        }
+                                    ];
+        
+            var columnDefs = [
+                                        { headerName: 'User', field: 'userName'},
+                                          @foreach (var location in Model.First().Race.Where(z => z.RaceYear == 2023).Select(x => x.RaceLocation.Replace("Grand Prix", string.Empty)))
+                                          {
+                                              <text>{ headerName: '@location', width: 100,  field: 'locations', valueGetter: function(params) { return params.data.locations[@(Model.First().Race.Where(z => z.RaceYear == 2023).Select(x => x.RaceLocation.Replace("Grand Prix", string.Empty)).ToList().IndexOf(location))]; } },</text>
+                                          }
+                                    ];
+                            
+                                    gridOptions2023 = {
+                                        columnDefs: columnDefs,
+                                        rowData: rowData,
+                                        defaultColDef: {
+                                            sortable: true,
+                                            resizable: true
+                                        },
+                                        domLayout: 'autoHeight'
+                                    };
+                            
+                                    var gridDiv = document.querySelector('#myGrid2023');
+                                    new agGrid.Grid(gridDiv, gridOptions2023);
+        }
+
     function toggleView() {
         var chartView = document.getElementById("chartView");
         var tableView = document.getElementById("tableView");
@@ -84,29 +151,54 @@
         if (chartView.style.display === "none") {
             chartView.style.display = "block";
             tableView.style.display = "none";
-            toggleButton.textContent = "Toggle View";
+            toggleButton.textContent = "Table view";
         } else {
             chartView.style.display = "none";
             tableView.style.display = "block";
-            toggleButton.textContent = "Toggle View";
+            toggleButton.textContent = "Chart View";
         }
     }
-
-    function openYear(evt, cityName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
+    initializeGrid2022();
+    initializeGrid2023();
+    function openYearChart(evt, yearChart) {
+        var i, tabcontentChart, tablinksChart;
+        tabcontentChart = document.getElementsByClassName("tabcontentChart");
+        for (i = 0; i < tabcontentChart.length; i++) {
+            tabcontentChart[i].style.display = "none";
         }
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        tablinksChart = document.getElementsByClassName("tablinksChart");
+        for (i = 0; i < tablinksChart.length; i++) {
+            tablinksChart[i].className = tablinksChart[i].className.replace(" active", "");
         }
-        document.getElementById(cityName).style.display = "block";
+        document.getElementById(yearChart).style.display = "block";
         evt.currentTarget.className += " active";
     }
-</script>
+    
+    function openYearTable(evt, yearTable) {
+        
+        var i, tabcontentTable, tablinksTable;
+                tabcontentTable = document.getElementsByClassName("tabcontentTable");
+                for (i = 0; i < tabcontentTable.length; i++) {
+                    tabcontentTable[i].style.display = "none";
+                }
+                tablinksTable = document.getElementsByClassName("tablinksTable");
+                for (i = 0; i < tablinksTable.length; i++) {
+                    tablinksTable[i].className = tablinksTable[i].className.replace(" active", "");
+                }
+                document.getElementById(yearTable).style.display = "block";
+                evt.currentTarget.className += " active";
+    
+        // Call the appropriate grid initialization function
+if (yearTable === "2022") {
+    initializeGrid2022();
+} else if (yearTable === "2023") {
+    initializeGrid2023();
+}
+    }
 
+</script>
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@23.2.1/dist/ag-grid-community.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     var ctx = document.getElementById('myChart2022').getContext('2d');
@@ -124,7 +216,7 @@
                     <text>
                     {
                         label: '@user.UserName',
-                        data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2022).ToArray().Select(X => X.Points).ToList()))),
+                        data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2022).ToArray().Select(x => x.Points).ToList()))),
                         fill: false,
                         @{
                             var rnd = new Random();
@@ -155,7 +247,7 @@
                     <text>
                     {
                         label: '@user.UserName',
-                        data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2023).ToArray().Select(X => X.Points).ToList()))),
+                        data: @Html.Raw(Json.Serialize(AppSetup.CalculateCumulativeSum(user.Race.Where(x => x.RaceYear == 2023).ToArray().Select(x => x.Points).ToList()))),
                         fill: false,
                         @{
                             var rnd = new Random();
@@ -176,7 +268,7 @@
         return 'rgb(' + rnd + ', ' + rnd + ', ' + rnd + ')';
     }
 </script>
-
+<script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
 <style>
     .center {
         text-align: center;
@@ -211,15 +303,56 @@
         background-color: #ccc;
     }
 
-    .tabcontent {
-        display: none;
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        border-top: none;
-    }
+
 
     canvas {
         max-width: 100%;
         height: auto;
     }
+    /* Switch container */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+    
+        /* Slider */
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: .4s;
+        }
+    
+        /* Slider round */
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+    
+        /* Toggle the switch when clicked */
+        input[type="checkbox"]:checked + .slider {
+            background-color: #2196F3;
+        }
+    
+        input[type="checkbox"]:checked + .slider::before {
+            transform: translateX(26px);
+        }
+    
+        /* Hide the checkbox input */
+        input[type="checkbox"] {
+            display: none;
+        }
 </style>
