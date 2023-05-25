@@ -5,69 +5,51 @@
     Layout = "_Layout";
 }
 
-<h2>Edit one user</h2>
-<style>
-    table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 80%;
-    }
-    </style>
-<div style="margin-left: 20%">
-    <h2>Editing:</h2>
-    <br/>
+<h2>Edit User</h2>
+
+<div class="container">
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
+
         <div class="row">
             <div class="col">
                 <div class="form-horizontal">
                     @Html.ValidationSummary(true)
-                    <table >
-                        <tr>
 
-                            <th>
-                                <h5>First Name:</h5>
-                            </th>
-                            <th>
-                                <h5>Last Name:</h5>
-                            </th>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @Html.EditorFor(model => model.FirstName)
+                                    @Html.ValidationMessageFor(model => model.FirstName)
+                                </td>
+                                <td>
+                                    @Html.EditorFor(model => model.LastName)
+                                    @Html.ValidationMessageFor(model => model.LastName)
+                                </td>
+                                <td>
+                                    @Html.EditorFor(model => model.Admin)
+                                    @Html.ValidationMessageFor(model => model.Admin)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                            <th>
-                                <h5>Admin:</h5>
-                            </th>
-
-                        </tr>
-                        <br/>
-
-                        <tr style="height: 40px">
-
-                            <td>
-                                @Html.EditorFor(model => model.FirstName)
-                                @Html.ValidationMessageFor(model => model.FirstName)
-                            </td>
-                            <td>
-                                @Html.EditorFor(model => model.LastName)
-                                @Html.ValidationMessageFor(model => model.LastName)
-                            </td>
-                            <td>
-                                @Html.EditorFor(model => model.Admin)
-                                @Html.ValidationMessageFor(model => model.Admin)
-                            </td>
-                        </tr>
-
-                    </table >
                     <div class="form-group">
-                        <div >
-                            <input type="submit" value="Save" class="btn btn-primary" style="margin-top: 20px; width: 50%; margin-left: 15%"/>
+                        <div>
+                            <input type="submit" value="Save" class="btn btn-primary" style="width: 50%; margin-left: 25%;" />
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     }
-    <div>
-        @* @Html.ActionLink("Back to List", "Shots", new {userId = ViewBag.User.Id, raceId = ViewBag.RaceId, raceLocation = ViewBag.Location}, new {@class="btn btn-primary", style="margin-top: 10px; margin-left: 37%"}) *@
-    </div>
 </div>

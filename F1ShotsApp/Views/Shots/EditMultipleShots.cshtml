@@ -85,7 +85,7 @@
                                         new SelectList(ViewBag.F1Grid),
                                         "Select a driver.",
                                         new {@class = "form-control driver-dropdown"}
-                                    )
+                                        )
                                     @Html.ValidationMessageFor(model => model.Shot[i - 1].UsersShotDriver)
                                 </td>
                             </tr>
@@ -99,8 +99,8 @@
                                     model => model.PolePosition,
                                     new SelectList(ViewBag.F1Grid),
                                     "Select a driver.",
-                                    new {@id = "ddlId", @class = "form-control"}
-                                )
+                                    new {@class = "form-control driver-dropdown"}
+                                    )
                                 @Html.ValidationMessageFor(model => model.PolePosition)
                             </td>
                         </tr>
@@ -113,8 +113,8 @@
                                     model => model.FastestLap,
                                     new SelectList(ViewBag.F1Grid),
                                     "Select a driver.",
-                                    new {@id = "ddlId", @class = "form-control"}
-                                )
+                                    new {@class = "form-control driver-dropdown"}
+                                    )
                                 @Html.ValidationMessageFor(model => model.FastestLap)
                             </td>
                         </tr>
@@ -139,6 +139,14 @@
                 <input type="submit" value="Save" class="btn btn-primary" style="margin-top: 20px; width: 50%; margin-left: 15%"/>
             </div>
         </div>
+        <div class="form-group">
+            <div>
+                <input type="button" value="Randomize Shots" class="btn btn-secondary" style="margin-top: 10px; width: 50%; margin-left: 15%" onclick="randomizeShots()"/>
+            </div>
+            <div>
+                <input type="button" value="Clean Shots" class="btn btn-secondary" style="margin-top: 10px; width: 50%; margin-left: 15%" onclick="cleanShots()"/>
+            </div>
+        </div>
     }
 
     <div>
@@ -147,43 +155,68 @@
             "Shots",
             new {userId = ViewBag.User.Id, raceId = ViewBag.RaceId, raceLocation = ViewBag.Location},
             new {@class = "btn btn-primary", style = "margin-top: 10px; margin-left: 37%"}
-        )
+            )
     </div>
 </div>
 <script>
     var isFormDirty = false;
 
-    $('form').submit(function () {
-        var selectedDrivers = $('.driver-dropdown').map(function () {
-            return $(this).val();
-        }).get();
+$('form').submit(function () {
+    var selectedDrivers = $('.driver-dropdown').map(function () {
+        return $(this).val();
+    }).get();
+    
+    // Remove pole position and fastest lap from selected drivers
+    var polePosition = $('#PolePosition').val();
+    var fastestLap = $('#FastestLap').val();
 
-        var uniqueDrivers = [...new Set(selectedDrivers)]; // Remove duplicates
-
-        if (selectedDrivers.length !== uniqueDrivers.length) {
-            var duplicateDrivers = getDuplicateDrivers(selectedDrivers);
-            var message = "The following drivers have been selected more than once:\n\n";
-            message += duplicateDrivers.join("\n");
-            alert(message);
-            return false; // Prevent form submission
-        }
+    selectedDrivers = selectedDrivers.filter(function (driver) {
+        return driver !== polePosition && driver !== fastestLap;
     });
 
-    function getDuplicateDrivers(drivers) {
-        var driverCounts = {};
-        var duplicateDrivers = [];
+    var uniqueDrivers = [...new Set(selectedDrivers)]; // Remove duplicates
 
-        for (var i = 0; i < drivers.length; i++) {
-            var driver = drivers[i];
-            if (driverCounts[driver]) {
-                duplicateDrivers.push(driver);
-            } else {
-                driverCounts[driver] = 1;
-            }
-        }
-
-        return duplicateDrivers;
+    if (selectedDrivers.length !== uniqueDrivers.length) {
+        var duplicateDrivers = getDuplicateDrivers(selectedDrivers);
+        var message = "The following drivers have been selected more than once:\n\n";
+        message += duplicateDrivers.join("\n");
+        alert(message);
+        return false; // Prevent form submission
     }
+
+    return true; // Allow form submission
+});
+;
+
+function getDuplicateDrivers(drivers) {
+    var driverCounts = {};
+    var duplicateDrivers = [];
+
+    for (var i = 0; i < drivers.length; i++) {
+        var driver = drivers[i];
+        if (driver && driver !== "" && driverCounts[driver]) {
+            duplicateDrivers.push(driver);
+        } else {
+            driverCounts[driver] = 1;
+        }
+    }
+
+    // Remove pole position and fastest lap from duplicate drivers
+    var polePosition = $('#PolePosition').val();
+    var fastestLap = $('#FastestLap').val();
+
+    var index = duplicateDrivers.indexOf(polePosition);
+    if (index > -1) {
+        duplicateDrivers.splice(index, 1);
+    }
+
+    index = duplicateDrivers.indexOf(fastestLap);
+    if (index > -1) {
+        duplicateDrivers.splice(index, 1);
+    }
+
+    return duplicateDrivers;
+}
 
     function updateAvailableDrivers() {
         var selectedDrivers = $('.driver-dropdown').map(function () {
@@ -225,6 +258,58 @@
         updateAvailableDrivers();
         $('.driver-dropdown').change(updateAvailableDrivers);
     });
+function cleanShots() {
+        $('.driver-dropdown').val('');
+        $('#PolePosition').val('');
+        $('#FastestLap').val('');
+        updateAvailableDrivers();
+    }
+    function randomizeShots() {
+            cleanShots();
+            var drivers = @Html.Raw(Json.Serialize(ViewBag.F1Grid));
+    
+            var selectedDrivers = $('.driver-dropdown');
+            var usedDrivers = new Set();
+    
+            selectedDrivers.each(function () {
+                var currentDriver = $(this).val();
+                usedDrivers.add(currentDriver);
+            });
+    
+            var unusedDrivers = drivers.filter(function (driver) {
+                return !usedDrivers.has(driver);
+            });
+    
+            var randomIndexes = [];
+            while (randomIndexes.length < unusedDrivers.length) {
+                var randomIndex = Math.floor(Math.random() * unusedDrivers.length);
+                if (!randomIndexes.includes(randomIndex)) {
+                    randomIndexes.push(randomIndex);
+                }
+            }
+    
+            var i = 0;
+            selectedDrivers.each(function () {
+                if ($(this).val() === "") {
+                    $(this).val(unusedDrivers[randomIndexes[i]]);
+                    i++;
+                }
+            });
+    
+            // Randomize fastest lap
+            var fastestLapDropdown = $('#FastestLap');
+            var fastestLapOptions = fastestLapDropdown.children('option');
+            var randomFastestLapIndex = Math.floor(Math.random() * fastestLapOptions.length);
+            fastestLapDropdown.val(fastestLapOptions.eq(randomFastestLapIndex).val());
+    
+            // Randomize pole position
+            var polePositionDropdown = $('#PolePosition');
+            var polePositionOptions = polePositionDropdown.children('option');
+            var randomPolePositionIndex = Math.floor(Math.random() * polePositionOptions.length);
+            polePositionDropdown.val(polePositionOptions.eq(randomPolePositionIndex).val());
+    
+            updateAvailableDrivers();
+        }
 
     var date = "@raceDate";
     var targetDate = new Date(Date.parse(date));
