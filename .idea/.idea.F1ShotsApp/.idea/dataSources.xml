@@ -25,5 +25,12 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="shots.db" uuid="3cd2d1a8-4864-4383-881d-9699a931f3c8">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$USER_HOME$/Downloads/shots.db</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

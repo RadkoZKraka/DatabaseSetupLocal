@@ -1,3 +1,6 @@
 shots.db
 shots.db-shm
 shots.db-wal
+app.db
+app.db-shm
+app.db-wal
