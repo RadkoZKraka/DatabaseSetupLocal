@@ -189,25 +189,26 @@
 </div>
 <script>
     $(function () {
-        $('#copy-button').click(function () {
-            // Copy the text from the clipboard
-            navigator.clipboard.readText().then(function (text) {
-                // Send the text to the server using an AJAX request
-                $.ajax({
-                    type: "POST",
-                    url: "@Url.Action("ImportFromClipBoard", "Shots")",
-                    data: {
-                        data: text,
-                        raceId: @Model.Id
-                        user: @userId
-                    },
-                    success: function (response) {
-                        alert('Drivers "' + text + '" were imported.');
-                    }
-                });
-            });
-        });
-    });
+          $('#copy-button').click(function () {
+              // Copy the text from the clipboard
+              navigator.clipboard.readText().then(function (text) {
+                  // Send the text to the server using an AJAX request
+                  $.ajax({
+                      type: "POST",
+                      url: "@Url.Action("ImportFromClipBoard", "Shots")",
+                      data: {
+                          data: text,
+                          raceId: @Model.Id,
+                          user: '@userId'
+                      },
+                      success: function (response) {
+                          alert('Drivers "' + text + '" were imported.');
+                      }
+                  });
+              });
+          });
+      }
+);
     var date = "@raceDate";
         var targetDate = new Date(Date.parse(date));
     
