@@ -265,51 +265,54 @@ function cleanShots() {
         updateAvailableDrivers();
     }
     function randomizeShots() {
-            cleanShots();
-            var drivers = @Html.Raw(Json.Serialize(ViewBag.F1Grid));
+        cleanShots();
+        var drivers = @Html.Raw(Json.Serialize(ViewBag.F1Grid));
     
-            var selectedDrivers = $('.driver-dropdown');
-            var usedDrivers = new Set();
+        var selectedDrivers = $('.driver-dropdown');
+        var usedDrivers = new Set();
     
-            selectedDrivers.each(function () {
-                var currentDriver = $(this).val();
+        selectedDrivers.each(function () {
+            var currentDriver = $(this).val();
+            if (currentDriver !== "") {
                 usedDrivers.add(currentDriver);
-            });
-    
-            var unusedDrivers = drivers.filter(function (driver) {
-                return !usedDrivers.has(driver);
-            });
-    
-            var randomIndexes = [];
-            while (randomIndexes.length < unusedDrivers.length) {
-                var randomIndex = Math.floor(Math.random() * unusedDrivers.length);
-                if (!randomIndexes.includes(randomIndex)) {
-                    randomIndexes.push(randomIndex);
-                }
             }
+        });
     
-            var i = 0;
-            selectedDrivers.each(function () {
-                if ($(this).val() === "") {
-                    $(this).val(unusedDrivers[randomIndexes[i]]);
-                    i++;
-                }
-            });
+        var unusedDrivers = drivers.filter(function (driver) {
+            return !usedDrivers.has(driver);
+        });
     
-            // Randomize fastest lap
-            var fastestLapDropdown = $('#FastestLap');
-            var fastestLapOptions = fastestLapDropdown.children('option');
-            var randomFastestLapIndex = Math.floor(Math.random() * fastestLapOptions.length);
-            fastestLapDropdown.val(fastestLapOptions.eq(randomFastestLapIndex).val());
-    
-            // Randomize pole position
-            var polePositionDropdown = $('#PolePosition');
-            var polePositionOptions = polePositionDropdown.children('option');
-            var randomPolePositionIndex = Math.floor(Math.random() * polePositionOptions.length);
-            polePositionDropdown.val(polePositionOptions.eq(randomPolePositionIndex).val());
-    
-            updateAvailableDrivers();
+        var randomIndexes = [];
+        while (randomIndexes.length < unusedDrivers.length) {
+            var randomIndex = Math.floor(Math.random() * unusedDrivers.length);
+            if (!randomIndexes.includes(randomIndex)) {
+                randomIndexes.push(randomIndex);
+            }
         }
+    
+        var i = 0;
+        selectedDrivers.each(function () {
+            if ($(this).val() === "") {
+                $(this).val(unusedDrivers[randomIndexes[i]]);
+                i++;
+            }
+        });
+    
+        // Randomize fastest lap
+        var fastestLapDropdown = $('#FastestLap');
+        var fastestLapOptions = fastestLapDropdown.children('option:not(:first-child)');
+        var randomFastestLapIndex = Math.floor(Math.random() * fastestLapOptions.length);
+        fastestLapDropdown.val(fastestLapOptions.eq(randomFastestLapIndex).val());
+    
+        // Randomize pole position
+        var polePositionDropdown = $('#PolePosition');
+        var polePositionOptions = polePositionDropdown.children('option:not(:first-child)');
+        var randomPolePositionIndex = Math.floor(Math.random() * polePositionOptions.length);
+        polePositionDropdown.val(polePositionOptions.eq(randomPolePositionIndex).val());
+    
+        updateAvailableDrivers();
+    }
+
 
     var date = "@raceDate";
     var targetDate = new Date(Date.parse(date));
