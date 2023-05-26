@@ -10,18 +10,23 @@
     Layout = "_Layout";
     var userShotsId = ShotsRepository.GetUserIdByRaceId(Model.Id);
     var userId = IdentityExtensions.GetUserId(User.Identity);
+    var raceDate = "nie ma";
+    var raceDateToShow = "nie ma";
 
-    var raceDate = (ViewBag.RaceSchedule as RaceSchedule).F1Events
-        .First(x => x.EventName == "Qualifying")
-        .EventDateAndTime
-        .ToUniversalTime()
-        .ToString("s") + "Z";
+    if (Model.RaceYear == 2023)
+    {
+        raceDate = (ViewBag.RaceSchedule as RaceSchedule)?.F1Events
+            .First(x => x.EventName == "Qualifying")
+            .EventDateAndTime
+            .ToUniversalTime()
+            .ToString("s") + "Z";
 
-    var raceDateToShow = (ViewBag.RaceSchedule as RaceSchedule)
-        .F1Events
-        .First(x => x.EventName == "Qualifying")
-        .EventDateAndTime
-        .ToString("f");
+        raceDateToShow = (ViewBag.RaceSchedule as RaceSchedule)?.F1Events
+            .First(x => x.EventName == "Qualifying")
+            .EventDateAndTime
+            .ToString("f");
+    }
+
 }
 
 <style>
@@ -38,9 +43,7 @@
         border-bottom: 1px solid #ddd;
     }
 
-    .custom-table th {
-        background-color: #f2f2f2;
-    }
+
 
     .custom-container {
         margin-left: 20%;
@@ -79,9 +82,17 @@
     <h2>@ViewBag.User.UserName</h2>
     <h2>@ViewBag.Year</h2>
     <h2>@ViewBag.Location</h2>
-    <h2>@raceDateToShow</h2>
-    <h2 style="font-weight: bold" id="countdown"></h2>
-    <div id="countdown"></div>
+    @if (Model.RaceYear == 2023)
+    {
+        <h2>@raceDateToShow</h2>
+    }
+    
+    @if (Model.RaceYear == 2023)
+    {
+        <h2 style="font-weight: bold" id="countdown"></h2>
+        <div id="countdown"></div>
+    }
+    
     @if (Model.Locked)
     {
         <h3>Race is locked, editing is turned off.</h3>

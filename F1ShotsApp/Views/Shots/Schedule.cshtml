@@ -9,7 +9,8 @@
 
 
     <style>
-
+    
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -56,17 +57,21 @@
         }
 
         function togglePassedEvents() {
-            var passedEvents = document.querySelectorAll('.passed-event');
-            passedEvents.forEach(function (event) {
-                event.style.display = event.style.display === 'none' ? 'table-row' : 'none';
-            });
-        }
+                var passedEvents = document.querySelectorAll('.passed-event');
+                passedEvents.forEach(function (event) {
+                    event.style.display = event.style.display === 'none' ? 'table-row' : 'none';
+                });
+        
+                var button = document.querySelector('.toggle-button');
+                var button = document.querySelector('.toggle-button');
+                button.classList.toggle('on');
+            }
+        
     </script>
 <h1 style="text-align: center">F1 Schedule</h1>
 <button class="scroll-button" onclick="scrollToNextEvent()">Scroll to Next Event</button>
 
-<button class="toggle-button" onclick="togglePassedEvents()">Toggle Passed Events</button>
-
+<button class="toggle-button" onclick="togglePassedEvents()"></button>
 <table>
     <thead>
     <tr>
@@ -99,4 +104,7 @@
 
     </tbody>
 </table>
+<script>
+
+</script>
 

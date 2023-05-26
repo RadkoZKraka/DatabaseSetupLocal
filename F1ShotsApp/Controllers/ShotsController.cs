@@ -1,18 +1,13 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Runtime.InteropServices.JavaScript;
-using DatabaseSetupLocal.Data;
+﻿using DatabaseSetupLocal.Data;
 using Microsoft.AspNetCore.Mvc;
 using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Repository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.Identity;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http.Extensions;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 
 namespace DatabaseSetupLocal.Controllers;
@@ -21,10 +16,9 @@ namespace DatabaseSetupLocal.Controllers;
 public class ShotsController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    public ShotsRepository ShotsRepository { get; set; }
-    public ShotsContext ShotsContext { get; set; }
-    public UserRepository UserRepository { get; set; }
-    private bool isMobileDevice;
+    private ShotsRepository ShotsRepository { get; set; }
+    private ShotsContext ShotsContext { get; set; }
+    private UserRepository UserRepository { get; set; }
 
     public ShotsController(ILogger<HomeController> logger, ShotsRepository shotsRepository,
         UserRepository userRepository)
@@ -35,16 +29,6 @@ public class ShotsController : Controller
         this.ShotsRepository = shotsRepository;
         this.UserRepository = userRepository;
         this.ShotsContext = ShotsRepository.GetShotsContext();
-    }
-    private bool IsMobileDevice(string userAgent)
-    {
-        // You can implement your own logic here to determine if the userAgent corresponds to a mobile device
-        // This can be done by checking for specific keywords or patterns in the userAgent string
-        // Here's a simple example that checks for common mobile keywords
-
-        string[] mobileKeywords = { "Android", "iPhone", "iPad", "Windows Phone" };
-
-        return mobileKeywords.Any(keyword => userAgent.Contains(keyword, StringComparison.OrdinalIgnoreCase));
     }
 
     public IActionResult Index()
@@ -86,12 +70,7 @@ public class ShotsController : Controller
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
-
         var races = ShotsRepository.GetUserRacesById(userId).Where(x => x.RaceYear == year).ToList();
-        if (races == null)
-        {
-            return HttpNotFound();
-        }
 
         return View(races);
     }
@@ -106,10 +85,11 @@ public class ShotsController : Controller
 
         var ownerId = User.Identity.GetUserId();
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId && ownerId != null && ShotsRepository.GetUserById(userId).OwnerId != null;
-        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(ownerId);
+        ViewBag.IsAdmin = ownerId != null && UserRepository.GetIfUserIsAdminById(ownerId);
 
         var race = ShotsRepository.GetRaceById(raceId);
-        ViewBag.RaceSchedule = AppSetup.GetRaceScheduleBy(race.RaceLocation);
+        var raceName = race!.RaceLocation;
+        if (raceName != null) ViewBag.RaceSchedule = AppSetup.GetRaceScheduleBy(raceName);
 
 
         return View(race);
@@ -131,13 +111,6 @@ public class ShotsController : Controller
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         var userShots = ShotsRepository.GetUsers();
-        foreach (var user in userShots)
-        {
-            foreach (var race in user.Race)
-            {
-                // race.Shot;
-            }
-        }
 
         return View((userShots.ToList(), raceYear, raceNo));
     }
@@ -167,9 +140,13 @@ public class ShotsController : Controller
     {
         ViewBag.UsersList = UserRepository.GetUsers();
         var race = ShotsRepository.GetRaceById(raceId);
-        ShotsRepository.CountPointsByRace(race);
-        ShotsRepository.UpdateRace(race, user);
-        return Redirect(HttpContext.Request.Headers["Referer"]);
+        if (race != null)
+        {
+            ShotsRepository.CountPointsByRace(race);
+            ShotsRepository.UpdateRace(race, user);
+        }
+
+        return Redirect(HttpContext.Request.Headers["Referer"]!);
     }
 
 
@@ -196,16 +173,18 @@ public class ShotsController : Controller
     {
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
-        Race race = ShotsRepository.GetRaceById(raceId);
+        var race = ShotsRepository.GetRaceById(raceId);
         var listOfShots = data.Split("\n");
-        for (int i = 0; i < 20; i++)
+        for (var i = 0; i < 20; i++)
         {
-            race.Shot[i].UsersShotDriver = listOfShots[i];
+            if (race != null) race.Shot[i].UsersShotDriver = listOfShots[i];
         }
 
+        if (race == null) return RedirectToAction("Index");
         race.PolePosition = listOfShots[20];
         race.FastestLap = listOfShots[21];
         ShotsRepository.UpdateRace(race, user);
+
         return RedirectToAction("Index");
     }
 
@@ -222,23 +201,21 @@ public class ShotsController : Controller
         }
 
         var shotToUpdate = await ShotsContext.ShotModel.FirstOrDefaultAsync(s => s.Id == shotId);
-        if (await TryUpdateModelAsync<Shot>(
+        if (shotToUpdate == null || !await TryUpdateModelAsync(
                 shotToUpdate,
                 "",
-                s => s.UsersShotDriver))
+                s => s.UsersShotDriver)) return View(shotToUpdate);
+        try
         {
-            try
-            {
-                await ShotsContext.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateException /* ex */)
-            {
-                //Log the error (uncomment ex variable name and write a log.)
-                ModelState.AddModelError("", "Unable to save changes. " +
-                                             "Try again, and if the problem persists, " +
-                                             "see your system administrator.");
-            }
+            await ShotsContext.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException /* ex */)
+        {
+            //Log the error (uncomment ex variable name and write a log.)
+            ModelState.AddModelError("", "Unable to save changes. " +
+                                         "Try again, and if the problem persists, " +
+                                         "see your system administrator.");
         }
 
         return View(shotToUpdate);
@@ -258,24 +235,23 @@ public class ShotsController : Controller
 
 
         var selectListItems = new List<string>();
-        selectListItems.AddRange(AppSetup.DeserializeDrivers(ShotsRepository.GetRaceYearById(raceId)).Drivers
+        selectListItems.AddRange(AppSetup.DeserializeDrivers(ShotsRepository.GetRaceYearById(raceId))!.Drivers
             .OrderBy(x => x.LastName).Select(x => x.FullName).ToList());
         ViewBag.F1Grid = selectListItems;
 
-        if (raceId == null)
-        {
-            return NotFound();
-        }
-
         var race = ShotsContext.RaceModel.FirstOrDefault(s => s.Id == raceId);
-        ViewBag.RaceSchedule = AppSetup.GetRaceScheduleBy(race.RaceLocation);
+        if (race != null)
+        {
+            ViewBag.RaceSchedule = AppSetup.GetRaceScheduleBy(race.RaceLocation);
 
+        }
         return View(race);
+
     }
 
     [HttpPost, ActionName("EditMultipleShots")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditMultipleShotsPost(int? raceId)
+    public async Task<IActionResult?> EditMultipleShotsPost(int? raceId)
     {
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
@@ -285,14 +261,16 @@ public class ShotsController : Controller
         }
 
         var raceToUpdate = await ShotsContext.RaceModel.FirstOrDefaultAsync(s => s.Id == raceId);
-        ShotsRepository.LogAction("Race with ID: " + raceToUpdate.Id + " has been updated by " + userIdentityId +
-                                  ".\n");
-
-        if (await TryUpdateModelAsync<Race>(
-                raceToUpdate,
-                "",
-                s => s.Shot, s => s.PolePosition, s=> s.FastestLap))
+        if (raceToUpdate == null) return null;
         {
+            await ShotsRepository.LogAction("Race with ID: " + raceToUpdate.Id + " has been updated by " +
+                                            userIdentityId +
+                                            ".\n");
+
+            if (!await TryUpdateModelAsync<Race>(
+                    raceToUpdate,
+                    "",
+                    s => s.Shot, s => s.PolePosition, s => s.FastestLap)) return View(raceToUpdate);
             try
             {
                 await ShotsContext.SaveChangesAsync();
@@ -305,9 +283,10 @@ public class ShotsController : Controller
                                              "Try again, and if the problem persists, " +
                                              "see your system administrator.");
             }
+
+            return View(raceToUpdate);
         }
 
-        return View(raceToUpdate);
     }
 
     public ActionResult AddUser(string userId)
@@ -344,26 +323,29 @@ public class ShotsController : Controller
         var userIdentityId = User.Identity.GetUserId();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
         var userModelToUpdate = await ShotsContext.UserShotsModel.FirstOrDefaultAsync(s => s.Id == userId);
-        ShotsRepository.LogAction("User with ID: " + userModelToUpdate.Id + " has been updated by " + userIdentityId +
-                                  ".\n");
-
-        if (await TryUpdateModelAsync<UserShots>(
-                userModelToUpdate,
-                "",
-                s => s.OwnerId, s => s.UserName))
+        if (userModelToUpdate != null)
         {
-            try
-            {
-                await ShotsContext.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateException /* ex */)
-            {
-                //Log the error (uncomment ex variable name and write a log.)
-                ModelState.AddModelError("", "Unable to save changes. " +
-                                             "Try again, and if the problem persists, " +
-                                             "see your system administrator.");
-            }
+            await ShotsRepository.LogAction("User with ID: " + userModelToUpdate.Id + " has been updated by " +
+                                            userIdentityId +
+                                            ".\n");
+
+            if (!await TryUpdateModelAsync(
+                    userModelToUpdate,
+                    "",
+                    s => s.OwnerId, s => s.UserName)) return View("../Home/Index");
+        }
+
+        try
+        {
+            await ShotsContext.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException /* ex */)
+        {
+            //Log the error (uncomment ex variable name and write a log.)
+            ModelState.AddModelError("", "Unable to save changes. " +
+                                         "Try again, and if the problem persists, " +
+                                         "see your system administrator.");
         }
 
         return View("../Home/Index");
@@ -377,7 +359,7 @@ public class ShotsController : Controller
 
         ViewBag.User = ShotsRepository.GetUserByOwnerId(ownerId);
         ViewBag.UserId = userShot.Id;
-        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation());
+        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation()) ?? 0;
         ViewBag.Location = AppSetup.GetCurrentRaceLocation();
 
         var userId = ShotsRepository.GetUserIdByOwnerId(ownerId);
@@ -386,7 +368,7 @@ public class ShotsController : Controller
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(ownerId);
 
 
-        return RedirectToAction("Shots", new {userId = userId, raceId = race.Id, raceLocation = race.RaceLocation});
+        return RedirectToAction("Shots", new {raceId = race.Id, raceLocation = race.RaceLocation});
     }
 
     public ActionResult LiveTiming()
@@ -396,7 +378,7 @@ public class ShotsController : Controller
 
         ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
         ViewBag.UserId = userShot.Id;
-        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation());
+        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation()) ?? throw new InvalidOperationException();
         ViewBag.Location = AppSetup.GetCurrentRaceLocation();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
 
@@ -404,34 +386,23 @@ public class ShotsController : Controller
         var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
         ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
         var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRaceLocation());
-        if (shots == null)
-        {
-            return HttpNotFound();
-        }
-
-        return View(shots);
+        return shots == null ? HttpNotFound() : View(shots);
     }
 
     [HttpGet]
     public JsonResult GetLiveTiming()
     {
         var res = F1WebScraper.GetLiveData();
-        var model = new JsonResponseViewModel();
-        if (res != null)
+        var model = new JsonResponseViewModel
         {
-            model.ResponseCode = 0;
-            model.ResponseMessage = JsonConvert.SerializeObject(res);
-        }
-        else
-        {
-            model.ResponseCode = 1;
-            model.ResponseMessage = "Error";
-        }
+            ResponseCode = 0,
+            ResponseMessage = JsonConvert.SerializeObject(res)
+        };
 
         return Json(model);
     }
 
-    private ActionResult HttpNotFound()
+    private static ActionResult HttpNotFound()
     {
         throw new NotImplementedException();
     }

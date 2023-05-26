@@ -13,7 +13,7 @@ namespace DatabaseSetupLocal.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private ShotsRepository _shotsRepository;
+    private readonly ShotsRepository _shotsRepository;
 
     public HomeController(ILogger<HomeController> logger, ShotsRepository shotsRepository)
     {
@@ -25,16 +25,18 @@ public class HomeController : Controller
     {
         var appUserId = User.Identity.GetUserId();
         ViewBag.AppUserId = appUserId;
-
         var race = AppSetup.GetCurrentRaceSchedule();
         ViewBag.UserHasShots = _shotsRepository.GetIfAppUserHasShots(appUserId);
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        
         return View(race);
     }
 
     public IActionResult Privacy()
     {
+        var appUserId = User.Identity.GetUserId();
+        _logger.LogInformation("Privacy have been accessed by {AppUserId}", appUserId);
         return View();
     }
 

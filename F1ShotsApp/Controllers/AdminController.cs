@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
 using DatabaseSetupLocal.Areas.Identity.Data;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Library;
@@ -16,10 +15,11 @@ public class AdminController : Controller
     private readonly UserRepository _userRepository;
     private readonly ShotsRepository _shotRepository;
 
-    public AdminController(ILogger<AdminController> logger, ShotsRepository  ShotsRepository, UserRepository UserRepository)
+    public AdminController(ILogger<AdminController> logger, ShotsRepository shotsRepository,
+        UserRepository userRepository)
     {
-        _userRepository = UserRepository;
-        _shotRepository = ShotsRepository;
+        _userRepository = userRepository;
+        _shotRepository = shotsRepository;
         _logger = logger;
     }
 
@@ -42,10 +42,9 @@ public class AdminController : Controller
     public IActionResult LockPreviousRaces()
     {
         var appUserId = User.Identity.GetUserId();
-
-        var usersList = _userRepository.GetUsers();
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        _logger.LogInformation("Previous races have been locked by {AppUserId}", appUserId);
         AppSetup.LockPreviousRaces();
         return RedirectToAction("Index");
     }
@@ -53,12 +52,10 @@ public class AdminController : Controller
     public IActionResult LockPreviousYear()
     {
         var appUserId = User.Identity.GetUserId();
-
-        var usersList = _userRepository.GetUsers();
-        
-        
+        _logger.LogInformation("Previous year races have been locked by {AppUserId}", appUserId);
         _shotRepository.LockYear(2022);
         ViewBag.IsAdmin = _userRepository.GetIfUserIsAdminById(appUserId);
+
         return RedirectToAction("Index");
     }
 
@@ -66,8 +63,7 @@ public class AdminController : Controller
     public IActionResult LockCurrentRace()
     {
         var appUserId = User.Identity.GetUserId();
-
-        var usersList = _userRepository.GetUsers();
+        _logger.LogInformation("Current race have been locked by {AppUserId}", appUserId);
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
 
@@ -76,23 +72,21 @@ public class AdminController : Controller
 
     public IActionResult SumPointsForRaces()
     {
+        var appUserId = User.Identity.GetUserId();
         var races = _shotRepository.GetRaces();
         foreach (var race in races)
         {
             _shotRepository.SumPointsInRace(race);
         }
+        _logger.LogInformation("Sum of points have be calculated by {AppUserId}", appUserId);
 
+        
         return RedirectToAction("Index");
     }
 
-    public IActionResult ImportFromClipBoard(string data)
-    {
-        var test = "ss";
-        return RedirectToAction("Index");
-
-    }
     public IActionResult ChangeAllAbrToFullName()
     {
+        var appUserId = User.Identity.GetUserId();
         var all = _shotRepository.GetUsers();
         foreach (var userShots in all)
         {
@@ -101,25 +95,25 @@ public class AdminController : Controller
                 _shotRepository.ChangeAllAbrToFullNameInARace(race);
             }
         }
+        _logger.LogInformation("Changed all abr to full names by {AppUserId}", appUserId);
+
         
         return RedirectToAction("Index");
-
     }
 
     public IActionResult CountPointsInLockedRaces()
     {
         var appUserId = User.Identity.GetUserId();
-
         var usersList = _shotRepository.GetUsers();
-        var lockedRaces = usersList.Select(x => x.Race.Where(x => x.Locked)).SelectMany(x => x).ToList();
+        var lockedRaces = usersList.Select(userShots => userShots.Race.Where(race => race.Locked)).SelectMany(listOfRaces => listOfRaces).ToList();
         foreach (var lockedRace in lockedRaces)
         {
             _shotRepository.CountPointsByRace(lockedRace);
         }
-
-        ;
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        _logger.LogInformation("Points have been counted in locked races by {AppUserId}", appUserId);
+
 
         return RedirectToAction("Index");
     }
@@ -130,19 +124,24 @@ public class AdminController : Controller
 
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
-        var user = _userRepository.GetUserById(userId);
+        if (userId != null)
+        {
+            var user = _userRepository.GetUserById(userId);
 
 
-        return View(user);
+            return View(user);
+        }
+        return View("Index");
     }
 
     [HttpPost, ActionName("EditAppUser")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditAppUserPost(string userId)
     {
+        var appUserId = User.Identity.GetUserId();
         var userContext = new UsersContext();
         var userToUpdate = await userContext.UserModel.FindAsync(userId);
-        if (await TryUpdateModelAsync<AppUser>(
+        if (userToUpdate != null && await TryUpdateModelAsync(
                 userToUpdate,
                 "",
                 s => s.Admin))
@@ -160,6 +159,8 @@ public class AdminController : Controller
                                              "see your system administrator.");
             }
         }
+        _logger.LogInformation("{UserEdited} have been edited by {AppUserId}", userToUpdate?.UserName, appUserId);
+
 
         return View(userToUpdate);
     }
@@ -167,8 +168,6 @@ public class AdminController : Controller
     public ActionResult EditUsers()
     {
         var appUserId = User.Identity.GetUserId();
-
-        var usersList = _userRepository.GetUsers();
         var usersRepository = new UserRepository(new UsersContext());
         ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
         var users = _userRepository.GetUsers();
@@ -186,7 +185,7 @@ public class AdminController : Controller
         var appUsers = new AppUsers();
         var usersToUpdate = await usersContext.UserModel.ToListAsync();
         appUsers.Users = new List<AppUser>(usersToUpdate);
-        if (await TryUpdateModelAsync<AppUsers>(
+        if (await TryUpdateModelAsync(
                 appUsers,
                 "",
                 s => s.Users))
@@ -208,36 +207,6 @@ public class AdminController : Controller
         return View(usersToUpdate);
     }
 
-    public void DownloadCountryListOfRaces()
-    {
-        var year = DateTime.Now.Year;
-        F1WebScraper.GetCountryListOfRaces(year);
-    }
-
-    public IActionResult DownloadDatesListOfRaces()
-    {
-        var year = DateTime.Now.Year;
-        F1WebScraper.GetDatesListOfRaces(year);
-        return RedirectToAction("Index");
-    }
-
-    public IActionResult DownloadResultOfRaces(int year, int raceNumber)
-    {
-        var raceResults = F1WebScraper.GetRaceResults(year, raceNumber);
-        return RedirectToAction("Index");
-    }
-
-    public IActionResult GetDriversData()
-    {
-        int[] years = {2022, 2023};
-        foreach (var year in years)
-        {
-            F1WebScraper.GetDriversData(year);
-        }
-
-        return RedirectToAction("Index");
-    }
-
     public IActionResult ResetLegacyData()
     {
         AppSetup.DeleteDb();
@@ -245,14 +214,6 @@ public class AdminController : Controller
         return RedirectToAction("Index");
     }
     
-
-
-    public IActionResult GetScheduleData()
-    {
-        F1WebScraper.GetScheduleData();
-        return RedirectToAction("Index");
-    }
-
     public void DeleteUser()
     {
         var userId = User.Identity.GetUserId();
@@ -262,5 +223,5 @@ public class AdminController : Controller
 
 class AppUsers
 {
-    public List<AppUser> Users { get; set; }
+    public List<AppUser>? Users { get; set; }
 }

@@ -31,7 +31,7 @@ public class UserRepository
     public void DeleteUser(string userId)
     {
         var user = _usersContext.UserModel.Find(userId);
-        _usersContext.UserModel.Remove(user);
+        if (user != null) _usersContext.UserModel.Remove(user);
         _usersContext.SaveChanges();
     }
 

@@ -1,0 +1,33 @@
+@media (prefers-color-scheme: light) {
+
+    .toggle-button {
+        display: inline-block;
+        position: relative;
+        width: 60px;
+        height: 34px;
+        background-color: #ccc !important;
+        border-radius: 34px;
+        cursor: pointer;
+    }
+
+    .toggle-button:before {
+        content: "";
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background-color: #fff !important;
+        top: 4px;
+        left: 4px;
+        transition: transform 0.2s;
+    }
+
+    /* Dark mode switch style */
+    .toggle-button.on {
+        background-color: #007bff !important;
+    }
+
+    .toggle-button.on:before {
+        transform: translateX(26px);
+    }
+}

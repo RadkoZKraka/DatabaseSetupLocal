@@ -1,10 +1,12 @@
 @using Microsoft.AspNet.Identity
 @model UserShots
-
+<style>
+    
+</style>
 @{
     ViewBag.Title = "Assign User";
     Layout = "_Layout";
-    var userId = IdentityExtensions.GetUserId(User.Identity);
+    var userId = User.Identity.GetUserId();
 }
 
 <h2>Edit Users</h2>
@@ -69,8 +71,8 @@
 
 <script>
     function copyToClipboard() {
-        var linkText = document.getElementById("myLink").innerText;
-        var tempInput = document.createElement("input");
+        let linkText = document.getElementById("myLink").innerText;
+        let tempInput = document.createElement("input");
         tempInput.value = linkText;
         document.body.appendChild(tempInput);
         tempInput.select();

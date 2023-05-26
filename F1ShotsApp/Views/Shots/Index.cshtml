@@ -6,6 +6,105 @@
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 @model List<UserShots>
 
+<style>
+    /* Dark mode styles */
+    .dark-mode body {
+        background-color: #202020 !important;
+        color: #ffffff !important;
+    }
+
+    .dark-mode h2 {
+        color: #ffffff !important;
+    }
+
+    .dark-mode th {
+        color: #ffffff !important;
+    }
+
+    .dark-mode td {
+        color: #ffffff !important;
+    }
+
+    .dark-mode .table {
+        background-color: #202020 !important;
+    }
+
+    .dark-mode .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #292929 !important;
+    }
+
+    .dark-mode .btn-primary {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+
+    .dark-mode .btn-primary:hover {
+        background-color: #0069d9 !important;
+        border-color: #0062cc !important;
+    }
+
+    .dark-mode .btn-secondary {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+    }
+
+    .dark-mode .btn-secondary:hover {
+        background-color: #5a6268 !important;
+        border-color: #545b62 !important;
+    }
+
+    .dark-mode .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
+
+    .dark-mode .btn-danger:hover {
+        background-color: #c82333 !important;
+        border-color: #bd2130 !important;
+    }
+
+    .dark-mode .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+
+    .dark-mode .btn-success:hover {
+        background-color: #218838 !important;
+        border-color: #1e7e34 !important;
+    }
+
+    .dark-mode .modal-content {
+        background-color: #2a2a2a !important;
+        color: #ffffff !important;
+    }
+
+    .dark-mode .modal-header {
+        background-color: #343a40 !important;
+        color: #ffffff !important;
+    }
+
+    .dark-mode .modal-title {
+        color: #ffffff !important;
+    }
+
+    .dark-mode .modal-body {
+        color: #ffffff !important;
+    }
+
+    .dark-mode .modal-footer {
+        background-color: #343a40 !important;
+    }
+
+    .dark-mode .text-success {
+        color: #28a745 !important;
+    }
+
+    .dark-mode .text-success:hover {
+        color: #218838 !important;
+    }
+</style>
+
+
 @{
     ViewBag.Title = "Users List";
     Layout = "_Layout";

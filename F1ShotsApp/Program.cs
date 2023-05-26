@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Areas.Identity.Data;
-using DatabaseSetupLocal.Models;
 using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<UsersContext>();
 builder.Services.AddDbContext<ShotsContext>();
 builder.Services.AddTransient<ShotsRepository>();
@@ -105,7 +103,7 @@ using (var scope = app.Services.CreateScope())
     var f1ShotsUserContext = services.GetRequiredService<UsersContext>();
     // f1ShotsUserContext.Database.EnsureDeleted();
     f1ShotsUserContext.Database.Migrate();
-    var shotsContext = services.GetRequiredService<ShotsContext>();
+    // var shotsContext = services.GetRequiredService<ShotsContext>();
     // shotsContext.Database.Migrate();
 }
 

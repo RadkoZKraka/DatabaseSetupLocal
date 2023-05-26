@@ -11,10 +11,13 @@ public static class AppSetup
 
     public static void DeleteDb()
     {
-        using (var db = new ShotsContext())
-        {
-            db.Database.EnsureDeleted();
-        }
+        using var db = new ShotsContext();
+        db.Database.EnsureDeleted();
+    }
+
+    public static bool GetDarkModeEnabledStatus()
+    {
+        return true;
     }
     public static void SeedDb()
     {
@@ -33,27 +36,31 @@ public static class AppSetup
         var userList = new List<UserShots>();
         foreach (var user in legacyData)
         {
-            var currentUser = new UserShots();
-            currentUser.UserName = user.Key.ToUpper();
-            currentUser.Race = new List<Race>();
+            var currentUser = new UserShots
+            {
+                UserName = user.Key.ToUpper(),
+                Race = new List<Race>()
+            };
             var raceNo = 1;
             var races = user.Value.Skip(1);
             foreach (var race in races)
             {
-                var currentRace = new Race();
-                currentRace.Shot = new List<Shot>();
-                currentRace.RaceYear = 2022;
-                currentRace.RaceNo = raceNo;
+                var currentRace = new Race
+                {
+                    Shot = new List<Shot>(),
+                    RaceYear = 2022,
+                    RaceNo = raceNo
+                };
 
                 foreach (var shot in race)
                 {
                     currentRace.RaceLocation = shot.Key.ToUpper();
                     currentRace.PolePosition =
-                        shot.Value.Skip(20).Count() == 0 || string.IsNullOrEmpty(shot.Value.Skip(20).First())
+                        !shot.Value.Skip(20).Any() || string.IsNullOrEmpty(shot.Value.Skip(20).First())
                             ? "EMPTY"
                             : shot.Value.Skip(20).First().ToUpper();
                     currentRace.Rand =
-                        shot.Value.Skip(21).Count() == 0 || string.IsNullOrEmpty(shot.Value.Skip(21).First())
+                        !shot.Value.Skip(21).Any() || string.IsNullOrEmpty(shot.Value.Skip(21).First())
                             ? "EMPTY"
                             : shot.Value.Skip(21).First().ToUpper();
                     foreach (var driver in shot.Value.Take(20))
@@ -89,17 +96,19 @@ public static class AppSetup
         }
     }
 
-    public static List<Race> SeedForNewSeason()
+    private static IEnumerable<Race> SeedForNewSeason()
     {
         var f1Schedule = F1WebScraper.GetScheduleData();
         var raceListToSeed = new List<Race>();
         var i = 1;
         foreach (var raceSchedule in f1Schedule.Races)
         {
-            var raceToSeed = new Race();
-            raceToSeed.RaceYear = 2023;
-            raceToSeed.Shot = new List<Shot>();
-            for (int j = 0; j < 20; j++)
+            var raceToSeed = new Race
+            {
+                RaceYear = 2023,
+                Shot = new List<Shot>()
+            };
+            for (var j = 0; j < 20; j++)
             {
                 raceToSeed.Shot.Add(new Shot());
             }
@@ -118,17 +127,12 @@ public static class AppSetup
     public static void SerializeDrivers(int year)
     {
         var file = $"drivers{year}.json";
-        if (!File.Exists(file))
-
-        {
-            var grid = F1WebScraper.GetDriversData(year);
-            JsonSerializer serializer = new JsonSerializer();
-            using (StreamWriter sw = new StreamWriter(file))
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                serializer.Serialize(writer, grid);
-            }
-        }
+        if (File.Exists(file)) return;
+        var grid = F1WebScraper.GetDriversData(year);
+        var serializer = new JsonSerializer();
+        using var sw = new StreamWriter(file);
+        using JsonWriter writer = new JsonTextWriter(sw);
+        serializer.Serialize(writer, grid);
     }
 
     public static F1Grid? DeserializeDrivers(int year)
@@ -150,39 +154,39 @@ public static class AppSetup
             {
                 continue;
             }
-            res.Add(f1Grid.Drivers.Where(x => x.Abbreviation == s).First().FullName);
+
+            if (f1Grid == null)
+            {
+                return res;
+            }
+            res.Add(f1Grid.Drivers.FirstOrDefault(x => x.Abbreviation == s)!.FullName);
         }
 
         return res;
     }
-    public static string AbrOneDriverToFullName(string abr, int year)
+    public static string? AbrOneDriverToFullName(string abr, int year)
     {
         var f1Grid = DeserializeDrivers(year);
 
-        var res = f1Grid.Drivers.Where(x => x.Abbreviation == abr).First().FullName;
+        var res = f1Grid?.Drivers.First(x => x.Abbreviation == abr).FullName;
 
         return res;
     }
 
     public static void SerializeDates()
     {
-        var file = "dates.json";
-        if (!File.Exists(file))
-
-        {
-            var scheduleData = F1WebScraper.GetScheduleData();
-            JsonSerializer serializer = new JsonSerializer();
-            using (StreamWriter sw = new StreamWriter(file))
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                serializer.Serialize(writer, scheduleData);
-            }
-        }
+        const string file = "dates.json";
+        if (File.Exists(file)) return;
+        var scheduleData = F1WebScraper.GetScheduleData();
+        var serializer = new JsonSerializer();
+        using var sw = new StreamWriter(file);
+        using var writer = new JsonTextWriter(sw);
+        serializer.Serialize(writer, scheduleData);
     }
 
     public static F1Schedule? DeserializeDates()
     {
-        var file = "dates.json";
+        const string file = "dates.json";
         var f1Schedule = JsonConvert.DeserializeObject<F1Schedule>(File.ReadAllText(file));
 
         return f1Schedule;
@@ -191,20 +195,26 @@ public static class AppSetup
     public static string GetCurrentRaceLocation()
     {
         var f1Schedule = DeserializeDates();
-        var listOfDates = f1Schedule.Races
-            .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime).ToList();
+        if (f1Schedule != null)
+        {
+            var listOfDates = f1Schedule.Races
+                .Select(x => x.F1Events.First(f1Event => f1Event.EventName == "Qualifying").EventDateAndTime).ToList();
 
-        var closest = GetNextDateTime(listOfDates);
-        var closestRaceName = f1Schedule.Races.Where(x => x.F1Events.Where(x => x.EventDateAndTime == closest).Any())
-            .First().RaceName;
-        return closestRaceName;
+            var closest = GetNextDateTime(listOfDates);
+            var closestRaceName = f1Schedule.Races
+                .First(x => x.F1Events.Any(f1Event => f1Event.EventDateAndTime == closest)).RaceName;
+            return closestRaceName;
+        }
+
+        return "";
     }
+
     public static List<int> CalculateCumulativeSum(IEnumerable<int> numbers)
     {
-        List<int> cumulativeSumList = new List<int>();
-        int sum = 0;
+        var cumulativeSumList = new List<int>();
+        var sum = 0;
 
-        foreach (int num in numbers)
+        foreach (var num in numbers)
         {
             sum += num;
             cumulativeSumList.Add(sum);
@@ -215,55 +225,68 @@ public static class AppSetup
 
     public static void LockPreviousRaces()
     {
-        
-        var listOfLocations = DeserializeDates().Races.Select(x => x.RaceName).ToList();
-        var times = AppSetup.DeserializeDates().Races
-            .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").Select(x => x.EventDateAndTime).ToList())
+        var listOfLocations = DeserializeDates()?.Races.Select(x => x.RaceName).ToList();
+        var times = AppSetup.DeserializeDates()
+            ?.Races
+            .Select(raceSchedule => raceSchedule.F1Events.Where(f1Event => f1Event.EventName == "Qualifying")
+                .Select(f1Event => f1Event.EventDateAndTime).ToList())
             .ToList().SelectMany(x => x);
+        if (times == null) return;
         var racesPassed = GetNumberOfPassedDates(times.ToList());
+        if (listOfLocations == null) return;
         foreach (var location in listOfLocations.Take(racesPassed))
         {
             var shotsRepo = new ShotsRepository(new ShotsContext(), new LoggingService());
             shotsRepo.LockRace(DateTime.Now.Year, location);
         }
     }
-    
-    public static int GetNumberOfPassedDates(List<DateTime> dateTimes)
+
+    private static int GetNumberOfPassedDates(IEnumerable<DateTime> dateTimes)
     {
-        DateTime now = DateTime.Now;
+        var now = DateTime.Now;
         return dateTimes.Count(dt => dt < now);
     }
 
-    public static RaceSchedule GetCurrentRaceSchedule()
+    public static RaceSchedule? GetCurrentRaceSchedule()
     {
         var f1Schedule = DeserializeDates();
-        var listOfDates = f1Schedule.Races
-            .Select(x => x.F1Events.First(x => x.EventName == "Qualifying").EventDateAndTime).ToList();
+        var listOfDates = f1Schedule?.Races
+            .Select(x => x.F1Events.First(f1Event => f1Event.EventName == "Qualifying").EventDateAndTime).ToList();
 
-        var closestDate = GetNextDateTime(listOfDates);
-        var closestRace = f1Schedule.Races
-            .First(x => x.F1Events.Any(x => x.EventDateAndTime == closestDate));
-        return closestRace;
+        if (listOfDates == null) return null;
+        {
+            var closestDate = GetNextDateTime(listOfDates);
+            var closestRace = f1Schedule?.Races
+                .First(raceSchedule => raceSchedule.F1Events.Any(f1Event => f1Event.EventDateAndTime == closestDate));
+            return closestRace;
+        }
     }
-    public static RaceSchedule GetRaceScheduleBy(string raceName)
+
+    public static RaceSchedule? GetRaceScheduleBy(string raceName)
     {
         var f1Schedule = DeserializeDates();
-        var listOfDates = f1Schedule.Races
-            .Where(raceSchedule => raceSchedule.RaceName == raceName).Select(x => x.F1Events.First(x => x.EventName == "Qualifying").EventDateAndTime).ToList();
+        var listOfDates = f1Schedule?.Races
+            .Where(raceSchedule => raceSchedule.RaceName == raceName).Select(raceSchedule =>
+                raceSchedule.F1Events.First(f1Event => f1Event.EventName == "Qualifying").EventDateAndTime).ToList();
 
-        var closestDate = GetNextDateTime(listOfDates);
-        
-        var closestRace = f1Schedule.Races
-            .First(raceSchedule => raceSchedule.F1Events.Any(f1Event => f1Event.EventDateAndTime == closestDate));
-        return closestRace;
+        if (listOfDates == null || listOfDates.Count == 0) return null;
+        {
+            var closestDate = GetNextDateTime(listOfDates);
+
+            var closestRace = f1Schedule?.Races
+                .First(raceSchedule => raceSchedule.F1Events.Any(f1Event => f1Event.EventDateAndTime == closestDate));
+            return closestRace;
+        }
     }
 
     public static async Task ScheduleTasks()
     {
         var taskTimes = new List<DateTime>();
-        taskTimes.AddRange(AppSetup.DeserializeDates().Races
-            .Select(x => x.F1Events.Where(x => x.EventName == "Qualifying").Select(x => x.EventDateAndTime).ToList())
-            .ToList().SelectMany(x => x));
+        taskTimes.AddRange(AppSetup.DeserializeDates()
+            ?.Races
+            .Select(raceSchedule => raceSchedule.F1Events.Where(f1Event => f1Event.EventName == "Qualifying")
+                .Select(f1Event => f1Event.EventDateAndTime).ToList())
+            .ToList().SelectMany(dateTimes => dateTimes) ?? Array.Empty<DateTime>());
 
         var currentRaceLocation = AppSetup.GetCurrentRaceLocation();
         var currentYear = DateTime.Now.Year;
@@ -277,12 +300,12 @@ public static class AppSetup
         });
     }
 
-    public static async Task ScheduleTasksAtSpecifiedTimes(List<DateTime> times, Func<Task> taskFunc)
+    private static Task ScheduleTasksAtSpecifiedTimes(List<DateTime> times, Func<Task> taskFunc)
     {
         var nextTaskTime = times.OrderBy(t => t).FirstOrDefault(t => t > DateTime.Now);
         if (nextTaskTime == default)
         {
-            return;
+            return Task.CompletedTask;
         }
 
         // Calculate the delay until the next task time
@@ -291,7 +314,7 @@ public static class AppSetup
         timer.AutoReset = false;
 
         // Schedule the next task
-        timer.Elapsed += async (sender, e) =>
+        timer.Elapsed += async (_, _) =>
         {
             await taskFunc();
 
@@ -300,14 +323,20 @@ public static class AppSetup
         };
 
         timer.Start();
+        return Task.CompletedTask;
     }
 
-    public static DateTime GetNextDateTime(List<DateTime> dateTimes)
+    private static DateTime GetNextDateTime(IReadOnlyCollection<DateTime> dateTimes)
     {
-        DateTime now = DateTime.Now;
+        var now = DateTime.Now;
         var closest = dateTimes.OrderBy(dt => dt).FirstOrDefault(dt => dt > now);
+
         if (closest == DateTime.MinValue)
         {
+            if (dateTimes.Count == 0)
+            {
+                return DateTime.Now;
+            }
             closest = dateTimes.First();
         }
         return closest;
@@ -316,9 +345,11 @@ public static class AppSetup
     public static UserShots SetupShotsForNewUser(string ownerId, string fullName)
     {
         //TODO: also adds for year 2022 to fix
-        var userShots = new UserShots();
-        userShots.OwnerId = ownerId;
-        userShots.Race = new List<Race>();
+        var userShots = new UserShots
+        {
+            OwnerId = ownerId,
+            Race = new List<Race>()
+        };
         userShots.Race.AddRange(SeedForNewSeason());
         userShots.UserName = fullName;
         return userShots;
