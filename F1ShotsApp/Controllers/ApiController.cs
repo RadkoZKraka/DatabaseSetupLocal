@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DatabaseSetupLocal.Controllers
 {
@@ -23,6 +24,7 @@ namespace DatabaseSetupLocal.Controllers
 
         // GET: api/Api
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<UserShots>>> GetUserShotsModel()
         {
             return await _context.UserShotsModel.ToListAsync();

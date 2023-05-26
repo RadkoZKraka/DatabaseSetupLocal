@@ -254,7 +254,7 @@ public static class F1WebScraper
         f1Schedule.Year = 2023;
         var raceScheduleList = new List<RaceSchedule>();
 
-        for (int i = 0; i < 23; i++)
+        for (int i = 0; i < resultRaces.Count; i++)
         {
             var raceSchedule = new RaceSchedule();
             var eventList = new List<F1Event>();

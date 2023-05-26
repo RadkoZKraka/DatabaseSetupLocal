@@ -48,15 +48,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in ViewBag.UsersList)
-                        {
-                            <tr>
-                                <td>@item.FirstName</td>
-                                <td>@item.LastName</td>
-                                <td><p id="myLink">@item.Id</p></td>
-                                <td><button type="button" onclick="copyToClipboard()" class="btn btn-primary">Copy</button></td>
-                            </tr>
-                        }
+                    @foreach (var item in ViewBag.UsersList)
+                    {
+                        <tr>
+                            <td>@item.FirstName</td>
+                            <td>@item.LastName</td>
+                            <td><p id="myLink">@item.Id</p></td>
+                            <td><button type="button" onclick="copyToClipboard(this)" class="btn btn-primary">Copy</button></td>
+                        </tr>
+                    }
                     </tbody>
                 </table>
                 <div class="form-group">
@@ -70,13 +70,33 @@
 }
 
 <script>
-    function copyToClipboard() {
-        let linkText = document.getElementById("myLink").innerText;
-        let tempInput = document.createElement("input");
-        tempInput.value = linkText;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
+    function copyToClipboard(button) {
+      // Get the parent row of the button
+      var row = button.parentNode.parentNode;
+      
+      // Find the <p> element within the row that contains the data to copy
+      var userIdElement = row.querySelector("#myLink");
+      
+      // Get the text content of the <p> element
+      var userId = userIdElement.textContent;
+      
+      // Create a temporary input element
+      var tempInput = document.createElement("input");
+      
+      // Set the value of the input element to the ID
+      tempInput.value = userId;
+      
+      // Append the input element to the document body
+      document.body.appendChild(tempInput);
+      
+      // Select the contents of the input element
+      tempInput.select();
+      
+      // Copy the selected data to the clipboard
+      document.execCommand("copy");
+      
+      // Remove the temporary input element from the document body
+      document.body.removeChild(tempInput);
     }
+
 </script>

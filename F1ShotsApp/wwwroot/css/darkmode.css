@@ -121,6 +121,11 @@
         border-color: #0062cc !important;
     }
 
+
+    .register-form {
+        background-color: #292929 !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
     .form-control {
         background-color: #292929 !important;
         color: #ffffff !important;
