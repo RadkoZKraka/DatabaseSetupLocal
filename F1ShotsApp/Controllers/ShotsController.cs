@@ -84,7 +84,7 @@ public class ShotsController : Controller
         ViewBag.Year = ShotsRepository.GetRaceYearById(raceId);
 
         var ownerId = User.Identity.GetUserId();
-        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId && ownerId != null && ShotsRepository.GetUserById(userId).OwnerId != null;
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId && ownerId != null ;
         ViewBag.IsAdmin = ownerId != null && UserRepository.GetIfUserIsAdminById(ownerId);
 
         var race = ShotsRepository.GetRaceById(raceId);
@@ -368,7 +368,7 @@ public class ShotsController : Controller
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(ownerId);
 
 
-        return RedirectToAction("Shots", new {raceId = race.Id, raceLocation = race.RaceLocation});
+        return RedirectToAction("Shots", new {userId, raceId = race.Id, raceLocation = race.RaceLocation});
     }
 
     public ActionResult LiveTiming()

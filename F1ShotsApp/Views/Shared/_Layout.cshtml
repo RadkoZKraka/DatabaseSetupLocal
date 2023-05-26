@@ -17,7 +17,9 @@
 <head>
     <link href="~/css/darkmode.css" rel="stylesheet"/>
     <link href="~/css/lightmode.css" rel="stylesheet"/>
+    <link href="~/css/mobile.css" rel="stylesheet"/>
 
+    
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - F1Shots</title>
@@ -27,64 +29,60 @@
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light  border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">F1Shots™</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-flex justify-content-between">
-                <ul class="navbar-nav navbar-center">
-                    <!-- Apply the CSS class here -->
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">F1Shots™</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse d-sm-flex justify-content-between">
+            <ul class="navbar-nav navbar-center">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Index">Users List</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Results">Results</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Schedule">Schedule</a>
+                </li>
+                @if (UserRepository.GetIfUserIsAdminById(IdentityExtensions.GetUserId(User.Identity)))
+                {
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Index">Users List</a>
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Live Timing</a>
                     </li>
+                }
+                @if (UserRepository.GetIfUserIsAdminById(IdentityExtensions.GetUserId(User.Identity)))
+                {
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Results">Results</a>
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin Panel</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="Schedule">Schedule</a>
-                    </li>
-                    @if (UserRepository.GetIfUserIsAdminById(IdentityExtensions.GetUserId(User.Identity)))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Shots" asp-action="LiveTiming">Live Timing</a>
-                        </li>
-                    }
-                    @if (UserRepository.GetIfUserIsAdminById(IdentityExtensions.GetUserId(User.Identity)))
-                    {
-                        <li class="nav-item ">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin Panel</a>
-                        </li>
-                    }
+                }
 
-                    <li>
+                <li>
+                    <partial name="UsersNavigationPartial"/>
+                </li>
+            </ul>
 
-                        <partial name="UsersNavigationPartial"/>
-
-                    </li>
-                </ul>
-
-                <div style="float: right">
-                    
-                    <partial name="_LoginPartial"/>
-                </div>
+            <div style="float: right">
+                <partial name="_LoginPartial"/>
             </div>
         </div>
-    </nav>
-</header>
+    </div>
+</nav></header>
 
 <style>
 
-footer {
-        position: fixed;
-        left: 0;
+body {
+        position: relative;
+        min-height: 100vh;
+    }
+
+    .footer {
+        position: absolute;
         bottom: 0;
         width: 100%;
-        text-align: center;
-        font-size: 12px;
-        padding: 4px 0;
     }
     .dropdown-submenu {
       position: relative;
@@ -128,11 +126,12 @@ footer {
     </main>
 </div>
 <br/>
-<footer class="border-top footer text-muted" style="bottom: 0">
-    <div class="container">
-        &copy; 2023 - F1Shots™ - Radosław Krowicki - DarkModeUpdate - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+<footer class="border-top footer">
+    <div class="container text-center">
+        <p style="font-size: xx-small" class="mb-0">&copy; 2023 - F1Shots™ - Radosław Krowicki - DarkModeUpdate - <a href="#">Privacy</a></p>
     </div>
 </footer>
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

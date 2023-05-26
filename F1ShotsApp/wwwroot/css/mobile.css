@@ -1,0 +1,14 @@
+@media (max-width: 576px) {
+    /* Apply your conditional styling for mobile devices here */
+    .navbar-nav.navbar-center {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .navbar-nav.navbar-center .nav-item {
+        margin-bottom: 10px;
+    }
+    .navbar-brand.logo {
+        margin-right: auto;
+    }
+}
