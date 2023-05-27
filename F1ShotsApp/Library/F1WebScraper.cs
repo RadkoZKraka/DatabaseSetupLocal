@@ -276,7 +276,7 @@ public static class F1WebScraper
         return f1Schedule;
     }
 
-    public static List<string> GetLiveData()
+    public static async Task<List<String>> GetLiveDataAsync()
     {
         var url = $"https://live.planetf1.com/liverace";
         HtmlWeb web = new HtmlWeb();

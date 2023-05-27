@@ -371,10 +371,31 @@ public class ShotsController : Controller
         return RedirectToAction("Shots", new {userId, raceId = race.Id, raceLocation = race.RaceLocation});
     }
 
+    public ActionResult CurrentRaceById(string userId)
+    {
+        var ownerId = User.Identity.GetUserId();
+        var userShot = ShotsRepository.GetUserByOwnerId(ownerId);
+
+        ViewBag.User = ShotsRepository.GetUserByOwnerId(ownerId);
+        ViewBag.UserId = userShot.Id;
+        ViewBag.RaceId = ShotsRepository.GetRaceIdByRaceLoc(userShot.Id, AppSetup.GetCurrentRaceLocation()) ?? 0;
+        ViewBag.Location = AppSetup.GetCurrentRaceLocation();
+
+        var race = ShotsRepository.GetCurrentRace(ownerId);
+        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == ownerId;
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(ownerId);
+
+
+        return RedirectToAction("Shots", new {userId, raceId = race.Id, raceLocation = race.RaceLocation});
+
+    }
+
     public ActionResult LiveTiming()
     {
         var userIdentityId = User.Identity.GetUserId();
         var userShot = ShotsRepository.GetUserByOwnerId(userIdentityId);
+        var raceYear = DateTime.Now.Year;
+        var raceNo = ShotsRepository.GetCurrentRaceNo();
 
         ViewBag.User = ShotsRepository.GetUserByOwnerId(userIdentityId);
         ViewBag.UserId = userShot.Id;
@@ -382,17 +403,19 @@ public class ShotsController : Controller
         ViewBag.Location = AppSetup.GetCurrentRaceLocation();
         ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
 
+        ViewBag.IsAdmin = UserRepository.GetIfUserIsAdminById(userIdentityId);
+        var userShots = ShotsRepository.GetUsers();
 
-        var userId = ShotsRepository.GetUserIdByOwnerId(userIdentityId);
-        ViewBag.HasAccessToEdit = ShotsRepository.GetUserById(userId).OwnerId == userIdentityId;
-        var shots = ShotsRepository.GetUserShotsByUserIdAndRaceLoc(userId, AppSetup.GetCurrentRaceLocation());
-        return shots == null ? HttpNotFound() : View(shots);
+        return View((userShots.ToList(), raceYear, raceNo));
     }
 
     [HttpGet]
-    public JsonResult GetLiveTiming()
+    public async Task<JsonResult> GetLiveTiming()
     {
-        var res = F1WebScraper.GetLiveData();
+        var res = await F1WebScraper.GetLiveDataAsync();
+        Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        Response.Headers["Pragma"] = "no-cache";
+        Response.Headers["Expires"] = "0";
         var model = new JsonResponseViewModel
         {
             ResponseCode = 0,

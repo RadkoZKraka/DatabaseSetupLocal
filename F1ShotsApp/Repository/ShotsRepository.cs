@@ -1,4 +1,5 @@
-﻿using DatabaseSetupLocal.Data;
+﻿using System.Text.RegularExpressions;
+using DatabaseSetupLocal.Data;
 using DatabaseSetupLocal.Exceptions;
 using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Models;
@@ -146,7 +147,7 @@ public class ShotsRepository : IShotRepository
         var results = F1WebScraper.GetRaceResults(race.RaceYear, race.RaceNo);
         var polePosition = F1WebScraper.GetPoleSitter(race.RaceYear, race.RaceNo);
         var fastestLap = F1WebScraper.GetFastestLap(race.RaceYear, race.RaceNo);
-        var usersShots = race.Shot.Select(x => x.UsersShotDriver).ToList();
+        var usersShots = race.Shot.Select(x => ExtractLetters(x.UsersShotDriver)).ToList();
         var fullNameResult = AppSetup.AbrListToFullName(results, race.RaceYear);
         for (int i = 0; i < usersShots.Count; i++)
         {
@@ -184,6 +185,14 @@ public class ShotsRepository : IShotRepository
 
 
         UpdateRace(race , "System");
+    }
+    public static string ExtractLetters(string input)
+    {
+        // Use a regular expression pattern to match only letters (A-Z and a-z)
+        string pattern = "[^a-zA-Z]";
+        string result = Regex.Replace(input, pattern, "");
+
+        return result;
     }
 
     public List<int> CalculateUsersPoints(List<string> listA, List<string> listB)

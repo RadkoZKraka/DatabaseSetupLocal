@@ -1,42 +1,198 @@
-﻿@using Microsoft.AspNet.Identity
-@model List<Shot>
+﻿@using DatabaseSetupLocal.Library
+@using Microsoft.AspNet.Identity
+@model (List<UserShots> userShotsList, int raceYear, int raceNo)
+
 @{
-    ViewBag.Title = "Live Timing";
+    ViewBag.Title = $"Live Timing- {Model.raceYear} - {Model.raceNo}";
     Layout = "_Layout";
     var userId = IdentityExtensions.GetUserId(User.Identity);
-
 }
 
-<script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                datasets: [{
-                    label: 'My Dataset',
-                    data: [12, 19, 3, 5, 2, 3, 7],
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
+<h2>Live Timing</h2>
+<h2>@Model.Item1.First().Race.Where(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3).First().RaceLocation</h2>
+<h2>@Model.Item2</h2>
+
+<div class="row">
+    <div class="col-sm-1">
+        <h4 style="padding-top: 19px"> &nbsp;&nbsp;&nbsp;&nbsp;</h4>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    <h5>Position:</h5>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            @for (var i = 1; i - 1 < 20; i++)
+            {
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                </tr>
             }
-        });
-</script>
-@{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+
+            </tbody>
+        </table>
+    </div>
+
+    @foreach (var user in Model.Item1)
+    {
+        if (user.Hidden || user.Banned)
+        {
+            continue;
+        }
+        <div class="col-sm-1">
+            <h4>@user.UserName</h4>
+            <div id="table-container">
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        <h5>Shot:</h5>
+                                    </th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @{
+                                    var race = user.Race.FirstOrDefault(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3);
+                                    var shots = race?.Shot;
+                                }
+
+                                @for (var i = 0; i < shots.Count; i++)
+                                {
+                                    var shot = shots[i];
+                                    <tr data-row-index="@i">
+                                        <td>@(string.IsNullOrEmpty(shot.UsersShotDriver) ? "---" : Html.DisplayFor(modelItem => shot.UsersShotDriver))</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+
+            </div>
+            <div>
+                @if (race.RaceYear == 2022)
+                {
+                    <h5>Random:</h5>
+                    @Html.DisplayFor(modelItem => race.Rand)
+                }
+                <h5>Pole position:</h5>
+                @Html.DisplayFor(modelItem => race.PolePosition)
+                @Html.DisplayFor(modelItem => race.PolePositionPoints)
+                @if (race.RaceYear == 2023)
+                {
+                    <h5>Fastest lap:</h5>
+                    @Html.DisplayFor(modelItem => race.FastestLap)
+                    @Html.DisplayFor(modelItem => race.FastestLapPoints)
+                }
+            </div>
+
+            <h4>
+                Final Points:
+                @{
+                    var sum = race.Shot.Select(x => x.Points).Sum() + race.FastestLapPoints + race.PolePositionPoints;
+                    race.Points = sum;
+                }
+                @Html.DisplayFor(modelItem => sum)
+            </h4>
+        </div>
+    }
+    <div class="col-sm-1">
+        <h4 style="padding-top: 19px"> &nbsp;&nbsp;&nbsp;&nbsp;</h4>
+
+
+<table id="liveTable" class="table">
+    <thead>
+        <tr>
+            <th>
+                <h5>Results:</h5>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (var i = 0; i < 20; i++)
+        {
+            <tr>
+                <td id="resultCell_@i"></td>
+            </tr>
+        }
+    </tbody>
+</table>    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        updateTable(); // Initial call to populate the table
+        setInterval(function () {
+            
+            updateTable();
+            updateTableCellBackgroundColors(); // Update cell background colors after updating the table
+        }, 1000);
+    });
+
+function updateTableCellBackgroundColors() {
+    var tableRows = document.querySelectorAll('#table-container table tbody tr');
+
+    tableRows.forEach(function(row, rowIndex) {
+        var index = row.getAttribute('data-row-index'); // Get the index of the row
+        var pointsCell = row.querySelector('td:nth-child(1)'); // Assuming the points cell is the first cell in each row
+        var result = $("#resultCell_" + index).text().trim(); // Get the result for the corresponding row from the results table
+
+        var prevIndex = index - 1;
+        var nextIndex = index;
+        nextIndex++;
+        var prevResultCell = $("#resultCell_" + prevIndex).text().trim();
+        var nextResultCell = $("#resultCell_" + nextIndex).text().trim();
+        var shot = pointsCell.textContent.trim();
+
+        if (shot === result) {
+            row.style.backgroundColor = 'green';
+        } else if (
+            (shot === prevResultCell)
+        ) {
+            row.style.backgroundColor = 'orange';
+        }else if (
+            (shot === nextResultCell)
+        ) {
+            row.style.backgroundColor = 'orange';
+        } 
+        else {
+            row.style.backgroundColor = ''; // Reset to default background color if needed
+        }
+    });
 }
 
-<h2>LiveTiming</h2>
 
-<canvas id="myChart" width="400" height="400"></canvas>
+
+function updateTable() {
+    $.ajax({
+        url: '/Shots/GetLiveTiming', // Replace with the actual URL to your server-side endpoint
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            var results = JSON.parse(data.responseMessage);
+            for (var i = 0; i < 20; i++) {
+                var result = results[i] || "Empty";
+                if (result === "Alex Albon") {
+                    result = "Alexander Albon";
+                }
+                if (result === "Nyck de Vries") {
+                    result = "Nyck De Vries";               
+                }
+
+                if (result === "Guanyu Zhou"){
+                    result = "Zhou Guanyu";}
+                $("#resultCell_" + i).text(result);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+}
+
+</script>

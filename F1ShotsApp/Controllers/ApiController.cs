@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DatabaseSetupLocal.Areas.Identity.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DatabaseSetupLocal.Data;
+using DatabaseSetupLocal.Library;
 using DatabaseSetupLocal.Models;
 using Microsoft.AspNetCore.Authorization;
 
@@ -29,6 +31,13 @@ namespace DatabaseSetupLocal.Controllers
         {
             return await _context.UserShotsModel.ToListAsync();
         }
+        // GET: api/getraceschedule
+        [HttpGet("getraceschedule")]
+        [AllowAnonymous]
+        public async Task<ActionResult<F1Schedule>> GetRaceSchedule()
+        {
+            return  await AppSetup.DeserializeDatesAsync();
+        }
 
         // GET: api/Api/5
         [HttpGet("{id}")]
@@ -38,6 +47,8 @@ namespace DatabaseSetupLocal.Controllers
             {
                 return NotFound();
             }
+
+            
 
             var userShots = await _context.UserShotsModel.FindAsync(id);
 

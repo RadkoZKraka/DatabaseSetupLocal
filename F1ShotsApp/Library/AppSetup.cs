@@ -191,6 +191,13 @@ public static class AppSetup
 
         return f1Schedule;
     }
+    public static async Task<F1Schedule?> DeserializeDatesAsync()
+    {
+        const string file = "dates.json";
+        var f1Schedule = JsonConvert.DeserializeObject<F1Schedule>(File.ReadAllText(file));
+
+        return f1Schedule;
+    }
 
     public static string GetCurrentRaceLocation()
     {
@@ -208,7 +215,6 @@ public static class AppSetup
 
         return "";
     }
-
     public static List<int> CalculateCumulativeSum(IEnumerable<int> numbers)
     {
         var cumulativeSumList = new List<int>();

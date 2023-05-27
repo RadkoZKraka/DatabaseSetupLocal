@@ -66,6 +66,9 @@ height: 60%;
                         @user.UserName<span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
+                            <a href="@Url.Action("CurrentRaceById", "Shots", new {userId = user.Id})" class="dropdown-item">Current Race</a>
+                        
+
                         @foreach (var race in user.Race.Where(x => x.RaceYear == DateTime.Now.Year))
                         {
                             <a href="@Url.Action("Shots", "Shots", new {userId = user.Id, raceId = race.Id, raceLocation = race.RaceLocation})" class="dropdown-item">@race.RaceLocation.Replace("Grand Prix", String.Empty)</a>
