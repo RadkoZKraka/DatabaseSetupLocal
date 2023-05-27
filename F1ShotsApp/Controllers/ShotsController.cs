@@ -429,4 +429,20 @@ public class ShotsController : Controller
     {
         throw new NotImplementedException();
     }
+
+    public IActionResult ChangeAbrToFullName(int raceId)
+    {
+        var ownerId = User.Identity.GetUserId();
+
+        var userId = ShotsRepository.GetUserIdByOwnerId(ownerId);
+        var race = ShotsRepository.GetRaceById(raceId);
+        foreach (var shot in race.Shot)
+        {
+            shot.UsersShotDriver = AppSetup.AbrOneDriverToFullName(shot.UsersShotDriver, race.RaceYear);
+            
+        }
+        ShotsRepository.UpdateRace(race, ownerId);
+        return RedirectToAction("Shots", new {userId, raceId = race.Id, raceLocation = race.RaceLocation});
+
+    }
 }

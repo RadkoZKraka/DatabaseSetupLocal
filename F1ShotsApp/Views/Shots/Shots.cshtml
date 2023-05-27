@@ -187,6 +187,10 @@
         {
             <a class="custom-btn custom-btn-primary" href="@Url.Action("GetRaceResults", new {raceId = ViewBag.RaceId, user = userId})">Get race results</a>
         }
+        @if (ViewBag.HasAccessToEdit || ViewBag.IsAdmin)
+                {
+                    <a class="custom-btn custom-btn-primary" href="@Url.Action("ChangeAbrToFullName", new {raceId = ViewBag.RaceId})">Change abr to full name</a>
+                }
         <div>
             @if (ViewBag.IsAdmin)
             {

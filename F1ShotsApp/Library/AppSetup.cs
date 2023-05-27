@@ -215,6 +215,7 @@ public static class AppSetup
 
         return "";
     }
+
     public static List<int> CalculateCumulativeSum(IEnumerable<int> numbers)
     {
         var cumulativeSumList = new List<int>();

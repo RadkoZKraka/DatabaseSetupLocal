@@ -8,13 +8,13 @@
 <div class="container">
     <div class="row">
         <div class="col-md-3">
-            @Html.ActionLink("Users Edit Panel", "Users", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px" })
+            @Html.ActionLink("Users Edit Panel", "Users", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
         </div>
         <div class="col-md-3">
             <p>Manage user accounts and settings</p>
         </div>
         <div class="col-md-3">
-            @Html.ActionLink("Delete your user", "DeleteUser", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px", onclick = "return confirm('Are you sure you want to delete your user account?');" })
+            @Html.ActionLink("Delete your user", "DeleteUser", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px", onclick = "return confirm('Are you sure you want to delete your user account?');"})
 
         </div>
         <div class="col-md-3">
@@ -23,13 +23,13 @@
     </div>
     <div class="row">
         <div class="col-md-3">
-            @Html.ActionLink("Count/Recount locked races", "CountPointsInLockedRaces", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px" })
+            @Html.ActionLink("Count/Recount locked races", "CountPointsInLockedRaces", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
         </div>
         <div class="col-md-3">
             <p>Count or recount points for locked races</p>
         </div>
         <div class="col-md-3">
-            @Html.ActionLink("Sum points for races", "SumPointsForRaces", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px" })
+            @Html.ActionLink("Sum points for races", "SumPointsForRaces", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
         </div>
         <div class="col-md-3">
             <p>Calculate and update total points for races</p>
@@ -37,13 +37,13 @@
     </div>
     <div class="row">
         <div class="col-md-3">
-            @Html.ActionLink("Lock previous races", "LockPreviousRaces", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px" })
+            @Html.ActionLink("Lock previous races", "LockPreviousRaces", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
         </div>
         <div class="col-md-3">
             <p>Lock previous races to prevent further changes</p>
         </div>
         <div class="col-md-3">
-            @Html.ActionLink("Lock previous year", "LockPreviousYear", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px" })
+            @Html.ActionLink("Lock previous year", "LockPreviousYear", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
         </div>
         <div class="col-md-3">
             <p>Lock the previous year's data</p>
@@ -51,16 +51,24 @@
     </div>
     <div class="row">
         <div class="col-md-3">
-            @Html.ActionLink("Lock current race", "LockCurrentRace", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px" })
+            @Html.ActionLink("Lock current race", "LockCurrentRace", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
         </div>
         <div class="col-md-3">
             <p>Lock the current race to prevent further changes</p>
         </div>
         <div class="col-md-3">
-            @Html.ActionLink("Change all abr to full names", "ChangeAllAbrToFullName", "Admin", null, new { @class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px" })
+            @Html.ActionLink("Change all abr to full names", "ChangeAllAbrToFullName", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
         </div>
         <div class="col-md-3">
             <p>Convert abbreviations to full names</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            @Html.ActionLink("Unlock current race", "UnlockCurrentRace", "Admin", null, new {@class = "btn btn-primary btn-lg btn-block", @style = "margin-bottom: 20px"})
+        </div>
+        <div class="col-md-3">
+            <p>Unlock the current race if kurwy jebane</p>
         </div>
     </div>
 </div>

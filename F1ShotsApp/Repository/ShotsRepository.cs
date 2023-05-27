@@ -53,6 +53,12 @@ public class ShotsRepository : IShotRepository
             .Where(x => x.RaceLocation == currentLocation).FirstOrDefault();
         return race;
     }
+    public string GetCurrentRaceLoc()
+    {
+        var currentLocation = AppSetup.GetCurrentRaceLocation();
+
+        return currentLocation;
+    }
     public int GetCurrentRaceNo()
     {
         var currentLocation = AppSetup.GetCurrentRaceLocation();
@@ -128,6 +134,15 @@ public class ShotsRepository : IShotRepository
         foreach (var race in races)
         {
             race.Locked = true;
+            UpdateRace(race, "System");
+        }
+    }
+    public void UnlockRace(int raceYear, string raceLoc)
+    {
+        var races = _shotsContext.RaceModel.Where(x => x.RaceLocation == raceLoc && x.RaceYear == raceYear).ToList();
+        foreach (var race in races)
+        {
+            race.Locked = false;
             UpdateRace(race, "System");
         }
     }

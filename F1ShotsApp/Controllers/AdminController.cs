@@ -70,6 +70,19 @@ public class AdminController : Controller
         return RedirectToAction("Index");
     }
 
+    public IActionResult UnlockCurrentRace()
+    {
+        var appUserId = User.Identity.GetUserId();
+        _logger.LogInformation("Current race have been locked by {AppUserId}", appUserId);
+        var usersRepository = new UserRepository(new UsersContext());
+        ViewBag.IsAdmin = usersRepository.GetIfUserIsAdminById(appUserId);
+        int raceYearToUnlock = DateTime.Now.Year;
+        var raceLoc = _shotRepository.GetCurrentRaceLoc();
+        _shotRepository.UnlockRace(raceYearToUnlock, raceLoc);
+
+        return RedirectToAction("Index");
+    }
+
     public IActionResult SumPointsForRaces()
     {
         var appUserId = User.Identity.GetUserId();
