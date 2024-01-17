@@ -15,5 +15,6 @@ public class AppUser : IdentityUser
     [PersonalData]
     public string ? LastName { get; set; }
     public bool Admin { get; set; }
+    public bool GroupAdmin { get; set; }
 }
 

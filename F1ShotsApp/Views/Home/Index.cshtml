@@ -38,37 +38,36 @@
 </div>
 
 @section scripts {
-    <script>
-        // Set the target date and time (replace with your own)
-        var date = "@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToUniversalTime().ToString("s")Z";
-        var targetDate = new Date(Date.parse(date));
-        
-        // Get the timer element
-        var timerElement = document.getElementById("countdown");
-        
-        // Update the timer element every second
-        setInterval(function() {
-            // Get the current date and time
-            var currentDate = new Date();
-            
-            // Calculate the time remaining
-            var timeRemaining = targetDate - currentDate;
-            
-            // Calculate the days, hours, minutes, and seconds remaining
-            var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-            
-            // Generate strings for days, hours, minutes, and seconds
-            var daysString = days === 1 ? "1 day" : days + " days";
-            var hoursString = hours === 1 ? "1 hour" : hours + " hours";
-            var minutesString = minutes === 1 ? "1 minute" : minutes + " minutes";
-            var secondsString = seconds === 1 ? "1 second" : seconds + " seconds";
-            
-            // Update the timer element with the remaining time
-            timerElement.innerHTML = daysString + ", " + hoursString + ", " + minutesString + ", " + secondsString;
-        }, 1000);
+<script>
+    // Define a function to update the countdown
+    function updateCountdown() {
+        var currentDate = new Date();
+        var timeRemaining = targetDate - currentDate;
 
-    </script>
+        var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        var daysString = days === 1 ? "1 day" : days + " days";
+        var hoursString = hours === 1 ? "1 hour" : hours + " hours";
+        var minutesString = minutes === 1 ? "1 minute" : minutes + " minutes";
+        var secondsString = seconds === 1 ? "1 second" : seconds + " seconds";
+
+        timerElement.innerHTML = daysString + ", " + hoursString + ", " + minutesString + ", " + secondsString;
+    }
+
+    // Set the target date and time (replace with your own)
+    var date = "@Model.F1Events.Where(x => x.EventName == "Qualifying").First().EventDateAndTime.ToUniversalTime().ToString("s")Z";
+    var targetDate = new Date(Date.parse(date));
+    
+    // Get the timer element
+    var timerElement = document.getElementById("countdown");
+
+    // Update the timer immediately
+    updateCountdown();
+
+    // Update the timer every second
+    setInterval(updateCountdown, 1000);
+</script>
 }

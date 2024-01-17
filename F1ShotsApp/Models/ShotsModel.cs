@@ -3,6 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DatabaseSetupLocal.Models;
 
+public class Group
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string Id { get; set; }
+    public string UserName { get; set; }
+    public List<UserShots> UserShotsList { get; set; }
+    public string? OwnerId { get; set; }
+
+
+}
+
 public class UserShots
 {
     [Key]
@@ -14,13 +26,11 @@ public class UserShots
     public List<Race> Race { get; set; }
     public bool Hidden { get; set; }
     public bool Banned { get; set; }
-
 }
 
 public class Race
 {
-    [Key] 
-    public int Id { get; set; }
+    [Key] public int Id { get; set; }
 
     public List<Shot> Shot { get; set; }
     public string? RaceLocation { get; set; }
@@ -38,11 +48,9 @@ public class Race
 
 public class Shot
 {
-    [Key] 
-    public int Id { get; set; }
+    [Key] public int Id { get; set; }
     public string? OwnerId { get; set; }
     public string? UsersShotDriver { get; set; }
     public string? ResultDriver { get; set; }
     public int Points { get; set; }
-    
 }

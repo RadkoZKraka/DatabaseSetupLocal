@@ -3,126 +3,67 @@
 @model (List<UserShots> userShotsList, int raceYear, int raceNo)
 
 @{
-    ViewBag.Title = $"Live Timing- {Model.raceYear} - {Model.raceNo}";
+    ViewBag.Title = $"Live Timing - {Model.Item2} - {Model.Item3}";
     Layout = "_Layout";
     var userId = IdentityExtensions.GetUserId(User.Identity);
+    int maxShots = Model.Item1.Max(u => u.Race.FirstOrDefault(r => r.RaceYear == Model.Item2 && r.RaceNo == Model.Item3)?.Shot.Count ?? 0);
+    int userCount = Model.Item1.Count(u => !u.Hidden && !u.Banned);
+    int userColumnWidth = 10 / userCount; // Reserving 2 units for 'Position' and 'Results'
 }
 
-<h2>Live Timing</h2>
-<h2>@Model.Item1.First().Race.Where(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3).First().RaceLocation</h2>
+<h2>@Model.Item1.First().Race.Where(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3).First().RaceLocation - Live Timing</h2>
 <h2>@Model.Item2</h2>
 
 <div class="row">
-    <div class="col-sm-1">
-        <h4 style="padding-top: 19px"> &nbsp;&nbsp;&nbsp;&nbsp;</h4>
-
+    <div class="col-md-1">
+        <h4>Position:</h4>
         <table class="table">
-            <thead>
-            <tr>
-                <th>
-                    <h5>Position:</h5>
-                </th>
-            </tr>
-            </thead>
             <tbody>
-
-            @for (var i = 1; i - 1 < 20; i++)
-            {
-                <tr>
-                    <td>
-                        @i
-                    </td>
-                </tr>
-            }
-
+                @for (var i = 1; i <= 20; i++)
+                {
+                    <tr><td>@i</td></tr>
+                }
             </tbody>
         </table>
     </div>
 
-    @foreach (var user in Model.Item1)
+    @foreach (var user in Model.Item1.Where(u => !u.Hidden && !u.Banned))
     {
-        if (user.Hidden || user.Banned)
-        {
-            continue;
-        }
-        <div class="col-sm-1">
+        <div class="col-md-@userColumnWidth">
             <h4>@user.UserName</h4>
-            <div id="table-container">
-                            <table class="table table-sm">
-                                <thead>
-                                <tr>
-                                    <th>
-                                        <h5>Shot:</h5>
-                                    </th>
-
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @{
-                                    var race = user.Race.FirstOrDefault(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3);
-                                    var shots = race?.Shot;
-                                }
-
-                                @for (var i = 0; i < shots.Count; i++)
-                                {
-                                    var shot = shots[i];
-                                    <tr data-row-index="@i">
-                                        <td>@(string.IsNullOrEmpty(shot.UsersShotDriver) ? "---" : Html.DisplayFor(modelItem => shot.UsersShotDriver))</td>
-                                    </tr>
-                                }
-                                </tbody>
-                            </table>
-
-            </div>
-            <div>
-                @if (race.RaceYear == 2022)
-                {
-                    <h5>Random:</h5>
-                    @Html.DisplayFor(modelItem => race.Rand)
-                }
-                <h5>Pole position:</h5>
-                @Html.DisplayFor(modelItem => race.PolePosition)
-                @Html.DisplayFor(modelItem => race.PolePositionPoints)
-                @if (race.RaceYear == 2023)
-                {
-                    <h5>Fastest lap:</h5>
-                    @Html.DisplayFor(modelItem => race.FastestLap)
-                    @Html.DisplayFor(modelItem => race.FastestLapPoints)
-                }
-            </div>
-
-            <h4>
-                Final Points:
-                @{
-                    var sum = race.Shot.Select(x => x.Points).Sum() + race.FastestLapPoints + race.PolePositionPoints;
-                    race.Points = sum;
-                }
-                @Html.DisplayFor(modelItem => sum)
-            </h4>
+            <table class="table table-sm">
+                <thead>
+                    <tr><th>Shot:</th></tr>
+                </thead>
+                <tbody>
+                    @{
+                        var race = user.Race.FirstOrDefault(x => x.RaceYear == Model.Item2 && x.RaceNo == Model.Item3);
+                        var shots = race?.Shot ?? new List<Shot>();
+                    }
+                    @for (var i = 0; i < maxShots; i++)
+                    {
+                        var shot = shots.ElementAtOrDefault(i);
+                        <tr><td>@(shot == null ? "---" : shot.UsersShotDriver)</td></tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
-    <div class="col-sm-1">
-        <h4 style="padding-top: 19px"> &nbsp;&nbsp;&nbsp;&nbsp;</h4>
 
-
-<table id="liveTable" class="table">
-    <thead>
-        <tr>
-            <th>
-                <h5>Results:</h5>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (var i = 0; i < 20; i++)
-        {
-            <tr>
-                <td id="resultCell_@i"></td>
-            </tr>
-        }
-    </tbody>
-</table>    </div>
+    <div class="col-md-1">
+        <h4>Results:</h4>
+        <table id="liveTable" class="table">
+            <tbody>
+                @for (var i = 0; i < 20; i++)
+                {
+                    <tr><td id="resultCell_@i"></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {

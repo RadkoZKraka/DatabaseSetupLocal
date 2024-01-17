@@ -3,13 +3,12 @@
     /* Dark Mode Styles */
     body {
         background-color: #1e1e1e !important;
-        color: #333 !important;
+        color: #555 !important;
     }
     .closest-event{
         background-color: #4a4545 !important;
 
     }
-
     .upcoming-event {
         background-color: #363232 !important;
     }

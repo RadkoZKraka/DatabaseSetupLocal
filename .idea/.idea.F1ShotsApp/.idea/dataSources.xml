@@ -14,7 +14,7 @@
       </libraries>
     </data-source>
     <data-source source="LOCAL" name="20230518_file" uuid="63e283fc-254d-4cbd-863b-fce2a4fdc807">
-      <driver-ref>sqlite.xerial</driver-ref>
+      <driver-ref>78f3fca2-ac52-49fd-81c8-e0812656fcb0</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/F1ShotsApp/backups/20230518_file.db</jdbc-url>
